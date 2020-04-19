@@ -69,14 +69,11 @@ nElem = size(headVolumeMesh.elem,1);
 nNode = size(headVolumeMesh.node,1);
 nWavs = length(wavelengths);
 
-if nNode>2e5 %HARD CODE NODE LIMIT AT 200,000
+if nNode>2e5 %HARD CODE NODE LIMIT AT 200,000 without basis.
     basisFlag = 1;
     basis = [50 50 50];
     fineBasis = basis.*2;
-else
-    basis = []; %No basis
 end
-   
 
 % Check for errors in mesh and correct if necessary
 % Correct negatives if they exist in tissue indices
@@ -165,8 +162,8 @@ for i = 1:nTissues
         refIndVec(j,tissueNodeList) = refInd;
         
         opticalPropertiesByTissue(i,j,1) = mua;
-        opticalPropertiesByTissue(i,j,2) = musPrime;
-        opticalPropertiesByTissue(i,j,3) = refInd;
+        opticalPropertiesByTissue(2,j,i) = musPrime;
+        opticalPropertiesByTissue(3,j,i) = refInd;
     end
 end
 
@@ -264,9 +261,9 @@ jacFileName = fullfile(pathstr,[name '_' ds '.jac']);
 logData(1,:) = {'Created on: ', ds};
 logData(2,:) = {'Derived from rmap file: ', rmapFileName};
 logData(3,:) = {'Calculated using: ', transportPackage};
-logData(4,:) = {'Optical properties (tissueInd, wavelength,[mua musPrime refInd]): ', opticalPropertiesByTissue};
+logData(4,:) = {'Mua values by tissue index: '};
 
-% Write .jac file ########################################################
+% Write .jace file ########################################################
 [jac, jacFileName] = DOTHUB_writeJAC(jacFileName,logData,J,Jgm,basis);
 
 

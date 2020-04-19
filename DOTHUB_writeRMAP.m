@@ -1,18 +1,57 @@
-function DOTHUB_LUMOwritermap(nirsFilename,HeadVolumeMesh_reg,GMSurfaceMesh_reg,ScalpSurfaceMesh_reg,vol2gm,srcPos,detPos)
+function [rmap, rmapFileName] = DOTHUB_writeRMAP(rmapFileName,logData,SD_3Dmesh,headVolumeMesh,gmSurfaceMesh,scalpSurfaceMesh,vol2gm)
 
-% This script creates a registered mesh and positions (.rmap) file, 
+% This script creates a registered mesh and positions (.rmap) file and associated struct 
 
 % ####################### INPUTS ##########################################
 
-% mapFilename   :   The full path of the .map data file from which the
-%                   pre-processing data was derived
+% rmapFileName      :  The desired path &/ filename for the .rmap file.
+%                      This can be anything, but we recommend this variable be defined with the
+%                      following code snippet, where: origMeshFullFileName = full path and name
+%                      of mesh being registered; SD_3DFullFileName = full path and name of 
+%                      SD_3D file that is the basis of the registration; and regMethod = 'Affine' 
+%                      or equivalent. This snippet also provides recommended input variable 'logData'. 
+
+                       %ds = datestr(now,'yyyymmDDHHMMSS');
+                       %[~, origMeshFileName, ~] = fileparts(origMeshFullFileName);
+                       %[SD_3DPath, SD_3DFileName, ~] = fileparts(SD_3DFullFileName);
+                       %rmapFileName = fullfile(SD_3DPath,[origMeshFileName '_Reg2_' SD_3DFileName '.rmap']);
+                       %logData(1,:) = {'Created on: ',ds};
+                       %logData(2,:) = {'Positions derived from: ', SD_3DFullFileName};
+                       %logData(3,:) = {'Meshes derived from: ', origMeshFullFileName};
+                       %logData(4,:) = {'Registration method: ', regMethod};
+
+% logData           :  (Optional). logData is a cell array of strings containing useful
+%                      info as per snippet above. Parse empty to ignore.
+
+% SD_3Dmesh         :  The SD structure containing registered 3D optode
+%                      positions
+
+% headVolumeMesh    :  The multi-layer volume mesh structure, registered
+%                      to the relevant individual. Contains fields:
+%                      node, face, elem.
+
+% gmSurfaceMesh     :  The gm surface mesh structure, registered
+%                      to the relevant individual. Contains fields:
+%                      node, face.
+
+% scalpSurfaceMesh  :  The scalp surface mesh structure, registered
+%                      to the relevant individual. Contains fields:
+%                      node, face.
+
+% vol2gm            :  The sparse matrix mapping from head volume mesh
+%                      space to GM surface mesh space
+
 
 % ####################### OUTPUTS #########################################
 
-% .jac file containing all
+% rmap              : A structure containing all fields for rmap
+
+% rmapFileName      : The full path of the resulting .rmap file
+
+% rmapFileName.rmap : The rmap file containing the contents of rmap
+%                     structure.
 
 % ####################### Dependencies ####################################
-
 % #########################################################################
 % RJC, UCL, April 2020
 %
@@ -21,36 +60,39 @@ function DOTHUB_LUMOwritermap(nirsFilename,HeadVolumeMesh_reg,GMSurfaceMesh_reg,
 
 % MANAGE VARIABLES
 % #########################################################################
-
-savelist = {'SD_3D','tDOD','dod','logdata'}; %These are required
-
-if exist('tHRF','var')
-    if ~isempty(tHRF)
-        savelist{end+1} = 'tHRF';
+% Check all optodes positions are on-mesh to allow save
+for i = 1:SD_3Dmesh.nSrcs
+    tmp = sum(headVolumeMesh(:,1) == SD_3Dmesh.SrcPos(i,1) & headVolumeMesh(:,2) == SD_3Dmesh.SrcPos(i,2) & headVolumeMesh(:,3) == SD_3Dmesh.SrcPos(i,3));
+    if tmp==0
+        error('Optodes found that are not on nodes of headVolumeMesh, please correct before saving rmap');
+    end
+end
+for i = 1:SD_3Dmesh.nDets
+    tmp = sum(headVolumeMesh(:,1) == SD_3Dmesh.DetPos(i,1) & headVolumeMesh(:,2) == SD_3Dmesh.DetPos(i,2) & headVolumeMesh(:,3) == SD_3Dmesh.DetPos(i,3));
+    if tmp==0
+        error('Optodes found that are not on nodes of headVolumeMesh, please correct before saving rmap');
     end
 end
 
-if exist('dcAvg','var')
-    if ~isempty(dcAvg)
-        savelist{end+1} = 'dcAvg';
-    end
+if isempty(logData)
+    warning('logData is empty: this might make it harder to keep track of your data...');
 end
 
-if exist('dcStd','var')
-    if ~isempty(dcStd)
-        savelist{end+1} = 'dcStd';
-    end
-end
-    
-%Create logdata ###########################################################
-ds = datestr(now,'yyyymmDDHHMMSS');
-logdata{1,1} = ['Created on: ' ds];
-logdata{2,1} = ['Derived from file: ' nirsFilename];
-logdata{3,1} = ['Pre-processed using: ' streamMname '.m'];
+%Create rmap struct #######################################################
+rmap = struct('headVolumeMesh',headVolumeMesh,'gmSurfaceMesh',gmSurfaceMesh,'scalpSurfaceMesh',scalpSurfaceMesh,...
+    'vol2gm',vol2gm,'SD_3Dmesh',SD_3Dmesh,'logData',logData);
 
-%Save .pre file ###########################################################
-[pathstr, name, ext] = fileparts(nirsFilename);
-outname = fullfile(pathstr,[name '_' ds '.pre']);
-save(outname,savelist{:});
-fprintf(['.pre data file saved as ' outname '\n']);
+%Create filename ##########################################################
+[pathstr, name, ext] = fileparts(rmapFileName);
+if isempty(ext) || ~strcmpi(ext,'.rmap')
+    ext = '.rmap';
+end
+if isempty(pathstr)
+    pathstr = pwd;
+end
+rmapFileName = fullfile(pathstr,[name ext]);
+
+%Save .rmap file ###########################################################
+save(rmapFileName,'-struct','rmap');
+fprintf(['.rmap data file saved as ' rmapFileName '\n']);
 
