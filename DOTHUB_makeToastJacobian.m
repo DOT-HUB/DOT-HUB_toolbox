@@ -1,4 +1,4 @@
-function [jac, jacFileName] = DOTHUB_makeToastJacobian(rmapFileName)
+function [jac, jacFileName] = DOTHUB_makeToastJacobian(rmapFileName,basis)
 
 %Calculates Jacobian using Toast++.
 
@@ -7,24 +7,28 @@ function [jac, jacFileName] = DOTHUB_makeToastJacobian(rmapFileName)
 
 % rmapFileName  : The full path to the rmap file containing variables:
 
-            % SD_3Dmesh          :   The SD structure containing registered 3D optode
-            %                        positions on the mesh, and (critically) SD.MeasList
+                    % SD_3Dmesh          :   The SD structure containing registered 3D optode
+                    %                        positions on the mesh, and (critically) SD.MeasList
 
-            % headVolumeMesh     :   The multi-layer volume mesh structure, registered
-            %                        to the relevant individual. Contains fields:
-            %                        node, face, elem, tissue_labels
+                    % headVolumeMesh     :   The multi-layer volume mesh structure, registered
+                    %                        to the relevant individual. Contains fields:
+                    %                        node, face, elem, tissue_labels
 
-            % gmSurfaceMesh      :   The gm surface mesh structure, registered
-            %                           to the relevant individual. Contains fields:
-            %                           node, face.
+                    % gmSurfaceMesh      :   The gm surface mesh structure, registered
+                    %                           to the relevant individual. Contains fields:
+                    %                           node, face.
 
-            % scalpSurfaceMesh   :   The scalp surface mesh structure, registered
-            %                           to the relevant individual. Contains fields:
-            %                           node, face.
+                    % scalpSurfaceMesh   :   The scalp surface mesh structure, registered
+                    %                           to the relevant individual. Contains fields:
+                    %                           node, face.
 
-            % vol2gm                :   The sparse matrix mapping from head volume mesh
-            %                           space to GM surface mesh space
+                    % vol2gm                :   The sparse matrix mapping from head volume mesh
+                    %                           space to GM surface mesh space
 
+% basis        :   (Optiona) 1x3 vector specifying basis dimensions if desired. 
+%                  A basis of [50 50 50] is aassigned by default if
+%                  nnodes>200k.
+            
 % OUTPUTS #################################################################
 
 % jac                      :  Structure containing all data inputs
@@ -39,8 +43,22 @@ function [jac, jacFileName] = DOTHUB_makeToastJacobian(rmapFileName)
 % EVR, UCL, Modified on June 2019
 % RJC, UCL, Modified for Github first commit
 % #########################################################################
+
+% MANAGE VARIABLES
 % #########################################################################
 
+if ~exist(basis,'var')
+    if nNode>2e5 %HARD CODE NODE LIMIT AT 200,000
+        basisFlag = 1;
+        basis = [50 50 50];
+        fineBasis = basis.*2;
+    else
+        basis = []; %No basis
+    end
+elseif basis==0
+    basis = [];
+end
+   
 %testFlag==1 to run initial single-channel calculation test before running full
 %calculation. This is useful because the test should only take a few
 %minutes, so if it hangs for longer, you can be certain there is a problem,
@@ -68,15 +86,6 @@ wavelengths = SD_3Dmesh.Lambda;
 nElem = size(headVolumeMesh.elem,1);
 nNode = size(headVolumeMesh.node,1);
 nWavs = length(wavelengths);
-
-if nNode>2e5 %HARD CODE NODE LIMIT AT 200,000
-    basisFlag = 1;
-    basis = [50 50 50];
-    fineBasis = basis.*2;
-else
-    basis = []; %No basis
-end
-   
 
 % Check for errors in mesh and correct if necessary
 % Correct negatives if they exist in tissue indices

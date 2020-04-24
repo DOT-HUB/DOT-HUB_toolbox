@@ -20,7 +20,6 @@ function [jac, jacFileName] = DOTHUB_writeJAC(jacFileName,logData,J,Jgm,basis)
                         % logData(3,:) = {'Calculated using: ', transportPackage};
                         % logData(4,:) = {'Optical properties (tissueInd, wavelength,[mua musPrime refInd]): ', opticalPropertiesByTissue};
 
-
 % logData           :  (Optional). logData is a cell array of strings containing useful
 %                      info as per snippet above. Parse empty to ignore.
                         
@@ -79,6 +78,8 @@ if isempty(pathstr)
     pathstr = pwd;
 end
 jacFileName = fullfile(pathstr,[name ext]);
+jac.fileName = jacFileName; %including the fileName within the structure is very useful 
+%for tracking and naming things derived further downstream.
 
 %Save .jac file ###########################################################
 save(jacFileName,'-struct','jac');

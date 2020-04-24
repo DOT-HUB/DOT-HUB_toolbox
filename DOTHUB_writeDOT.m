@@ -1,18 +1,53 @@
-function DOTHUB_LUMOwritermap(nirsFilename,HeadVolumeMesh_reg,GMSurfaceMesh_reg,ScalpSurfaceMesh_reg,vol2gm,srcPos,detPos)
+function [dot, dotFileName] = DOTHUB_writeDOT(dotFileName,logData,hbo,hbr,mua,timebase,saveFlag)
 
-% This script creates a registered mesh and positions (.rmap) file, 
+% This script creates a DOT images file (.dot)
 
 % ####################### INPUTS ##########################################
 
-% mapFilename   :   The full path of the .map data file from which the
-%                   pre-processing data was derived
+% dotFileName       :  The desired path &/ filename for the .dot file.
+%                      This can be anything, but we recommend this variable be defined with the
+%                      following code snippet.
+                        
+%                       [pathstr, name, ~] = fileparts(prepro.fileName);
+%                       ds = datestr(now,'yyyymmDDHHMMSS');
+%                       dotFileName = fullfile(pathstr,[name '_' ds '.dot']);
+%                       logData(1,:) = {'Created on: ', ds};
+%                       logData(2,:) = {'Associated prepro file: ', prepro.fileName};
+%                       logData(3,:) = {'Associated invjac file: ', invjac.fileName};
+%                       logData(4,:) = {'reconMethod: ', varInputs.reconMethod};
+%                       logData(5,:) = {'regMethod: ', varInputs.regMethod};
+%                       logData(6,:) = {'hyperParameter: ', varInputs.regMethod};
+
+% logData           :  logData is a cell array of strings containing useful
+%                      info as per snippet above. Parse empty to ignore.
+ 
+% hbo               :  Structure containing hbo images (.vol, .gm), of
+%                      dimensions nFrames x nNodes. Note that both can be
+%                      empty if not requested in DOTHUB_reconstruction
+
+% hbr               :  Structure containing hbr images (.vol, .gm), of
+%                      dimensions nFrames x nNodes. Note that both can be
+%                      empty if not requested in DOTHUB_reconstruction
+
+% mua               :  Structure containing mua images (.vol, .gm), of
+%                      dimensions nFrames x nNodes. Note that both can be
+%                      empty if not requested in DOTHUB_reconstruction
+
+% timebase          :  A time vector with the same length as the first
+%                      dimension of each image set.
+
+% saveFlag          :  True if .dot file is to be saved (not always the
+%                      case e.g. for online reconstruction
 
 % ####################### OUTPUTS #########################################
 
-% .jac file containing all
+% dot               :  Structure containing all relevant data inputs
+
+% dotFileName       :  The full path of the resulting .dot file
+
+% dotFileName.dot   :  File containing contents of dot structure
 
 % ####################### Dependencies ####################################
-
 % #########################################################################
 % RJC, UCL, April 2020
 %
@@ -22,35 +57,28 @@ function DOTHUB_LUMOwritermap(nirsFilename,HeadVolumeMesh_reg,GMSurfaceMesh_reg,
 % MANAGE VARIABLES
 % #########################################################################
 
-savelist = {'SD_3D','tDOD','dod','logdata'}; %These are required
+dot.logData = logData;
+dot.hbo = hbo;
+dot.hbr = hbr;
+dot.mua = mua;
+dot.timebase = timebase;
 
-if exist('tHRF','var')
-    if ~isempty(tHRF)
-        savelist{end+1} = 'tHRF';
-    end
+%Save .dot file ###########################################################
+%Create filename ##########################################################
+[pathstr, name, ext] = fileparts(dotFileName);
+if isempty(ext) || ~strcmpi(ext,'.dot')
+    ext = '.dot';
 end
-
-if exist('dcAvg','var')
-    if ~isempty(dcAvg)
-        savelist{end+1} = 'dcAvg';
-    end
+if isempty(pathstr)
+    pathstr = pwd;
 end
+dotFileName = fullfile(pathstr,[name ext]);
+dot.fileName = dotFileName; %including the fileName within the structure 
+%is very useful for tracking and naming things derived further downstream.
 
-if exist('dcStd','var')
-    if ~isempty(dcStd)
-        savelist{end+1} = 'dcStd';
-    end
+%Save .dot file ###########################################################
+if saveFlag
+    save(dotFileName,'-struct','dot');
+    fprintf(['.dot data file saved as ' dotFileName '\n']);
 end
-    
-%Create logdata ###########################################################
-ds = datestr(now,'yyyymmDDHHMMSS');
-logdata{1,1} = ['Created on: ' ds];
-logdata{2,1} = ['Derived from file: ' nirsFilename];
-logdata{3,1} = ['Pre-processed using: ' streamMname '.m'];
-
-%Save .pre file ###########################################################
-[pathstr, name, ext] = fileparts(nirsFilename);
-outname = fullfile(pathstr,[name '_' ds '.pre']);
-save(outname,savelist{:});
-fprintf(['.pre data file saved as ' outname '\n']);
 

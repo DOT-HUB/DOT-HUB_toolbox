@@ -1,227 +1,250 @@
-function invJ = DOTHUB_invertJacobian(hMesh,hBasis,SD,J_basis_wav1,J_basis_wav2,headMesh,lambda,RecMethod)
+function [invjac, invjacFileName] = DOTHUB_invertJacobian(jac,prepro,varargin)
 
-% 
+% ####################### INPUTS ##########################################
+% jac       =  jac structure or path to .jac. If jac.basis is not empty, a
+%              toast mesh basis is assumed and rebuilt in order to create the volume and then GM
+%              images. If you don't have jac, please use DOTHUB_makeToastJacobian
 
-%PRELIMINARIES
-if isstruct(lambda)
-    if ~isfield(lambda,'method')
-        warning('Inversion method not provide, lambda.method can be ''Tikhonov'' (-DEFAULT), ''Cov'', ''CortexConst'' or ''SpatialRef'', default method used')
-        lambda.method = 'Tikhonov';
+% prepro    =  prepro structure or path to .prepro
+
+% rmap      =  rmap structure or path to .rmap
+
+% varargin  =  optional input pairs:
+%              'reconMethod' - 'multispec' or 'standard' (default 'standard');
+%                   Specifying whether to construct and invert a multispectral
+%                   jacobian or whether to recontruct each wavelength
+%                   separately and then combine them
+%              'regMethod' - 'tikhonov' or 'covariance' or 'spatial' (default 'tikhonov')
+%                   Regularization method.
+%                   'tikonov' = standard 0th order
+%                   'covariance' = exploits preproc.dod data to normalize by covariance
+%                   'spatial' = spatially varying regularization as in:
+%                   White, B. (2012). Developing High-Density Diffuse Optical Tomography
+%                   for Neuroimaging. Washington University. pg 23, PhD Thesis.
+%                   (https://openscholarship.wustl.edu/etd/665/) Accesed on 16.04.2019
+%              'hyperParameter' - numerical value or vector (for 'spatial') (default 0.01);
+%                   Regularization hyperparamter. See DOTHUB_invertJacobian for more details
+%              'rmap' - structure or path to .rmap file.
+%                   Necessary fo spatially varying regularization.
+%              'saveFlag' - 'true' or 'false' (default 'false');
+%                   Flag whether to save invjac to disk;
+
+% ####################### OUTPUTS #########################################
+
+% invjac            : The invjac stucture
+
+% invjacFileName    : The full pathname of the
+
+% ####################### Dependencies ####################################
+% #########################################################################
+% RJC, UCL, April 2020
+
+% MANAGE VARIABLES
+% #########################################################################
+varInputs = inputParser;
+varInputs.CaseSensitive = false;
+validateReconMethod = @(x) assert(any(strcmpi({'standard','multispectral'},x)));
+addParameter(varInputs,'reconMethod','standard',validateReconMethod);
+validateRegMethod = @(x) assert(any(strcmpi({'tikhonov','covariance','spatial'},x)));
+addParameter(varInputs,'regMethod','tikhonov',validateRegMethod);
+addParameter(varInputs,'hyperParameter',0.01,@isnumeric);
+validateFlag = @(x) assert(x==0 || x==1);
+addParameter(varInputs,'saveVolumeImages',false,validateFlag);
+addParameter(varInputs,'saveMuaImages',false,validateFlag);
+addParameter(varInputs,'saveFlag',false,validateFlag);
+parse(varInputs,varargin{:});
+
+%varInputs.Results
+%      hyperParameter: 0.0100
+%         reconMethod: 'standard'
+%           regMethod: 'tikhonov'
+%       saveMuaImages: 0
+%    saveVolumeImages: 0
+
+%More parsing and error handling
+varInputs = varInputs.Results;
+fnames = fieldnames(varInputs);
+if strcmpi(varInputs.regMethod,'spatial')
+    if length(varInputs.hyperParameter)<2
+        error('For spatial regularization, the hyperParameter must be a vector');
     end
-    if ~isfield(lambda,'value')
-        warning('Regularization parameter not provide, using default lambda.value = 0.1;')
-        lambda.value = 0.1;
-    end
-elseif isempty(lambda)
-    warning('Regularization parameter not provide, using default Tikhonov regularization with lambda = 0.1;')
-    lambda.value = 0.1;
-    lambda.method = 'Tikhonov';    
-else
-    value = lambda; clear lambda;
-    if numel(value) == 1
-        lambda.value = value;
-        lambda.method = 'Tikhonov';
-    elseif numel(value) == 2
-        lambda.value = value;
-        lambda.method = 'SpatialReg'; 
-    else
-        error('Maximum number of regularization parameters is two.')
+end
+if strcmpi(varInputs.reconMethod,'cortical') && ~strcmpi(varInputs.regMethod,'spatial')
+    warning('You cannot combine cortically-contrained reconstruction and spatial regularization. Reverting to tikhonov...\n');
+    eval('varInputs.regMethod = ''tikhonov'';');
+end
+if (strcmpi(varInputs.reconMethod,'cortical') || strcmpi(varInputs.regMethod,'spatial')) && ~any(strcmpi(fnames,'rmap'))
+    error('Both cortically-contrained reconstruction and spatial regularization require [''rmap'', rmap] as input argument pair');
+end
+
+%Display selected parameters
+fprintf(['####### Input parameters #######\n'])
+for i = 1:numel(fnames)
+    fprintf([fnames{i} ' = ' num2str(getfield(varInputs,fnames{i})) '\n'])
+end
+
+% #########################################################################
+% Load jac and/prepro structures if they are parsed as paths;
+if ischar(jac)
+    jacFileName = jac; %Might want to force these to be the full path.
+    load(jacFileName,'-mat');
+end
+if ischar(prepro)
+    preproFileName = prepro;
+    load(preproFileName,'-mat');
+end
+
+% #########################################################################
+% Unpack a few things...
+SD_3D = propro.SD_3D;
+wavelengths = SD.Lambda;
+nWavs = length(wavelengths);
+hyperParameter = varInputs.hyperParameter;
+nNode = size(jac.J{1},2);
+
+% #########################################################################
+% Perform Channel Rejection prior to inversion.
+% Make sure the active channels at all wavelengths are the same!
+Eall = [];
+for i = 1:nWavs
+    tmp = J{i};
+    Jcropped{i} = tmp(SD_3D.MeasListAct(SD.MeasList(:,4)==i),:);
+end
+
+% Determine reconMethod
+% #########################################################################
+% STANDARD
+if strcmpi(varInputs.reconMethod,'standard')
+    fprintf('Inverting Jacobian...\n');
+    %standard reconstruction approach
+    %determine regMethod
+    switch varInputs.regMethod
+        case 'tikhonov'
+            fprintf('Running tikhonov regularized inversion...\n');
+            % Inversion matrix, wavelength i
+            invJ = cell(nWavs,1);
+            for i = 1:nWavs
+                Jtmp = Jcropped{i};
+                JJT = Jtmp*Jtmp';
+                S=svd(JJT);
+                invJ{i} = Jtmp'/(JJT + eye(length(JJT))*(varInputs.hyperParameter*max(S)));
+            end
+            
+        case 'covariance'
+            fprintf('Covariance reconstruction coming soon \n');
+            return
+            
+        case 'spatial'
+            fprintf('Covariance reconstruction coming soon \n');
+            return
+            %load rmap
     end
 end
 
-%Wavelengths
-wavelengths = SD.Lambda;
-
-% Combine into matrix (wavelength x chromphore), convert units from cm-1/M to mm-1/uM
-E1 = GetExtinctions(wavelengths(1));
-E2 = GetExtinctions(wavelengths(2));
-Eall = [E1(1:2)./1e7; E2(1:2)./1e7]; %2x2
-
-if strfind(RecMethod,'stnd')
-     if strfind(lambda.method,'Tikhonov')
-        % Lambda has only one value so Tikhonov regularization is assumed
-        
-        
-        
-        % Inversion matrix, wavelentgh 1
-        JJT = J_basis_wav1*J_basis_wav1';
-        S=svd(JJT);
-        invJ1 = J_basis_wav1' / (JJT + eye(length(JJT))*(lambda.value*max(S)));
-        
-        JJT = J_basis_wav2*J_basis_wav2';
-        S=svd(JJT);
-        invJ2 = J_basis_wav2' / (JJT + eye(length(JJT))*(lambda.value*max(S)));
-        
-        a = Eall(1,1);
-        b = Eall(1,2);
-        c = Eall(2,1);
-        d = Eall(2,2);
-        D = 1/(a*d - b*c);
-%         if abs(D)<1e8
-            invJ = D*[ d*invJ1 -b*invJ2;
-                      -c*invJ1  a*invJ2];
-%         else
-%             % NOTE: ideally, wavelengths should have been selected better.
-%             % Alternatively, try to regularize the matrix (in progress...)
-%             error('Ill-condition matrix, aborting reconstruction')
-%         end
-        
-     end   
+% #########################################################################
+% MULTISPEC
+if strcmpi(varInputs.reconMethod,'multispectral')
+    fprintf('Building Multispectral Jacobian...\n');
+    %Use loop to get specific absorption coefficients
+    Eall = [];
+    Jtiled = [];
+    for i = 1:nWavs
+        Etmp = GetExtinctions(wavelengths(i));
+        Eall = [Eall; Etmp./1e7]; %Combine specific absorption coeffs into matrix (wavelength x chromphore), convert units from cm-1/M to mm-1/uM
+        Jtiled = [Jtiled; Jcropped{i} Jcropped{i}]; %Tile wavelength-specific jacobians
+    end
     
-elseif strfind(RecMethod,'multispec')
     %Building extinction coefficient dummy
-    Ei = ones(size(J_basis_wav1));
-    E = [];
+    Ei = ones(size(Jcropped{1}));
+    Etiled = [];
     for c = 1:2 %Chromophore
         El = [];
         for i = 1:length(wavelengths)
             El = [El; Ei.*Eall(i,c)];
         end
-        E = [E El];
+        Etiled = [Etiled El];
     end
-
-    %BUILD MULTISPECTRAL JACOBIAN
-    fprintf('Building Multispectral Jacobian\n');
-    Ji = [J_basis_wav1 J_basis_wav1; J_basis_wav2 J_basis_wav2]; %Tile wavelength-specific jacobians
-    Jmulti = Ji.*E; % This has units of (d(ln(data/reference))/d(mm-1))*(mm-1/micromolar)
-
-
-    disp('Inverting J ##############################################');
-
-    if strfind(lambda.method,'Tikhonov')
-        % Lambda has only one value so Tikhonov regularization is assumed
-
-        % Reconstruction
-        JJT = Jmulti*Jmulti';
-        S=svd(JJT);
-        invJ = Jmulti' / (JJT + eye(length(JJT))*(lambda.value*max(S)));
-
-    elseif strfind(lambda.method,'Cov')
-
-        nNodesBasis = length(J_basis_wav1);
-
-        sigma_v = cov(ref_OD);
-        sigma_u = sparse(1:2*nNodesBasis,1:2*nNodesBasis,1);
-        JJT = Jmulti*sigma_u*Jmulti';
-        lambda1 = lambda.value*trace(JJT)/trace(sigma_v);
-
-        invJ = sigma_u*Jmulti' / ( JJT + sigma_v*lambda1);
-
-    elseif strfind(lambda.method,'CortexConst')
-
-        Jmulti_backup = Jmulti;
-        Mask = zeros(size(headMesh.node,1),1);
-        if max(headMesh.node(:,4)==5)
-             %Assumes (1) Scalp, (2) Skull, (3) CSF, (3) GM, (5) WM
-            Mask(headMesh.node(:,4)>3)=1;
-        elseif max(headMesh.node(:,4)==4)
-             %Assumes (1) ECT, (2) CSF, (3) GM, (4) WM
-            Mask(headMesh.node(:,4)>2)=1;
-        else
-            error('Nodal tissue indices are not as expect for infant (1:4) or adult (1:5)');
-        end
-        bMask = hBasis.Map('M->S',Mask);
-        bMask_nobrain = find(bMask==0);
-        opc = 5;
-        switch opc
-            case 1        % Option 1: set to absolute minimum indicating change is minimal
-                Jmulti = Jmulti_backup;
-
-                tmp  = Jmulti(:,1:end/2);
-                [val,ind] = min(abs(tmp(:)));
-                Jmulti(:,bMask_nobrain) = sign(tmp(ind))*val;
-
-                tmp  = Jmulti(:,end/2+1:end);
-                [val,ind] = min(abs(tmp(:)));
-                Jmulti(:,bMask_nobrain + hBasis.slen()) = sign(tmp(ind))*val;
-
-            case 2        % Option 2: Deleting rows belonging to no-brain regions
-                Jmulti = Jmulti_backup;
-
-                Jmulti(:,bMask_nobrain + hBasis.slen()) = [];
-                Jmulti(:,bMask_nobrain) = [];
-
-            case 3       % Option 3: Setting no-brain related colums to zero
-                Jmulti = Jmulti_backup;
-
-                Jmulti(:,bMask_nobrain) = 0;
-                Jmulti(:,bMask_nobrain + hBasis.slen()) = 0;
-
-            case 4        % Option 4: Setting no-brain related colums to the absolute minimum of the column-mean
-                m = mean(Jmulti,1);
-                Jmulti = Jmulti_backup;
-
-                tmp = m(1:end/2);
-                [val,ind] = min(abs(tmp));
-                Jmulti(:,bMask_nobrain) = sign(tmp(ind))*val;
-
-                tmp = m(end/2+1:end);
-                [val,ind] = min(abs(tmp));
-                Jmulti(:,bMask_nobrain + hBasis.slen()) = sign(tmp(ind))*val;
-
-            case 5        % Option 5: Setting no-brain related colums to the mean of the column-mean
-                Jmulti = Jmulti_backup;
-
-                tmp  = Jmulti(:,1:end/2);
-                Jmulti(:,bMask_nobrain) = mean(tmp(:));
-
-                tmp  = Jmulti(:,end/2+1:end);
-                Jmulti(:,bMask_nobrain + hBasis.slen()) = mean(tmp(:));
-        end
-
-        JJT = Jmulti*Jmulti';
-        S=svd(JJT);
-        invJ = Jmulti' / (JJT + eye(length(JJT))*(lambda.value*max(S)));
-
-    elseif strfind(lambda.method,'SpatialReg')
-        % If lambda has two elements, it assumes spatial regularization as in:
-        % White, B. (2012). Developing High-Density Diffuse Optical Tomography
-        % for Neuroimaging. Washington University. pg 23, PhD Thesis.
-        % (https://openscholarship.wustl.edu/etd/665/) Accesed on 16.04.2019
-
-        lambda1 = lambda.value(1); % Typical Tikhonov regularization parameter
-        lambda2 = lambda.value(2); % Spatial regularization parameter
-
-        % Reconstruction
-        JJT = Jmulti*Jmulti';  % Prepare Jacobian matrix for inversion (i.e. create square matrix)
-        L = sqrt(diag(JJT) + lambda2*max(diag(JJT))); % Apply regularization
-        Linv = 1./L; % Invert matrix
-        %% find Atild
-        Atild = zeros(size(Jmulti));
-        for ind = 1:length(Linv)
-            Atild(ind,:) = Jmulti(ind,:)*Linv(ind);
-        end
-        atildtatild = Atild*Atild';
-        [satild] = svd(atildtatild);
-        mxsatild = max(satild);
-
-        % Apply spatial regularization
-          val2binv = atildtatild;
-          for ind = 1:length(satild)
-              val2binv(ind,ind) = atildtatild(ind,ind) + lambda1*mxsatild;
-          end
-
-    %     %%Checks (verify regularization threshols)
-    %     [satild_reg] = svd(val2binv);
-    %     S=svd(JJT);
-    %     figure;semilogy(satild,'linewidth',2),hold on,grid on,xlabel('Magnitude of singular values'),ylabel('Singular value index')
-    %     Xlim = get(gca,'Xlim');plot(Xlim,lambda1*mxsatild*[1 1],'r','linewidth',2),semilogy(satild_reg,'k','linewidth',2)
-    %     plot(S,'b--','linewidth',2),plot(Xlim,lambda.value(1)*max(S)*[1 1],'r--','linewidth',2),plot(S+lambda.value(1)*max(S),'k--','linewidth',2)
-    %     hl= legend('Singular values (Spatial Reg)',['Regularization value \lambda\timesmax(\sigma) = ',num2str(lambda1*mxsatild,3),' (Spatial Reg)'],'Regularized Jacobian (Spatial Reg)',...
-    %            'Singular values (Tikhonov Reg)',['Regularization value \lambda\timesmax(\sigma) = ',num2str(lambda.value(1)*max(S),3), '(Tikhonov Reg)'],'Regularized Jacobian (Tikhonov Reg)');
-    %     set(hl,'Position',[0.1330    0.1109    0.6346    0.2440]),legend('boxoff')
-    %     title(['\lambda_1 = ',num2str(lambda1),', \lambda_2 = ', num2str(lambda2)])
-
-        clear JJT;   % Clear huge matrices for efficiency
-
-        % Invert matrix
-          inva = val2binv\Atild;
-          clear Atild val2binv  % Clear huge matrices for efficiency
-          invJ = zeros(size(inva))';
-          for ind = 1:size(inva,1)
-              invJ(:,ind) = inva(ind,:)*Linv(ind);
-          end
-    else
-        error('Unknown method')
+    
+    %Build multispectral Jacobian.
+    Jmulti = Jtiled.*Etiled; % This has units of (d(ln(data/reference))/d(mm-1))*(mm-1/micromolar)
+    
+    fprintf('Inverting Jacobian...\n');
+    %determine regMethod
+    switch varInputs.regMethod
+        case 'tikhonov'
+            fprintf('Running tikhonov regularized inversion...\n');
+            JJT = Jmulti*Jmulti';
+            S=svd(JJT);
+            invJ{1} = Jmulti' / (JJT + eye(length(JJT))*(hyperParameter*max(S)));
+            
+        case 'covariance'
+            fprintf('Running covariance regularized inversion (beta!)...\n');
+            %Extract relevant chunk of prepro.dod to calculate covariance. %Might be better to pass the reference data directly?
+            if length(find(propro.tDOD<0))>1  %Must be an HRF
+                [~,ind] = min(abs(tDOD));
+                covData = prepro.dod(1:ind,:);
+            else %take first 30 seconds, or 10% of data, whichever is less.
+                if range(tDOD)< 30
+                    covData = prepro.dod;
+                else
+                    fs = 1/mean(diff(tDOD));
+                    covData = prepro.dod(1:round(fs*30),:);
+                end
+            end   
+            sigma_v = cov(covData); 
+            sigma_u = sparse(1:2*nNode,1:2*nNode,1);
+            JJT = Jmulti*sigma_u*Jmulti';
+            l1 = hyperParameter*trace(JJT)/trace(sigma_v);
+            invJ{1} = sigma_u*Jmulti' / ( JJT + sigma_v*l1);
+            
+        case 'spatial'
+            fprintf('Covariance reconstruction coming soon \n');
+            
+            l1 = hyperParameter(1); % Typical Tikhonov regularization parameter
+            l2 = hyperParameter(2); % Spatial regularization parameter
+            
+            JJT = Jmulti*Jmulti';  % Prepare Jacobian matrix for inversion (i.e. create square matrix)
+            L = sqrt(diag(JJT) + l2*max(diag(JJT))); % Apply regularization
+            Linv = 1./L; % Invert matrix
+            
+            % Find Atild
+            Atild = zeros(size(Jmulti));
+            for ind = 1:length(Linv)
+                Atild(ind,:) = Jmulti(ind,:)*Linv(ind);
+            end
+            atildtatild = Atild*Atild';
+            [satild] = svd(atildtatild);
+            mxsatild = max(satild);
+            
+            % Apply spatial regularization
+            val2binv = atildtatild;
+            for ind = 1:length(satild)
+                val2binv(ind,ind) = atildtatild(ind,ind) + l1*mxsatild;
+            end
+            clear JJT;   % Clear for efficiency
+            
+            % Invert matrix
+            inva = val2binv\Atild;
+            clear Atild val2binv  % Clear huge matrices for efficiency
+            invJtmp = zeros(size(inva))';
+            for ind = 1:size(inva,1)
+                invJtmp(:,ind) = inva(ind,:)*Linv(ind);
+            end
+            invJ{1} = invJtmp;
+            clear invJtmp;
     end
 end
+clear JJT;   % Clear for efficiency
+
+% #########################################################################
+% Create invjac filename. We want this to be identical to the jacFileName  
+[pathstr, name, ~] = fileparts(jac.fileName);
+invjacFileName = fullfile(pathstr,[name '.invjac']);
+ds = datestr(now,'yyyymmDDHHMMSS');
+logData(1,:) = {'Created on: ', ds};
+logData(2,:) = {'Derived from jac file: ', jac.fileName};
+logData(3,:) = {'reconMethod: ', varInputs.reconMethod};
+logData(4,:) = {'regMethod: ', varInputs.regMethod};
+logData(5,:) = {'hyperParameter: ', varInputs.regMethod};
+[invjac, invjacFileName] = DOTHUB_writeINVJAC(invjacFileName,logData,invJ,jac.basis,varInputs.saveFlag);
+

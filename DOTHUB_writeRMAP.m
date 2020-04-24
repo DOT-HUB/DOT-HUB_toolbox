@@ -1,7 +1,7 @@
 function [rmap, rmapFileName] = DOTHUB_writeRMAP(rmapFileName,logData,SD_3Dmesh,headVolumeMesh,gmSurfaceMesh,scalpSurfaceMesh,vol2gm)
 
 % This script creates a registered mesh and positions (.rmap) file and associated struct 
-
+% Should combine mesh inputs into single .mshs file?
 % ####################### INPUTS ##########################################
 
 % rmapFileName      :  The desired path &/ filename for the .rmap file.
@@ -91,6 +91,8 @@ if isempty(pathstr)
     pathstr = pwd;
 end
 rmapFileName = fullfile(pathstr,[name ext]);
+rmap.fileName = rmapFileName; %including the fileName within the structure is very useful 
+%for tracking and naming things derived further downstream.
 
 %Save .rmap file ###########################################################
 save(rmapFileName,'-struct','rmap');

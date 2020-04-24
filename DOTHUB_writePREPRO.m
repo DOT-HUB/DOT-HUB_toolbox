@@ -77,7 +77,7 @@ prepro.tDOD = tDOD;
 prepro.dod = dod;
 
 if isempty(logData)
-    warning('logData is empty: this might make it harder to keep track of your data...');
+    warning('logData is empty: this might make it harder to keep track of your data. See comments for more info.');
 end
 prepro.logData = logData; %This might be empty
 
@@ -112,6 +112,8 @@ if isempty(pathstr)
     pathstr = pwd;
 end
 preproFileName = fullfile(pathstr,[name ext]);
+prepro.fileName = preproFileName; %including the fileName within the structure is very useful 
+%for tracking and naming things derived further downstream.
 
 %Save .pre file ###########################################################
 save(preproFileName,'prepro');
