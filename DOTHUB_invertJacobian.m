@@ -87,7 +87,7 @@ end
 % Load jac and/prepro structures if they are parsed as paths;
 if ischar(jac)
     jacFileName = jac; %Might want to force these to be the full path.
-    load(jacFileName,'-mat');
+    jac = load(jacFileName,'-mat');
 end
 if ischar(prepro)
     preproFileName = prepro;
@@ -96,11 +96,11 @@ end
 
 % #########################################################################
 % Unpack a few things...
-SD_3D = propro.SD_3D;
-wavelengths = SD.Lambda;
+SD_3D = prepro.SD_3D;
+wavelengths = SD_3D.Lambda;
 nWavs = length(wavelengths);
 hyperParameter = varInputs.hyperParameter;
-nNode = size(jac.J{1},2);
+nNodeVol = size(jac.J{1}.vol,2);
 
 % #########################################################################
 % Perform Channel Rejection prior to inversion.
@@ -192,7 +192,7 @@ if strcmpi(varInputs.reconMethod,'multispectral')
                 end
             end   
             sigma_v = cov(covData); 
-            sigma_u = sparse(1:2*nNode,1:2*nNode,1);
+            sigma_u = sparse(1:2*nNodeVol,1:2*nNodeVol,1);
             JJT = Jmulti*sigma_u*Jmulti';
             l1 = hyperParameter*trace(JJT)/trace(sigma_v);
             invJ{1} = sigma_u*Jmulti' / ( JJT + sigma_v*l1);

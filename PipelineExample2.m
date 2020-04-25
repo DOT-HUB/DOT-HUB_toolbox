@@ -11,11 +11,25 @@
 %[rmap, rmapFileName] = DOTHUB_meshRegistration(SD_3DFullFileName,origMeshFullFileName);
 
 %Calculate Jacobian
-rmapFileName = 'ExampleData/uNTS_fingerTapping/AdultMNI152_Reg2_uNTS_FingerTap_Subj01_3D.rmap';
-[jac, jacFileName] = DOTHUB_makeToastJacobian(rmapFileName,[10 10 10]);
+%rmapFileName = 'ExampleData/uNTS_fingerTapping/AdultMNI152_Reg2_uNTS_FingerTap_Subj01_3D.rmap';
+%[jac, jacFileName] = DOTHUB_makeToastJacobian(rmapFileName,[10 10 10]);
 
-%JUST Reconstruction to go!
-[dot, dotFileName] = DOTHUB_reconstruction();
+%You can either separately calculate the inverse, or just run
+%DOTHUB_reconstruction. 
+%Calculate Jacobian
+prepro = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01_20200425000911.prepro';
+jac = 'ExampleData/uNTS_fingerTapping/AdultMNI152_Reg2_uNTS_FingerTap_Subj01_3D.jac';
+[invjac, invjacFileName] = DOTHUB_invertJacobian(jac,prepro,'saveFlag',true);
+
+%Reconstruct
+%[dot, dotFileName] = DOTHUB_reconstruction(prepro,jac,invjac,rmap,varargin);
+
+
+
+
+
+
+
 
 
 function [prepro, preproFileName] = examplePreProcessingScript(nirsFileName)

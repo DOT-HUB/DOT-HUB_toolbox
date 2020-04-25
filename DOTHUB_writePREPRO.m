@@ -116,6 +116,6 @@ prepro.fileName = preproFileName; %including the fileName within the structure i
 %for tracking and naming things derived further downstream.
 
 %Save .pre file ###########################################################
-save(preproFileName,'prepro');
+save(preproFileName,'-struct','prepro');
 fprintf(['.prepro data file saved as ' preproFileName '\n']);
 

@@ -227,7 +227,7 @@ if testFlag == 1
     end
     %Assume linear with optode number (very approximate)
     fprintf('Test complete...\n');
-    fprintf(['Processing time estimate for full Jac, per wavelength = ' num2str(duration*0.5*(SD_3Dmesh.nDets + SD_3Dmesh.nSrcs)/60) ' mins\n']);
+    fprintf(['Estimated processing time estimate for full Jacobian, per wavelength = ' num2str(duration*0.5*(SD_3Dmesh.nDets + SD_3Dmesh.nSrcs)/60,'%0.2f') ' mins\n']);
     delete('tmp.qm');
 end
 
@@ -288,7 +288,8 @@ delete(qmfilename);
 % USE CODE SNIPPET FROM DOTHUB_writeJAC.m
 ds = datestr(now,'yyyymmDDHHMMSS');
 [pathstr, name, ~] = fileparts(rmapFileName);
-jacFileName = fullfile(pathstr,[name '_' ds '.jac']);
+jacFileName = fullfile(pathstr,[name '.jac']);
+transportPackage = 'toast';
 logData(1,:) = {'Created on: ', ds};
 logData(2,:) = {'Derived from rmap file: ', rmapFileName};
 logData(3,:) = {'Calculated using: ', transportPackage};
