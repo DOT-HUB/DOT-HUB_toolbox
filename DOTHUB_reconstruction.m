@@ -240,7 +240,9 @@ end
 if ~varInputs.saveVolumeImages
     hbo.vol = [];
     hbr.vol = [];
-    mua.vol = [];
+    for wav = 1:nWavs;
+        mua{wav}.vol = [];
+    end
 end
 
 %################ Create dot structure and write .dot #####################

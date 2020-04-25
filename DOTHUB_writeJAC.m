@@ -1,4 +1,4 @@
-function [jac, jacFileName] = DOTHUB_writeJAC(jacFileName,logData,J,Jgm,basis)
+function [jac, jacFileName] = DOTHUB_writeJAC(jacFileName,logData,J,basis)
 
 % This script creates a .jac file, which organizes and stores Jacobians for
 % DOT reconstruction.
@@ -23,21 +23,20 @@ function [jac, jacFileName] = DOTHUB_writeJAC(jacFileName,logData,J,Jgm,basis)
 % logData           :  (Optional). logData is a cell array of strings containing useful
 %                      info as per snippet above. Parse empty to ignore.
                         
-% J                 :   Two or more CW Jacobians in a matrix of dimensions 
-%                       #wavelengths x #channels x #nodes
+% J                 :   A cell structure of length nWavs, containing .vol and .gm 
+%                       of dimensions #channels x #nodes
 %                       Units are mm:
 %                       d(ln(Intensity_active/Intensity_baseline))/d(absorbtion coefficient (mm-1))
-%                       Note that the #nodes dimension can either be #nodes of
+%                       Note that the spatial dimension in the .vol variable can either be #nodes of
 %                       the corresponding volume mesh in rmapFileName or the
-%                       number of elements in the basis.
-
-% Jgm               :   This is just for visualization and masking purposes. It
-%                       contains the wavelength-averaged GM projection of the
-%                       volume Jacobian. Dimensions of channel x #gm_nodes
+%                       number of elements in the basis. The J{i}.gm is just 
+%                       for visualization and masking purposes. It contains 
+%                       the GM projection of the volume Jacobian. 
+%                       Dimensions of channel x #gm_nodes
 
 % basis             :   (Optional) 1x3 vector specifying the basis in which J is defined.
-%                       If basis is not parsed, jac.basis will be saved empty = [] and J 
-%                       is assumed to be in the volume mesh space
+%                       If basis is not parsed, jac.basis will be saved empty = [] 
+%                       and J{i}.vol is assumed to be in the volume mesh space
 
 % ####################### OUTPUTS #########################################
 
@@ -58,7 +57,6 @@ function [jac, jacFileName] = DOTHUB_writeJAC(jacFileName,logData,J,Jgm,basis)
 % #########################################################################
 
 jac.J = J;
-jac.Jgm = Jgm;
 
 if isempty(logData)
     warning('logData is empty: this might make it harder to keep track of your data...');

@@ -29,9 +29,10 @@ function [dot, dotFileName] = DOTHUB_writeDOT(dotFileName,logData,hbo,hbr,mua,ti
 %                      dimensions nFrames x nNodes. Note that both can be
 %                      empty if not requested in DOTHUB_reconstruction
 
-% mua               :  Structure containing mua images (.vol, .gm), of
-%                      dimensions nFrames x nNodes. Note that both can be
-%                      empty if not requested in DOTHUB_reconstruction
+% mua               :  Cell of length nWavs with structures (.vol, .gm) where
+%                      images of dimensions nFrames x nNodes are stored. 
+%                      Note that one or both can beempty if not requested 
+%                      in DOTHUB_reconstruction
 
 % timebase          :  A time vector with the same length as the first
 %                      dimension of each image set.

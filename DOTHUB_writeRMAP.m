@@ -1,7 +1,7 @@
 function [rmap, rmapFileName] = DOTHUB_writeRMAP(rmapFileName,logData,SD_3Dmesh,headVolumeMesh,gmSurfaceMesh,scalpSurfaceMesh,vol2gm)
 
 % This script creates a registered mesh and positions (.rmap) file and associated struct 
-% Should combine mesh inputs into single .mshs file?
+
 % ####################### INPUTS ##########################################
 
 % rmapFileName      :  The desired path &/ filename for the .rmap file.
@@ -62,13 +62,13 @@ function [rmap, rmapFileName] = DOTHUB_writeRMAP(rmapFileName,logData,SD_3Dmesh,
 % #########################################################################
 % Check all optodes positions are on-mesh to allow save
 for i = 1:SD_3Dmesh.nSrcs
-    tmp = sum(headVolumeMesh(:,1) == SD_3Dmesh.SrcPos(i,1) & headVolumeMesh(:,2) == SD_3Dmesh.SrcPos(i,2) & headVolumeMesh(:,3) == SD_3Dmesh.SrcPos(i,3));
+    tmp = sum(headVolumeMesh.node(:,1) == SD_3Dmesh.SrcPos(i,1) & headVolumeMesh.node(:,2) == SD_3Dmesh.SrcPos(i,2) & headVolumeMesh.node(:,3) == SD_3Dmesh.SrcPos(i,3));
     if tmp==0
         error('Optodes found that are not on nodes of headVolumeMesh, please correct before saving rmap');
     end
 end
 for i = 1:SD_3Dmesh.nDets
-    tmp = sum(headVolumeMesh(:,1) == SD_3Dmesh.DetPos(i,1) & headVolumeMesh(:,2) == SD_3Dmesh.DetPos(i,2) & headVolumeMesh(:,3) == SD_3Dmesh.DetPos(i,3));
+    tmp = sum(headVolumeMesh.node(:,1) == SD_3Dmesh.DetPos(i,1) & headVolumeMesh.node(:,2) == SD_3Dmesh.DetPos(i,2) & headVolumeMesh.node(:,3) == SD_3Dmesh.DetPos(i,3));
     if tmp==0
         error('Optodes found that are not on nodes of headVolumeMesh, please correct before saving rmap');
     end
@@ -80,7 +80,8 @@ end
 
 %Create rmap struct #######################################################
 rmap = struct('headVolumeMesh',headVolumeMesh,'gmSurfaceMesh',gmSurfaceMesh,'scalpSurfaceMesh',scalpSurfaceMesh,...
-    'vol2gm',vol2gm,'SD_3Dmesh',SD_3Dmesh,'logData',logData);
+    'vol2gm',vol2gm,'SD_3Dmesh',SD_3Dmesh);
+rmap.logData = logData;
 
 %Create filename ##########################################################
 [pathstr, name, ext] = fileparts(rmapFileName);
@@ -90,6 +91,7 @@ end
 if isempty(pathstr)
     pathstr = pwd;
 end
+
 rmapFileName = fullfile(pathstr,[name ext]);
 rmap.fileName = rmapFileName; %including the fileName within the structure is very useful 
 %for tracking and naming things derived further downstream.

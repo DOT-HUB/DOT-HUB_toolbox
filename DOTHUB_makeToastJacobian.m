@@ -12,7 +12,7 @@ function [jac, jacFileName] = DOTHUB_makeToastJacobian(rmapFileName,basis)
 
                     % headVolumeMesh     :   The multi-layer volume mesh structure, registered
                     %                        to the relevant individual. Contains fields:
-                    %                        node, face, elem, tissue_labels
+                    %                        node, face, elem, labels
 
                     % gmSurfaceMesh      :   The gm surface mesh structure, registered
                     %                           to the relevant individual. Contains fields:
@@ -46,9 +46,9 @@ function [jac, jacFileName] = DOTHUB_makeToastJacobian(rmapFileName,basis)
 
 % MANAGE VARIABLES
 % #########################################################################
-
-if ~exist(basis,'var')
-    if nNode>2e5 %HARD CODE NODE LIMIT AT 200,000
+basisFlag = 0;
+if ~exist('basis','var')
+    if nNodeVol>2e5 %HARD CODE NODE LIMIT AT 200,000
         basisFlag = 1;
         basis = [50 50 50];
         fineBasis = basis.*2;
@@ -57,6 +57,9 @@ if ~exist(basis,'var')
     end
 elseif basis==0
     basis = [];
+elseif ~isempty(basis) %Basis exists and is not empty, use.
+    basisFlag = 1;
+    fineBasis = basis.*2;
 end
    
 %testFlag==1 to run initial single-channel calculation test before running full
@@ -77,16 +80,20 @@ rmap = load(rmapFileName,'-mat'); %head, gm, scalp, SD_3Dmesh, vol2gm, logData
 
 % Unpack key fields #######################################################
 headVolumeMesh = rmap.headVolumeMesh;
+gmSurfaceMesh = rmap.gmSurfaceMesh;
 SD_3Dmesh = rmap.SD_3Dmesh;
 wavelengths = SD_3Dmesh.Lambda;
+vol2gm = rmap.vol2gm;
+
+nElemVol = size(headVolumeMesh.elem,1);
+nNodeVol = size(headVolumeMesh.node,1);
+nNodeGM = size(gmSurfaceMesh.node,1);
+nChans = size(SD_3Dmesh.MeasList,1);
+nChansPerWav = sum(SD_3Dmesh.MeasList(:,4)==1);
+nWavs = length(wavelengths);
 
 % #########################################################################
 % MESH PREP ###############################################################
-%Define basis if deemed necessary #########################################
-nElem = size(headVolumeMesh.elem,1);
-nNode = size(headVolumeMesh.node,1);
-nWavs = length(wavelengths);
-
 % Check for errors in mesh and correct if necessary
 % Correct negatives if they exist in tissue indices
 rewriteRMAP = 0;
@@ -99,15 +106,15 @@ end
 % Check for erroneous nodes 
 elem_tmp = headVolumeMesh.elem(:,1:4);
 node_tmp = headVolumeMesh.node(:,1:3);
-included_nodes = ismember(1:nNode,elem_tmp(:));
+included_nodes = ismember(1:nNodeVol,elem_tmp(:));
 errnodes_ind = find(~included_nodes);
 if ~isempty(errnodes_ind)
     warning('Erroneous nodes found, attempting to correct mesh...\n');
     %correct node list
     node_corr = node_tmp(included_nodes,:);
     %correct element list
-    for i = 1:length(errnodes_ind)
-        elem_tmp(elem_tmp > (errnodes_ind(i)-(i-1))) = elem_tmp(elem_tmp > (errnodes_ind(i)-(i-1)))-1;
+    for wav = 1:length(errnodes_ind)
+        elem_tmp(elem_tmp > (errnodes_ind(wav)-(wav-1))) = elem_tmp(elem_tmp > (errnodes_ind(wav)-(wav-1)))-1;
     end
     
     included_nodes = ismember(1:length(node_corr),elem_tmp(:));
@@ -160,22 +167,22 @@ musPrimeVec = zeros(length(wavelengths),length(headVolumeMesh.node));
 refIndVec = zeros(length(wavelengths),length(headVolumeMesh.node));
 
 % Determine tissue optical properties and populate vectors
-nTissues = length(headVolumeMesh.tissue_labels);
-for i = 1:nTissues
-    tmpInd = find(strcmpi({'scalp','skull','ECT','CSF','GM','WM'},headVolumeMesh.tissue_labels{i}), 1);
+nTissues = length(headVolumeMesh.labels);
+for wav = 1:nTissues
+    tmpInd = find(strcmpi({'scalp','skull','ECT','CSF','GM','WM'},headVolumeMesh.labels{wav}), 1);
     if isempty(tmpInd)
-        error('Unknown tissue label, please correct rmap.headVolumeMesh.tissue_labels abd try again');
+        error('Unknown tissue label, please correct rmap.headVolumeMesh.labels abd try again');
     end
-    tissueNodeList = headVolumeMesh.node(:,4)==i;
+    tissueNodeList = headVolumeMesh.node(:,4)==wav;
     for j = 1:nWavs
-        [mua, musPrime, refInd] = DOTHUB_getTissueCoeffs(headVolumeMesh.tissue_labels{i},wavelengths(j));%Potentially update this to be age-specific?
+        [mua, musPrime, refInd] = DOTHUB_getTissueCoeffs(headVolumeMesh.labels{wav},wavelengths(j));%Potentially update this to be age-specific?
         muaVec(j,tissueNodeList) = mua;
         musPrimeVec(j,tissueNodeList) = musPrime;
         refIndVec(j,tissueNodeList) = refInd;
         
-        opticalPropertiesByTissue(i,j,1) = mua;
-        opticalPropertiesByTissue(i,j,2) = musPrime;
-        opticalPropertiesByTissue(i,j,3) = refInd;
+        opticalPropertiesByTissue(wav,j,1) = mua;
+        opticalPropertiesByTissue(wav,j,2) = musPrime;
+        opticalPropertiesByTissue(wav,j,3) = refInd;
     end
 end
 
@@ -188,7 +195,6 @@ end
 linklist = DOTHUB_SD2linklist(SD_3Dmesh);
 qmfilename = 'tmpfull.qm';
 DOTHUB_writeToastQM(qmfilename,SD_3Dmesh.SrcPos,SD_3Dmesh.DetPos,linklist)
-
 
 % Generate Jacobian #######################################################
 % #########################################################################
@@ -205,7 +211,7 @@ if testFlag == 1
     DOTHUB_writeToastQM('tmp.qm',SD_3Dmesh.SrcPos(1,:),SD_3Dmesh.DetPos(1,:),1)
     hMesh.ReadQM('tmp.qm');
     qvec = hMesh.Qvec ('Neumann', 'Gaussian', 2);
-    mvec = hMesh.Mvec ('Gaussian', 2,refindvec);
+    mvec = hMesh.Mvec ('Gaussian', 2, refIndVec(1,:)');
     
     if basisFlag
         hBasis = toastBasis(hMesh,basis,fineBasis);
@@ -216,12 +222,12 @@ if testFlag == 1
     if hMesh.isvalid
         fprintf('Running toastJacobianCW test...\n');
         tic;
-        Jtest = toastJacobianCW(hMesh, hBasis, qvec, mvec, muaVec(:,1), musPrimeVec(:,1), refindvec, jtype, bicgstabtol); %#ok<NASGU>
+        Jtest = toastJacobianCW(hMesh, hBasis, qvec, mvec, muaVec(1,:)', musPrimeVec(1,:)', refIndVec(1,:)', jtype, bicgstabtol); %#ok<NASGU>
         duration = toc;
     end
     %Assume linear with optode number (very approximate)
     fprintf('Test complete...\n');
-    fprintf(['Time estimate for full calculation = ' num2str(duration*0.5*nWavs*(size(det_pos,1) + size(source_pos,1))/60) ' mins\n']);
+    fprintf(['Processing time estimate for full Jac, per wavelength = ' num2str(duration*0.5*(SD_3Dmesh.nDets + SD_3Dmesh.nSrcs)/60) ' mins\n']);
     delete('tmp.qm');
 end
 
@@ -229,38 +235,51 @@ end
 % Calculate full Jacobian
 %Re-set parameters
 hMesh.ReadQM(qmfilename)
-qvec = hMesh.Qvec ('Neumann', 'Gaussian', 2); 
-mvec = hMesh.Mvec ('Gaussian',2,refindvec); 
+qvec = hMesh.Qvec ('Neumann', 'Gaussian', 2);
+mvec = hMesh.Mvec ('Gaussian', 2, refIndVec(1,:)');
 
 % Set basis
 if basisFlag
     disp('Setting basis...');   
     hBasis = toastBasis(hMesh,basis,fineBasis);
+    nNodeNat = hBasis.slen;
 else
     hBasis = 0;
+    nNodeNat = nNodeVol;
 end
 
-for i = 1:nWavs
-    fprintf(['Producing Jacobian at wavelength ', num2str(i), '...\n'];
+%pre-allocate
+J = cell(nWavs,1);
+c_medium = (c0./refIndVec(1,:));
+for wav = 1:nWavs
+    fprintf(['Producing Jacobian at wavelength ', num2str(wav), '...\n']);
     
     tic
-    Jtmp = toastJacobianCW(hMesh, hBasis, qvec, mvec, muaVec(:,i), musPrimeVec(:,i), refindvec(:,i), jtype, bicgstabtol);
+    Jtmp = toastJacobianCW(hMesh, hBasis, qvec, mvec, muaVec(wav,:)', musPrimeVec(wav,:)', refIndVec(wav,:)', jtype, bicgstabtol);
     
-    c_medium = c0./refindvec(:,i);
+    %pre-allocate
+    J{wav}.vol = nan(nChansPerWav,nNodeVol);
+    J{wav}.gm = nan(nChansPerWav,nNodeGM);
+    
     if basisFlag %Multiply by c, then map to volume to GM, delete volume
+        J{wav}.basis = nan(nChansPerWav,nNodeNat);
         Jtmp = Jtmp.*repmat(hBasis.Map('M->S',c_medium),1,size(Jtmp,1))';
-        J_voltmp = zeros(size(Jtmp,1),size(headVolumeMesh.node,1)); %Map to volume temporarily
-        J_voltmp = hBasis.Map('S->M',Jtmp);
-        Jgm(i,:,:) = (vol2gm*J_voltmp')'; 
-        J(i,:,:) = Jtmp;
-        clear Jtmp J_voltmp
+        for chan = 1:nChansPerWav
+            J{wav}.vol(chan,:) = hBasis.Map('S->M',Jtmp(chan,:)');
+        end
+        J{wav}.gm = (vol2gm*J{wav}.vol')'; 
+        
+        %Clear things, empty J.vol if basis
+        clear Jtmp
+        J{wav}.vol = [];
     
     else %In volume nodes
-        J(i,:,:) = Jtmp.*c_medium;
-        Jgm(i,:,:) = (vol2gm*J_voltmp')'; 
+        J{wav}.vol = Jtmp.*repmat(c_medium,nChansPerWav,1);
+        J{wav}.gm = (vol2gm*J{wav}.vol')'; 
+        J{wav}.basis = [];
     end
     duration = toc;
-    fprintf(['Completed Jacobian at wavelength ', num2str(i), ' in ' num2str(duration/60) ' minutes\n']);
+    fprintf(['Completed Jacobian at wavelength ', num2str(wav), ' in ' num2str(duration/60) ' minutes\n']);
 end
 delete(qmfilename);
 
@@ -276,7 +295,7 @@ logData(3,:) = {'Calculated using: ', transportPackage};
 logData(4,:) = {'Optical properties (tissueInd, wavelength,[mua musPrime refInd]): ', opticalPropertiesByTissue};
 
 % Write .jac file ########################################################
-[jac, jacFileName] = DOTHUB_writeJAC(jacFileName,logData,J,Jgm,basis);
+[jac, jacFileName] = DOTHUB_writeJAC(jacFileName,logData,J,basis);
 
 
 
