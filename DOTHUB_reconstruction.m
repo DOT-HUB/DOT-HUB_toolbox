@@ -1,24 +1,26 @@
-function [dot, dotFileName] = DOTHUB_reconstruction(prepro,jac,invjac,rmap,varargin)
+function [dotimg, dotimgFileName] = DOTHUB_reconstruction(prepro,jac,invjac,rmap,varargin)
 
 % DOTHUB_reconstruction.m
 % Linear reconstruction of concentration changes from prepro data.
-
+%
 % ####################### INPUTS ##########################################
 % prepro    =  prepro structure or path to .prepro
-
+%
 % jac       =  jac structure or path to .jac. If parsed empty (i.e. as []) and
 %              invjac is parsed, invjac is used. One of the two must be parsed.
 %              If jac is parsed and jac.basis is not empty, a toast mesh basis is
 %              assumed and rebuilt in order to create the volume and then GM
 %              images. If you don't have jac, please use DOTHUB_makeToastJacobian
-
+%
 % invjac    =  invjac structure or path to .invjac. If parsed empty (i.e. as [])
 %              invjac is calculated but not saved. If you wish to
 %              pre-calculate invjac, please use DOTHUB_invertJacobian.m.
-%              built (and both saved?)
-
+%              built (and both saved?). Mpte that if invJac is parsed, any
+%              vaargin inputs related to inversion are superceded by those
+%              saved within the invjac
+%
 % rmap      =  rmap structure or path to .rmap
-
+%
 % varargin  =  optional input pairs:
 %              'reconMethod' - 'multispec' or 'standard' (default 'standard');
 %                   Specifying whether to construct and invert a multispectral
@@ -33,17 +35,19 @@ function [dot, dotFileName] = DOTHUB_reconstruction(prepro,jac,invjac,rmap,varar
 %                   Determines whether to output haemoglobin images, mua images or
 %                   both. Calls 'mua' and 'both' must be coupled with reconMethod 'standard';
 %              'saveVolumeImages' - 'true' or 'false' (default 'true');
-%                   Flag whether to output volume images to dot structure in addition GM.
+%                   Flag whether to output volume images to dotimg structure in addition GM.
 %              'saveFlag' - 'true' or 'false' (default 'true');
-%                   Flag whether to save the output images to a .dot file
+%                   Flag whether to save the output images to a .dotimg file
 %                   (default true)
-
+%
 % ######################### OUTPUTS #######################################
-%[dot, dotFileName]
+% [dotimg, dotimgFileName]
 % ####################### Dependencies ####################################
-
+%
 % #########################################################################
 % RJC, UCL, April 2020
+
+fprintf('################### Running DOTHUB_reconstruction ###################\n');
 
 % MANAGE VARIABLES
 % #########################################################################
@@ -80,19 +84,23 @@ end
 
 %Load core variables if parsed as paths
 if ischar(prepro)
-    load(prepro,'-mat');
+    preproFileName = prepro;
+    prepro = load(preproFileName,'-mat');
 end
 
 if ischar(jac)
-    load(jac,'-mat');
+    jacFileName = jac;
+    jac = load(jacFileName,'-mat');
 end
 
 if ischar(invjac)
-    load(invjac,'-mat');
+    invJacFileName = invjac;
+    invjac = load(invJacFileName,'-mat');
 end
 
 if ischar(rmap)
-    load(rmap,'-mat');
+    rmapFileName = rmap;
+    rmap = load(rmapFileName,'-mat');
 end
 
 % #########################################################################
@@ -100,7 +108,18 @@ end
 if isempty(invjac)
     varargininvjac = {'reconMethod',varInputs.reconMethod,'regMethod',varInputs.regMethod,...
         'hyperParameter',varInputs.hyperParameter,'rmap',rmap,'saveFlag',false};
-    [invjac, ~] = DOTHUB_invertJacobian(jac,prepro,varargininvjac);
+    [invjac, ~] = DOTHUB_invertJacobian(jac,prepro,varargininvjac{:});
+else
+    %invjac is being loaded directly
+    %Overwrite varInputs to match those of specified invjac;
+    fnames = fieldnames(varInputs);
+    toOverWrite = {'hyperParameter','reconMethod','regMethod'};
+    for i = 1:size(invjac.logData,1)
+        lgInd = find(strcmpi(toOverWrite,invjac.logData{i,1}));
+        if lgInd
+            varInputs = setfield(varInputs,toOverWrite{lgInd},invjac.logData{i,2});
+        end
+    end
 end
 
 % #########################################################################
@@ -108,19 +127,23 @@ end
 % Convert data into toast style (toast wants = ln(Intensity_active)-ln(intensity_baseline)
 % Parsed data is OD (i.e. data_OD = -ln(intensity_active/mean));
 % Also, crop out bad channels;
-datarecon = -prepro.dod(:,prepro.SD_3D.MeasListAct==1);
+datarecon = -prepro.dod(:,prepro.SD3D.MeasListAct==1);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Reconstruction
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Create matrices to save recontruction results
-nNodeNat = size(rmap.headVolumeMesh.node,1); %The spatial size of the native image space (basis or full volume)
-nNodeVol = size(invjac.invJ{1},1)/2; %The node count of the volume mesh
+% Unpack variables, define useful counts
+nNodeVol = size(rmap.headVolumeMesh.node,1);  %The node count of the volume mesh
+nNodeNat = size(invjac.invJ{1},1);%The spatial size of the native image space (basis or full volume)
+if strcmpi(varInputs.reconMethod,'multispectral'); %In multispectral case, invJ is double the length.
+    nNodeNat = size(invjac.invJ{1},1)/2;
+end
 nNodeGM = size(rmap.gmSurfaceMesh.node,1); %The node count of the GM mesh
 nFrames = size(datarecon,1);
-SD_3D = prepro.SD_3D;
-wavelengths = SD_3D.Lambda;
-nWavs = length(prepro.SD_3D.Lambda);
+vol2gm = rmap.vol2gm;
+SD3D = prepro.SD3D;
+wavelengths = SD3D.Lambda;
+nWavs = length(prepro.SD3D.Lambda);
 
 % pre-assign large things
 if ~(strcmpi(varInputs.imageType,'mua')) %only need haem variables if imageType not 'mua'
@@ -140,45 +163,45 @@ else
     muaFlag = 0;
 end
 
-if ~isempty(jac.basis) %If using a basis
+if ~isempty(invjac.basis) %If using a basis
     basisFlag = 1;
     %Need to replicate toast mesh to allow transform from basis to mesh
     fprintf('Rebuilding TOAST mesh...\n');
     eltp = ones(length(rmap.headVolumeMesh.elem),1)*3;
     hMesh = toastMesh(rmap.headVolumeMesh.node(:,1:3),rmap.headVolumeMesh.elem(:,1:4),eltp);
-    hBasis = toastBasis(hMesh,basis,basis*2);
+    hBasis = toastBasis(hMesh,invjac.basis,invjac.basis*2);
 else
     basisFlag = 0;
 end
 
 %###################### reconMethod = multispectral #######################
 %##########################################################################
-if strcmpi(varInputs.ReconMethod,'multispectral')
+if strcmpi(varInputs.reconMethod,'multispectral')
     fprintf('Reconstructing images...\n');
     for frame = 1:nFrames
         fprintf('Reconstructing frame %d of %d\n',frame,nFrames);
         
-        data = datarecon(frame,:);
-        img = invJ * data';
+        dataTmp = datarecon(frame,:);
+        img = invjac.invJ{1} * dataTmp'; %invjac.invJ should only have one entry.
         
         if basisFlag
-            hbo_tmp = img(1:nNode);
-            hbr_tmp = img(nNode+1:2*nNode);
-            hbo.vol(frame,:) = hBasis.Map('S->M',hbo_tmp');
-            hbr.vol(frame,:) = hBasis.Map('S->M',hbr_tmp');
+            hbo_tmp = img(1:end/2);
+            hbr_tmp = img(end/2+1:end);
+            hbo.vol(frame,:) = hBasis.Map('S->M',hbo_tmp);
+            hbr.vol(frame,:) = hBasis.Map('S->M',hbr_tmp);
         else
-            hbo.vol(frame,:) = img(1:nNode);
-            hbr.vol(frame,:) = img(nNode+1:2*nNode);
+            hbo.vol(frame,:) = img(1:nNodeVol);
+            hbr.vol(frame,:) = img(nNode+1:2*nNodeVol);
         end
         hbo.gm(frame,:) = (vol2gm*hbo.vol(frame,:)');
         hbr.gm(frame,:) = (vol2gm*hbr.vol(frame,:)');
     end
 end
-end
+
 
 %###################### reconMethod = standard ############################
 %##########################################################################
-if strcmpi(varInputs.ReconMethod,'standard')
+if strcmpi(varInputs.reconMethod,'standard')
     fprintf('Reconstructing images...\n');
     
     if ~strcmpi(varInputs.imageType,'mua') %Need to calculate haem images except if mua called
@@ -194,18 +217,18 @@ if strcmpi(varInputs.ReconMethod,'standard')
     for frame = 1:nFrames
         fprintf('Reconstructing frame %d of %d\n',frame,nFrames);
         
-        muaImageAll = zeros(nWav,nNodeNat);
+        muaImageAll = zeros(nWavs,nNodeNat);
         for wav = 1:nWavs
-            data = datarecon(frame,SD_3D.MeasList(:,4)==wav);
-            invJtmp = invJ{wav};
-            tmp = invJtmp * data(frame,:)';
+            dataTmp = datarecon(frame,SD3D.MeasList(:,4)==wav);
+            invJtmp = invjac.invJ{wav};
+            tmp = invJtmp * dataTmp';
             muaImageAll(wav,:) = tmp; %This will be nWavs * nNodeNat
         end
         
         if ~strcmpi(varInputs.imageType,'mua') %Need to calculate haem images unless imageType = 'mua'
             
             %##### CHECK THIS ########
-            img = Eallinv*muaImage;% Should be (chromophores by nWavs)*(nWavs by nNodeNat) = chromophore x node
+            img = Eallinv*muaImageAll;% Should be (chromophores by nWavs)*(nWavs by nNodeNat) = chromophore x node
             %#########################
             
             if basisFlag %Map first from basis to volume
@@ -217,8 +240,8 @@ if strcmpi(varInputs.ReconMethod,'standard')
                 hbo.vol(frame,:) = img(1,:);
                 hbr.vol(frame,:) = img(2,:);
             end
-            hbo.gm(frame,:) = (vol2gm*hbo.vol(:))';
-            hbr.gm(frame,:) = (vol2gm*hbr.vol(:))';
+            hbo.gm(frame,:) = (vol2gm*hbo.vol(frame,:)')';
+            hbr.gm(frame,:) = (vol2gm*hbr.vol(frame,:)')';
         end
         
         if muaFlag %Calculate mua images if imageType = 'both' or 'mua'
@@ -240,16 +263,16 @@ end
 if ~varInputs.saveVolumeImages
     hbo.vol = [];
     hbr.vol = [];
-    for wav = 1:nWavs;
+    for wav = 1:nWavs
         mua{wav}.vol = [];
     end
 end
 
-%################ Create dot structure and write .dot #####################
+%################ Create dotimg structure and write .dotimg #####################
 %##########################################################################
 [pathstr, name, ~] = fileparts(prepro.fileName);
 ds = datestr(now,'yyyymmDDHHMMSS');
-dotFileName = fullfile(pathstr,[name '_' ds '.dot']);
+dotimgFileName = fullfile(pathstr,[name '.dotimg']);
 logData(1,:) = {'Created on: ', ds};
 logData(2,:) = {'Associated prepro file: ', prepro.fileName};
 logData(3,:) = {'Associated invjac file: ', invjac.fileName};
@@ -257,6 +280,6 @@ logData(4,:) = {'reconMethod: ', varInputs.reconMethod};
 logData(5,:) = {'regMethod: ', varInputs.regMethod};
 logData(6,:) = {'hyperParameter: ', varInputs.regMethod};
 
-[dot, dotFileName] = DOTHUB_writeDOT(dotFileName,logData,hbo,hbr,mua,timebase,varInputs.saveFlag);
+[dotimg, dotimgFileName] = DOTHUB_writeDOTIMG(dotimgFileName,logData,hbo,hbr,mua,prepro.tDOD,varInputs.saveFlag);
 
 

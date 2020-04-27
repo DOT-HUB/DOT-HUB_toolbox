@@ -14,7 +14,8 @@ function [jac, jacFileName] = DOTHUB_writeJAC(jacFileName,logData,J,basis)
 
                         % ds = datestr(now,'yyyymmDDHHMMSS');
                         % [pathstr, name, ~] = fileparts(rmapFileName);
-                        % jacFileName = fullfile(pathstr,[name '_' ds '.jac']);
+                        % jacFileName = fullfile(pathstr,[name '.jac']);
+                        % transportPackage = 'toast';
                         % logData(1,:) = {'Created on: ', ds};
                         % logData(2,:) = {'Derived from rmap file: ', rmapFileName};
                         % logData(3,:) = {'Calculated using: ', transportPackage};
@@ -65,6 +66,8 @@ jac.logData = logData;
 
 if ~exist('basis','var')
     jac.basis = [];
+else
+    jac.basis = basis;
 end
 
 %Create filename ##########################################################
@@ -79,7 +82,12 @@ jacFileName = fullfile(pathstr,[name ext]);
 jac.fileName = jacFileName; %including the fileName within the structure is very useful 
 %for tracking and naming things derived further downstream.
 
+if exist(jacFileName,'file')
+    warning([name ext ' will be overwritten...']);
+end
+
 %Save .jac file ###########################################################
 save(jacFileName,'-struct','jac');
+fprintf('##################### Writing .jac file #########################\n');
 fprintf(['.jac data file saved as ' jacFileName '\n']);
-
+fprintf('\n');

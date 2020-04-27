@@ -1,4 +1,4 @@
-function [prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,SD_3D,tDOD,dod,tHRF,dcAvg,dcStd)
+function [prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,SD3D,tDOD,dod,tHRF,dcAvg,dcAvgStd)
 
 % This script creates a .prepro file, containing pre-processed HD-DOT data. 
 % The .pre file is primarily designed to support image reconstruction, 
@@ -20,17 +20,17 @@ function [prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,SD
 %                      This snippet also applies for input variable
 %                      'logData'.
                        
-                       %[pathstr, name, ~] = fileparts(nirsFileName);
-                       %ds = datestr(now,'yyyymmDDHHMMSS');
-                       %preproFileName = fullfile(pathstr,[name '_' ds '.prepro']);
-                       %logData(1,:) = {'Created on: '; ds};
-                       %logData(2,:) = {'Derived from data: ', nirsFileName};
-                       %logData(3,:) = {'Pre-processed using:', mfilename('fullpath')};
-                        
+                        %[pathstr, name, ~] = fileparts(nirsFileName);
+                        %ds = datestr(now,'yyyymmDDHHMMSS');
+                        %preproFileName = fullfile(pathstr,[name '.prepro']);
+                        %logData(1,:) = {'Created on: '; ds};
+                        %logData(2,:) = {'Derived from data: ', nirsFileName};
+                        %logData(3,:) = {'Pre-processed using:', mfilename('fullpath')};
+                         
 % logData           :   (Optional). logData is a cell array of strings containing useful
 %                       info as per snippet above. Parse empty to ignore.
 
-% SD_3D             :   The source-detector structure (Homer2 style) with 3D
+% SD3D             :   The source-detector structure (Homer2 style) with 3D
 %                       optode positions
 
 % tDOD              :   The time vector in seconds corresponding to the first
@@ -72,7 +72,7 @@ function [prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,SD
 % MANAGE VARIABLES
 % #########################################################################
 
-prepro.SD_3D = SD_3D; %These are must-haves
+prepro.SD3D = SD3D; %These are must-haves
 prepro.tDOD = tDOD;
 prepro.dod = dod;
 
@@ -95,8 +95,8 @@ if exist('dcAvg','var')
 end
 
 if exist('dcStd','var')
-    if ~isempty(dcStd)
-         prepro.dcStd = dcStd;
+    if ~isempty(dcAvgStd)
+         prepro.dcStd = dcAvgStd;
     end
 end
 
@@ -115,7 +115,11 @@ preproFileName = fullfile(pathstr,[name ext]);
 prepro.fileName = preproFileName; %including the fileName within the structure is very useful 
 %for tracking and naming things derived further downstream.
 
+if exist(preproFileName,'file')
+    warning([name ext ' will be overwritten...']);
+end
 %Save .pre file ###########################################################
 save(preproFileName,'-struct','prepro');
+fprintf('##################### Writing .prepro file #######################\n');
 fprintf(['.prepro data file saved as ' preproFileName '\n']);
-
+fprintf('\n');

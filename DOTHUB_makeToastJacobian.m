@@ -1,52 +1,64 @@
-function [jac, jacFileName] = DOTHUB_makeToastJacobian(rmapFileName,basis)
+function [jac, jacFileName] = DOTHUB_makeToastJacobian(rmap,basis)
 
-%Calculates Jacobian using Toast++.
-
+% Calculates Jacobian using Toast++.
+%
 % #########################################################################
 % INPUTS ##################################################################
-
-% rmapFileName  : The full path to the rmap file containing variables:
-
-                    % SD_3Dmesh          :   The SD structure containing registered 3D optode
-                    %                        positions on the mesh, and (critically) SD.MeasList
-
-                    % headVolumeMesh     :   The multi-layer volume mesh structure, registered
-                    %                        to the relevant individual. Contains fields:
-                    %                        node, face, elem, labels
-
-                    % gmSurfaceMesh      :   The gm surface mesh structure, registered
-                    %                           to the relevant individual. Contains fields:
-                    %                           node, face.
-
-                    % scalpSurfaceMesh   :   The scalp surface mesh structure, registered
-                    %                           to the relevant individual. Contains fields:
-                    %                           node, face.
-
-                    % vol2gm                :   The sparse matrix mapping from head volume mesh
-                    %                           space to GM surface mesh space
-
+%
+% rmap          : The full path to the rmap file, or the rmap structure itself, containing variables:
+%
+%                    % SD3Dmesh          :   The SD structure containing registered 3D optode
+%                    %                       positions on the mesh, and
+%                                            (critically) SD.MeasList
+%
+%                    % headVolumeMesh     :   The multi-layer volume mesh structure, registered
+%                    %                        to the relevant individual. Contains fields:
+%                    %                        node, face, elem, labels
+%
+%                    % gmSurfaceMesh      :   The gm surface mesh structure, registered
+%                    %                           to the relevant individual. Contains fields:
+%                    %                           node, face.
+%
+%                    % scalpSurfaceMesh   :   The scalp surface mesh structure, registered
+%                    %                           to the relevant individual. Contains fields:
+%                    %                           node, face.
+%
+%                    % vol2gm                :   The sparse matrix mapping from head volume mesh
+%                    %                           space to GM surface mesh space
+%
 % basis        :   (Optiona) 1x3 vector specifying basis dimensions if desired. 
 %                  A basis of [50 50 50] is aassigned by default if
 %                  nnodes>200k.
-            
+%            
 % OUTPUTS #################################################################
-
+%
 % jac                      :  Structure containing all data inputs
-
+%
 % jacFileName              :  The full path of the resulting .jac file
-
+%
 % jacFileName.jac file     :  File containing all data inputs
-
+%
 % #########################################################################
 % #########################################################################
 % RJC, UCL, May 2019
 % EVR, UCL, Modified on June 2019
-% RJC, UCL, Modified for Github first commit
+% RJC, UCL, Modified April 2020 for Github first commit
 % #########################################################################
+
+fprintf('############### Running DOTHUB_makeToastJacobian #################\n');
 
 % MANAGE VARIABLES
 % #########################################################################
+
+if ischar(rmap)
+    rmapFileName = rmap;
+    rmap = load(rmapFileName,'-mat');
+else
+    rmapFileName = rmap.fileName;
+end
+
 basisFlag = 0;
+nNodeVol = size(rmap.headVolumeMesh.node,1);
 if ~exist('basis','var')
     if nNodeVol>2e5 %HARD CODE NODE LIMIT AT 200,000
         basisFlag = 1;
@@ -76,20 +88,19 @@ if isempty(rmapPath) %Ensure full path.
     rmapPath = pwd;
     rmapFileName = fullfile(rmapPath,[rmapName '.rmap']);
 end
-rmap = load(rmapFileName,'-mat'); %head, gm, scalp, SD_3Dmesh, vol2gm, logData
+rmap = load(rmapFileName,'-mat'); %head, gm, scalp, SD3Dmesh, vol2gm, logData
 
 % Unpack key fields #######################################################
 headVolumeMesh = rmap.headVolumeMesh;
 gmSurfaceMesh = rmap.gmSurfaceMesh;
-SD_3Dmesh = rmap.SD_3Dmesh;
-wavelengths = SD_3Dmesh.Lambda;
+SD3Dmesh = rmap.SD3Dmesh;
+wavelengths = SD3Dmesh.Lambda;
 vol2gm = rmap.vol2gm;
 
 nElemVol = size(headVolumeMesh.elem,1);
-nNodeVol = size(headVolumeMesh.node,1);
 nNodeGM = size(gmSurfaceMesh.node,1);
-nChans = size(SD_3Dmesh.MeasList,1);
-nChansPerWav = sum(SD_3Dmesh.MeasList(:,4)==1);
+nChans = size(SD3Dmesh.MeasList,1);
+nChansPerWav = sum(SD3Dmesh.MeasList(:,4)==1);
 nWavs = length(wavelengths);
 
 % #########################################################################
@@ -156,15 +167,15 @@ end
 if rewriteRMAP
     fprintf('Updating .rmap file with corrected headVolumeMesh \n');
     rmap.logData(end+1,:) = {'File updated by DOTHUB_makeToastJacobian on ',datestr(now,'yyyymmDDHHMMSS')};
-    DOTHUB_writeRMAP(rmapFileName,rmap.logData,rmap.SD_3Dmesh,headVolumeMesh,rmap.gmSurfaceMesh,rmap.scalpSurfaceMesh,rmap.vol2gm);
+    DOTHUB_writeRMAP(rmapFileName,rmap.logData,rmap.SD3Dmesh,headVolumeMesh,rmap.gmSurfaceMesh,rmap.scalpSurfaceMesh,rmap.vol2gm);
 end
 
 % #########################################################################
 % Set optical properties
 % First assign
-muaVec = zeros(length(wavelengths),length(headVolumeMesh.node));
-musPrimeVec = zeros(length(wavelengths),length(headVolumeMesh.node));
-refIndVec = zeros(length(wavelengths),length(headVolumeMesh.node));
+muaVec = zeros(nWavs,nNodeVol);
+musPrimeVec = zeros(nWavs,nNodeVol);
+refIndVec = zeros(nWavs,nNodeVol);
 
 % Determine tissue optical properties and populate vectors
 nTissues = length(headVolumeMesh.labels);
@@ -192,9 +203,9 @@ end
 
 % #########################################################################
 % Define linklist & QM file (remember to delete) ##########################
-linklist = DOTHUB_SD2linklist(SD_3Dmesh);
+linklist = DOTHUB_SD2linklist(SD3Dmesh);
 qmfilename = 'tmpfull.qm';
-DOTHUB_writeToastQM(qmfilename,SD_3Dmesh.SrcPos,SD_3Dmesh.DetPos,linklist)
+DOTHUB_writeToastQM(qmfilename,SD3Dmesh.SrcPos,SD3Dmesh.DetPos,linklist)
 
 % Generate Jacobian #######################################################
 % #########################################################################
@@ -207,8 +218,9 @@ bicgstabtol=1e-12;
 % Test how long this will take using single channel
 % #########################################################################
 if testFlag == 1
+    try
     disp('Running test calculation...');
-    DOTHUB_writeToastQM('tmp.qm',SD_3Dmesh.SrcPos(1,:),SD_3Dmesh.DetPos(1,:),1)
+    DOTHUB_writeToastQM('tmp.qm',SD3Dmesh.SrcPos(1,:),SD3Dmesh.DetPos(1,:),1)
     hMesh.ReadQM('tmp.qm');
     qvec = hMesh.Qvec ('Neumann', 'Gaussian', 2);
     mvec = hMesh.Mvec ('Gaussian', 2, refIndVec(1,:)');
@@ -227,8 +239,11 @@ if testFlag == 1
     end
     %Assume linear with optode number (very approximate)
     fprintf('Test complete...\n');
-    fprintf(['Estimated processing time estimate for full Jacobian, per wavelength = ' num2str(duration*0.5*(SD_3Dmesh.nDets + SD_3Dmesh.nSrcs)/60,'%0.2f') ' mins\n']);
+    fprintf(['Estimated processing time estimate for full Jacobian, per wavelength = ' num2str(duration*0.5*(SD3Dmesh.nDets + SD3Dmesh.nSrcs)/60,'%0.2f') ' mins\n']);
     delete('tmp.qm');
+    catch
+        fprintf('Test of toastJacobianCW failed. Please check inputs...\n');
+    end
 end
 
 % #########################################################################
@@ -257,22 +272,16 @@ for wav = 1:nWavs
     tic
     Jtmp = toastJacobianCW(hMesh, hBasis, qvec, mvec, muaVec(wav,:)', musPrimeVec(wav,:)', refIndVec(wav,:)', jtype, bicgstabtol);
     
-    %pre-allocate
-    J{wav}.vol = nan(nChansPerWav,nNodeVol);
-    J{wav}.gm = nan(nChansPerWav,nNodeGM);
-    
     if basisFlag %Multiply by c, then map to volume to GM, delete volume
-        J{wav}.basis = nan(nChansPerWav,nNodeNat);
-        Jtmp = Jtmp.*repmat(hBasis.Map('M->S',c_medium),1,size(Jtmp,1))';
+        J{wav}.basis = Jtmp.*repmat(hBasis.Map('M->S',c_medium),1,size(Jtmp,1))';
         for chan = 1:nChansPerWav
-            J{wav}.vol(chan,:) = hBasis.Map('S->M',Jtmp(chan,:)');
+            J{wav}.vol(chan,:) = hBasis.Map('S->M',J{wav}.basis(chan,:)');
         end
         J{wav}.gm = (vol2gm*J{wav}.vol')'; 
         
-        %Clear things, empty J.vol if basis
+        %Clear things, empty J.vol as we are in basis
         clear Jtmp
         J{wav}.vol = [];
-    
     else %In volume nodes
         J{wav}.vol = Jtmp.*repmat(c_medium,nChansPerWav,1);
         J{wav}.gm = (vol2gm*J{wav}.vol')'; 

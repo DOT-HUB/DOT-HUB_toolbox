@@ -1,14 +1,15 @@
 function [invjac, invjacFileName] = DOTHUB_invertJacobian(jac,prepro,varargin)
 
+% Inverts jacobian in the specified manner
 % ####################### INPUTS ##########################################
 % jac       =  jac structure or path to .jac. If jac.basis is not empty, a
 %              toast mesh basis is assumed and rebuilt in order to create the volume and then GM
 %              images. If you don't have jac, please use DOTHUB_makeToastJacobian
-
+%
 % prepro    =  prepro structure or path to .prepro
-
+%
 % rmap      =  rmap structure or path to .rmap
-
+%
 % varargin  =  optional input pairs:
 %              'reconMethod' - 'multispec' or 'standard' (default 'standard');
 %                   Specifying whether to construct and invert a multispectral
@@ -25,19 +26,21 @@ function [invjac, invjacFileName] = DOTHUB_invertJacobian(jac,prepro,varargin)
 %              'hyperParameter' - numerical value or vector (for 'spatial') (default 0.01);
 %                   Regularization hyperparamter. See DOTHUB_invertJacobian for more details
 %              'rmap' - structure or path to .rmap file.
-%                   Necessary fo spatially varying regularization.
+%                   Necessary for spatially varying regularization.
 %              'saveFlag' - 'true' or 'false' (default 'false');
 %                   Flag whether to save invjac to disk;
-
+%
 % ####################### OUTPUTS #########################################
-
+%
 % invjac            : The invjac stucture
-
+%
 % invjacFileName    : The full pathname of the
-
+%
 % ####################### Dependencies ####################################
 % #########################################################################
 % RJC, UCL, April 2020
+
+fprintf('################## Running DOTHUB_invertJacobian ####################\n');
 
 % MANAGE VARIABLES
 % #########################################################################
@@ -48,9 +51,8 @@ addParameter(varInputs,'reconMethod','standard',validateReconMethod);
 validateRegMethod = @(x) assert(any(strcmpi({'tikhonov','covariance','spatial'},x)));
 addParameter(varInputs,'regMethod','tikhonov',validateRegMethod);
 addParameter(varInputs,'hyperParameter',0.01,@isnumeric);
+addParameter(varInputs,'rmap',[]);
 validateFlag = @(x) assert(x==0 || x==1);
-addParameter(varInputs,'saveVolumeImages',false,validateFlag);
-addParameter(varInputs,'saveMuaImages',false,validateFlag);
 addParameter(varInputs,'saveFlag',false,validateFlag);
 parse(varInputs,varargin{:});
 
@@ -63,6 +65,15 @@ parse(varInputs,varargin{:});
 
 %More parsing and error handling
 varInputs = varInputs.Results;
+if ~isempty(varInputs.rmap) %rmap parsed
+    if ischar(varInputs.rmap)
+        rmapFileName = varInputs.rmap;
+        rmap = load(rmapFileName,'-mat');
+    else
+        rmap = varInputs.rmap;
+        rmapFileName = rmap.fileName;
+    end
+end
 fnames = fieldnames(varInputs);
 if strcmpi(varInputs.regMethod,'spatial')
     if length(varInputs.hyperParameter)<2
@@ -78,37 +89,56 @@ if (strcmpi(varInputs.reconMethod,'cortical') || strcmpi(varInputs.regMethod,'sp
 end
 
 %Display selected parameters
-fprintf(['####### Input parameters #######\n'])
+fprintf(['***INPUT PARAMETERS***\n'])
 for i = 1:numel(fnames)
+    if strcmpi(fnames{i},'rmap');continue;end
     fprintf([fnames{i} ' = ' num2str(getfield(varInputs,fnames{i})) '\n'])
 end
-
+fprintf('\n');
+    
 % #########################################################################
 % Load jac and/prepro structures if they are parsed as paths;
 if ischar(jac)
     jacFileName = jac; %Might want to force these to be the full path.
     jac = load(jacFileName,'-mat');
+else
+    jacFileName = jac.fileName;
 end
 if ischar(prepro)
     preproFileName = prepro;
-    load(preproFileName,'-mat');
+    prepro = load(preproFileName,'-mat');
+else
+    preproFileName = prepro.fileName;
 end
 
 % #########################################################################
 % Unpack a few things...
-SD_3D = prepro.SD_3D;
-wavelengths = SD_3D.Lambda;
+SD3D = prepro.SD3D;
+wavelengths = SD3D.Lambda;
 nWavs = length(wavelengths);
 hyperParameter = varInputs.hyperParameter;
-nNodeVol = size(jac.J{1}.vol,2);
 
+if ~isempty(jac.basis) %In basis
+    basisFlag = 1;
+    nNodeNat = size(jac.J{1}.basis,2);
+    for wav = 1:nWavs
+        JNat{wav} = jac.J{wav}.basis;
+    end
+else
+    basisFlag = 0;
+    nNodeNat = size(jac.J{1}.vol,2);
+    for wav = 1:nWavs
+        JNat{wav} = jac.J{wav}.vol;
+    end
+end
+    
 % #########################################################################
 % Perform Channel Rejection prior to inversion.
 % Make sure the active channels at all wavelengths are the same!
 Eall = [];
 for i = 1:nWavs
-    tmp = J{i};
-    Jcropped{i} = tmp(SD_3D.MeasListAct(SD.MeasList(:,4)==i),:);
+    tmp = JNat{i};
+    JNatCropped{i} = tmp(SD3D.MeasListAct(SD3D.MeasList(:,4)==i),:);
 end
 
 % Determine reconMethod
@@ -124,7 +154,7 @@ if strcmpi(varInputs.reconMethod,'standard')
             % Inversion matrix, wavelength i
             invJ = cell(nWavs,1);
             for i = 1:nWavs
-                Jtmp = Jcropped{i};
+                Jtmp = JNatCropped{i};
                 JJT = Jtmp*Jtmp';
                 S=svd(JJT);
                 invJ{i} = Jtmp'/(JJT + eye(length(JJT))*(varInputs.hyperParameter*max(S)));
@@ -151,11 +181,11 @@ if strcmpi(varInputs.reconMethod,'multispectral')
     for i = 1:nWavs
         Etmp = GetExtinctions(wavelengths(i));
         Eall = [Eall; Etmp./1e7]; %Combine specific absorption coeffs into matrix (wavelength x chromphore), convert units from cm-1/M to mm-1/uM
-        Jtiled = [Jtiled; Jcropped{i} Jcropped{i}]; %Tile wavelength-specific jacobians
+        Jtiled = [Jtiled; JNatCropped{i} JNatCropped{i}]; %Tile wavelength-specific jacobians
     end
     
     %Building extinction coefficient dummy
-    Ei = ones(size(Jcropped{1}));
+    Ei = ones(size(JNatCropped{1}));
     Etiled = [];
     for c = 1:2 %Chromophore
         El = [];
@@ -180,8 +210,8 @@ if strcmpi(varInputs.reconMethod,'multispectral')
         case 'covariance'
             fprintf('Running covariance regularized inversion (beta!)...\n');
             %Extract relevant chunk of prepro.dod to calculate covariance. %Might be better to pass the reference data directly?
-            if length(find(propro.tDOD<0))>1  %Must be an HRF
-                [~,ind] = min(abs(tDOD));
+            if length(find(prepro.tDOD<0))>1  %Must be an HRF
+                [~,ind] = min(abs(prepro.tDOD));
                 covData = prepro.dod(1:ind,:);
             else %take first 30 seconds, or 10% of data, whichever is less.
                 if range(tDOD)< 30
@@ -192,7 +222,7 @@ if strcmpi(varInputs.reconMethod,'multispectral')
                 end
             end   
             sigma_v = cov(covData); 
-            sigma_u = sparse(1:2*nNodeVol,1:2*nNodeVol,1);
+            sigma_u = sparse(1:2*nNodeNat,1:2*nNodeNat,1);
             JJT = Jmulti*sigma_u*Jmulti';
             l1 = hyperParameter*trace(JJT)/trace(sigma_v);
             invJ{1} = sigma_u*Jmulti' / ( JJT + sigma_v*l1);
@@ -243,8 +273,11 @@ invjacFileName = fullfile(pathstr,[name '.invjac']);
 ds = datestr(now,'yyyymmDDHHMMSS');
 logData(1,:) = {'Created on: ', ds};
 logData(2,:) = {'Derived from jac file: ', jac.fileName};
-logData(3,:) = {'reconMethod: ', varInputs.reconMethod};
-logData(4,:) = {'regMethod: ', varInputs.regMethod};
-logData(5,:) = {'hyperParameter: ', varInputs.regMethod};
+%Include varInputs
+fnames = fieldnames(varInputs);
+for i = 1:length(fnames)
+    if strcmpi(fnames{i},'rmap');continue; end
+    logData(end+1,:) = {fnames{i}, getfield(varInputs,fnames{i})};
+end
 [invjac, invjacFileName] = DOTHUB_writeINVJAC(invjacFileName,logData,invJ,jac.basis,varInputs.saveFlag);
 
