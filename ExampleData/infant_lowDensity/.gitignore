@@ -1,0 +1,6 @@
+*.m~
+*.prepro
+*.rmap
+*.jac
+*.invjac
+*.qm
