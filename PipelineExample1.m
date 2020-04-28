@@ -18,29 +18,28 @@ origMeshFullFileName = 'ExampleData/uNTS_fingerTapping/AdultMNI152.mshs';
 SD3DFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.SD3D';
 
 %Run bespoke pre-processing script (simplest possible example included below)
-%[prepro, preproFileName] = examplePreProcessingScript(nirsFileName);
+[prepro, preproFileName] = examplePreProcessingScript(nirsFileName);
 
 %Register chosen mesh to subject SD3D and create rmap
-%[rmap, rmapFileName] = DOTHUB_meshRegistration(nirsFileName,origMeshFullFileName);
+[rmap, rmapFileName] = DOTHUB_meshRegistration(nirsFileName,origMeshFullFileName);
 
 %Calculate Jacobian (use small basis for speed of example)
-%[jac, jacFileName] = DOTHUB_makeToastJacobian(rmap,[10 10 10]);
+[jac, jacFileName] = DOTHUB_makeToastJacobian(rmap,[10 10 10]);
 
 %You can either separately calculate the inverse, or just run
 %DOTHUB_reconstruction, which will then call the inversion.
-jacFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.jac';
-preproFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.prepro';
-rmapFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.rmap';
-
-[invjac, invjacFileName] = DOTHUB_invertJacobian(jacFileName,preproFileName,'saveFlag',true,'reconMethod','multispectral');%,'regMethod','covariance');
+[invjac, invjacFileName] = DOTHUB_invertJacobian(jac,prepro,'saveFlag',true,'reconMethod','multispectral','hyperParameter',0.02);%,'regMethod','covariance');
 
 %Reconstruct
-[dot, dotFileName] = DOTHUB_reconstruction(preproFileName,[],invjacFileName,rmapFileName);
+[dotimg, dotimgFileName] = DOTHUB_reconstruction(preproFileName,[],invjacFileName,rmapFileName);
 
 %Display results
 rmap = load(rmapFileName,'-mat');
-DOTHUB_displayOnMesh(rmap.gmSurfaceMesh,dot.hbo.gm(60,:))
+DOTHUB_displayOnMesh(rmap.gmSurfaceMesh,dotimg.hbo.gm(60,:))
 
+%jacFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.jac';
+%preproFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.prepro';
+%rmapFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.rmap';
 
 
 

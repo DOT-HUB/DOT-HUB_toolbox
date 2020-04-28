@@ -38,7 +38,7 @@ function [invjac, invjacFileName] = DOTHUB_invertJacobian(jac,prepro,varargin)
 %
 % ####################### Dependencies ####################################
 % #########################################################################
-% RJC, UCL, April 2020
+% EVR & RJC, UCL, April 2020
 
 fprintf('################## Running DOTHUB_invertJacobian ####################\n');
 
@@ -165,7 +165,7 @@ if strcmpi(varInputs.reconMethod,'standard')
             return
             
         case 'spatial'
-            fprintf('Covariance reconstruction coming soon \n');
+            fprintf('Spatially varying regularization reconstruction coming soon \n');
             return
             %load rmap
     end
