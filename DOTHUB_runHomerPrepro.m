@@ -1,7 +1,4 @@
-[prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileName,variableToReconstruct);
-
-%nirsFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.nirs';
-%cfgFileName = 'ExampleData/uNTS_fingerTapping/test.cfg';
+function [prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileName,variableToReconstruct)
 
 % Runs Homer processing stream defined in cfgFileName on nirs file
 % nirsFileName, and outputs relevant results into a prepro file. The output
