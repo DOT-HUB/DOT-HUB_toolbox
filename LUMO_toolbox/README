@@ -1,0 +1,12 @@
+DOT-HUB LUMO TOOLBOX
+This repository contains a range of matlab functions and scripts designed for interfacing with the Gowerlabs LUMO HD-DOT device and processing
+of the resulting data.  
+
+To use this toolbox, simply clone or download the repository and add the contents to your matlab path. There are a number of dependencies, 
+including our own Function Library (see in repositories); toml: https://github.com/g-s-k/matlab-toml; homer2: https://www.nitrc.org/projects/homer2; 
+and iso2mesh: http://iso2mesh.sourceforge.net/cgi-bin/index.cgi
+
+This toolbox is open source, but is designed predominantly for internal use, and maintainance/change requests may or may not
+be followed up.
+
+####
