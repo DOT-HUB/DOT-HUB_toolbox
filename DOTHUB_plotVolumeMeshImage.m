@@ -27,7 +27,6 @@ function DOTHUB_plotVolumeMeshImage(mesh,image,slice_dim,slice_pos,imageThresh,i
 %                   display on label caxis e.g. HbO (uM);
 %
 %############################# Dependencies ###############################
-% freezeColors, John Iversen (iversen@nsi.edu) 3/23/05 https://uk.mathworks.com/matlabcentral/fileexchange/7943-freezecolors-unfreezecolors
 % plotmesh, Iso2Mesh, Qianqian Fang, https://github.com/fangq/iso2mesh
 %
 % #########################################################################
