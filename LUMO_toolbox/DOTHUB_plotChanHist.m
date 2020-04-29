@@ -1,4 +1,4 @@
-function DOTHUB_LUMOchanHistPlot(SD,xAxisUpperLim)
+function DOTHUB_plotChanHist(SD,xAxisUpperLim)
 
 % This function creates a histogram of good channels (defined by SD.MeasListAct) 
 % overlayed on all possible channels;

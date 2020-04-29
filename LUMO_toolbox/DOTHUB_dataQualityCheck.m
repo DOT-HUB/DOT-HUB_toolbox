@@ -1,32 +1,32 @@
-function DOTHUB_LUMOdataQualityCheck(nirsFileName,printFigFlag)
+function DOTHUB_dataQualityCheck(nirsFileName,printFigFlag)
 
 %This script reads a .nirs file and provides a series of figures
 %demonstrating the quality of the data recorded in that file. This is to
 %allow rapid checking of the quality of a recording. The results are NOT
 %saved into the .nirs file.  Pruning must be repeated in the downstream
 %pre-processing steps.
-
+%
 %######################## INPUTS ##########################################
-
+%
 % nirsFilename: The path of the .nirs data file
-
+%
 % printFigFlag: (Optional). If true, the figures are printed to the directory 
 %               of the nirs file. Default is true.
-               
-
+%               
+%
 %######################## OUTPUTS #########################################
-
+%
 %Outputs are figures and a _dataQualityCheck.txt file
-
+%
 %######################## Dependencies ####################################
 %This script requires the DOTHUB function library, export_fig, and homer2.
-
+%
 % #########################################################################
 % RJC, UCL, April 2020
 %
 % ############################# Updates ###################################
 % #########################################################################
-nirsFileName = '/Users/RCooper/Dropbox/Projects/LUMO/Lumo_AdultVisual_Pilot_150419/Rob_150419/Rob_150419_Visual2.nirs';
+% nirsFileName = '/Users/RCooper/Dropbox/Projects/LUMO/Lumo_AdultVisual_Pilot_150419/Rob_150419/Rob_150419_Visual2.nirs';
 % #########################################################################
 % #########################################################################
 
@@ -86,20 +86,20 @@ SDclean = SDtmp;
 % First plot intvtime plot for all data
 f1 = figure('Units','Normalized','Position',[0 0 0.8 0.8],'Color','w');
 f1.Color = 'w';
-DOTHUB_LUMOintVTimePlot(t,d,SDclean,1)
+DOTHUB_plotIntVTime(t,d,SDclean,1)
 title(fname,'Interpreter','none','FontSize',16,'FontWeight','Bold');
 
 % Plot PSD of all data
 f2 = figure('Units','Normalized','Position',[0 0 0.8 0.8],'Color','w');
-DOTHUB_LUMOpsdPlot(t,dcrop,SDclean,1)
+DOTHUB_plotPSD(t,dcrop,SDclean,1)
 title(fname,'Interpreter','none','FontSize',16,'FontWeight','Bold');
 
 % Plot channel-wise intvdist plots
 f3 = figure('Units','Normalized','Position',[0 0 0.8 0.8],'Color','w');
 subplot(1,2,1);
-DOTHUB_LUMOintVDistPlot(dcrop,SDtmp,1);
+DOTHUB_plotIntVTime(dcrop,SDtmp,1);
 subplot(1,2,2);
-DOTHUB_LUMOchanHistPlot(SDtmp);
+DOTHUB_plotChanHist(SDtmp);
 sgtitle(fname,'Interpreter','none','FontSize',16,'FontWeight','Bold');
 
 % PRINT SUMMARY ###########################################################

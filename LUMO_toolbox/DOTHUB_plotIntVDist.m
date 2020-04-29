@@ -1,24 +1,24 @@
-function DOTHUB_LUMOintVDistPlot(d,SD,labelFlag,xAxisUpperLim)
+function DOTHUB_plotIntVDist(d,SD,labelFlag,xAxisUpperLim)
 
 % This function creates an intensity versus SD-distance drop-off curve
 % figure.
-
+%
 %######################## INPUTS ##########################################
-
+%
 % d             : The intensity data matrix (timepoints x channels) (Homer2 style)
 % SD            : The source-detector structure (Homer2 style). Should be 3D.
 % labelFlag     : (Optional). If true, the datacursor is activated to allow point
 %                 labelling (optional, default false);
 % xAxisUpperLim : (Optional). The upper limit on the x axis. Defaults to
 %                 max distance in array, but cropping useful for papers.
-
+%
 %######################## OUTPUTS #########################################
-
+%
 %Outputs are figures...
-
+%
 %######################## Dependencies ####################################
 %This script requires other functions in the DOTHUB function library
-
+%
 % #########################################################################
 % RJC, UCL, April 2020
 %
@@ -61,13 +61,26 @@ if max(dists)>70
     line([0 xAxisUpperLim],[noisefloorest noisefloorest],'LineWidth',2,'LineStyle','-.','Color','k');
     text(1,noisefloorest*0.75,['Noise floor ~ ' num2str(noisefloorest,'%0.2e')]);
 end
-
 hold off;
+
+% Determine if data is LUMO data (to allow module labelling) 
+% ##########################################################################
+% ##### (Temporary solution? Need to define module elements in .SD3D?) #####
+if SD.nSrcs == (2/3)*SD.nDets && rem(SD.nSrcs,3)==0 && rem(SD.nDets,4)==0 &&min(dists)<12
+    lumoFlag = 1;
+else
+    lumoFlag = 0;
+end
+% ##########################################################################
 
 if labelFlag
     dcm = datacursormode(gcf);
     datacursormode on
-    set(dcm,'updatefcn',{@DOTHUB_LUMOintvdistplot_tiplabels,SD})
+    if lumoFlag
+        set(dcm,'updatefcn',{@DOTHUB_LUMOintvdistplot_tiplabels,SD})
+    else
+        set(dcm,'updatefcn',{@DOTHUB_intvdistplot_tiplabels,SD})
+    end
     dcm.updateDataCursors
 end
 
@@ -96,5 +109,29 @@ di = SD.DetPos(SD.MeasList(index,2),:);
 labels = {['Channel ',num2str(index),', dist = ',num2str(sqrt(sum((si-di).^2)),4),' mm'],...
           ['Source = ' num2str(SD.MeasList(index,1)) ' (Tile ' num2str(ceil(SD.MeasList(index,1)/3)) ', Src = ' srcLabs{tmpS(index)} ')'],...
           ['Detector = ' num2str(SD.MeasList(index,2)) ' (Tile ' num2str(ceil(SD.MeasList(index,2)/4)) ', Detector = ' num2str(tmpD(index)) ')']};
+
+      
+function labels = DOTHUB_intvdistplot_tiplabels(obj,event_obj,SD)
+
+index = event_obj.Target.Children.DataIndex; 
+%this could be channel index or index of channel(goodchan)
+%determine if it is a point from all chan, good chan, and define
+%wavelength;
+if strcmpi(event_obj.Target.Marker,'square')
+    wav = 2;
+else
+    wav = 1;
+end
+if event_obj.Target.CData(1) == 1 %Is red, so index is relative to good data
+    tmp = 1:size(SD.MeasList,1);
+    tmp2 = tmp(SD.MeasListAct==1);
+    index = tmp2(index);
+end
+   
+si = SD.SrcPos(SD.MeasList(index,1),:);
+di = SD.DetPos(SD.MeasList(index,2),:);
+labels = {['Channel ',num2str(index),', dist = ',num2str(sqrt(sum((si-di).^2)),4),' mm'],...
+          ['Source = ' num2str(SD.MeasList(index,1))],...
+          ['Detector = ' num2str(SD.MeasList(index,2))]};
 
 
