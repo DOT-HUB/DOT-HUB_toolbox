@@ -209,6 +209,8 @@ SD.MeasListAct = MLAtmp(tmpInd);
 if polhemusFlag %If polhemus information is parsed, calculate S-D positions from that file
     fprintf(['Using ' posCSVFileName ' to define SD3D...\n']);
     [SD_POL, SD3DFileName] = DOTHUB_LUMOpolhemus2SD3D(posCSVFileName);
+    SD_POL.MeasListAct = SD.MeasListAct;
+    
     if nNodes<nDocks %Crop SD file accordingly if the number of docks populated in the datafile differs from the number in the SD_3D data
         SD3D = SD; %Define based on SD which contains correct measlist
         for n = 1:nNodes
@@ -240,8 +242,7 @@ if polhemusFlag %If polhemus information is parsed, calculate S-D positions from
         end
         axis equal
         xlabel('X (mm)');ylabel('Y (mm)');zlabel('Z (mm)');
-        title('Final Subset Array')
-        
+        title('Final Subset Array') 
     else
         SD3D = SD_POL;
     end

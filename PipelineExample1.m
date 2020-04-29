@@ -16,6 +16,7 @@
 nirsFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.nirs';
 origMeshFullFileName = 'ExampleData/uNTS_fingerTapping/AdultMNI152.mshs';
 SD3DFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.SD3D';
+rmapFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.rmap';
 
 %Run bespoke pre-processing script (simplest possible example included below)
 [prepro, preproFileName] = examplePreProcessingScript(nirsFileName);
@@ -31,19 +32,16 @@ SD3DFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.SD3D';
 [invjac, invjacFileName] = DOTHUB_invertJacobian(jacFileName,preproFileName,'saveFlag',true,'reconMethod','multispectral','hyperParameter',0.02);%,'regMethod','covariance');
 
 %Reconstruct
-[dotimg, dotimgFileName] = DOTHUB_reconstruction(preproFileName,[],invjacFileName,rmapFileName);
+[dotimg, dotimgFileName] = DOTHUB_reconstruction(preproFileName,[],invjacFileName,rmapFileName,'saveVolumeIMages',true);
 
 %Display results
-rmap = load(rmapFileName,'-mat');
-DOTHUB_displayOnMesh(rmap.gmSurfaceMesh,dotimg.hbo.gm(60,:))
+frames = 55:75;
+DOTHUB_plotSurfaceDOTIMG(dotimg,rmap,frames,'view',[-130 15])
 
+DOTHUB_plotVolumeDOTIMG(dotimg,origMeshFullFileName,frames);
 %jacFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.jac';
 %preproFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.prepro';
 %rmapFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.rmap';
-
-
-
-
 
 
 function [prepro, preproFileName] = examplePreProcessingScript(nirsFileName)
@@ -53,7 +51,7 @@ load(nirsFileName,'-mat');
 od = hmrIntensity2OD(d);
 od = hmrBandpassFilt(od,1/mean(diff(t)),0.01,0.5);
 dc = hmrOD2Conc(od,SD3D,[6 6]);
-[dcAvg, dcStd, tHRF] = hmrBlockAvg(dc,s,t,[-5 25]);
+[dcAvg, dcStd, tHRF] = hmrDeconvHRF_DriftSS(dc,s,t,SD3D,[],ones(size(t)),[-5 25],1,1,[1 1],15,1,3,0);
 dodAvg = DOTHUB_hmrHRFConc2OD(dcAvg, SD3D,[6 6]);
 
 %USE CODE SNIPPET FROM DOTHUB_writePREPRO to define filename and logData

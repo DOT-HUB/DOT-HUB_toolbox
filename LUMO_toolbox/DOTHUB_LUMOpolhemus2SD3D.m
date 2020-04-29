@@ -69,7 +69,7 @@ wavelength1 = 735;
 wavelength2 = 850;
 
 %distLimit
-distLimit = 60; %mm
+%distLimit = 60; %mm
 
 %#########################################################################
 %#########################################################################
@@ -272,14 +272,14 @@ for i = 1:SD.nSrcs
     for j = 1:SD.nDets
         %Insert channel distance limit filter?
         distTmp = sqrt(sum((SD.SrcPos(i,:) - SD.DetPos(j,:)).^2));
-        if distTmp <= distLimit
+        %if distTmp <= distLimit
             dists(count) = distTmp; %might be useful later
             SD.MeasList(count,1) = i;
             SD.MeasList(count,2) = j;
             SD.MeasList(count,3) = 0;
             SD.MeasList(count,4) = 1;
             count = count+1;
-        end
+        %end
     end
 end
 SD.MeasList = [SD.MeasList; SD.MeasList];

@@ -174,6 +174,18 @@ else
     basisFlag = 0;
 end
 
+if ~varInputs.saveVolumeImages %If not saving volume, populate empty
+    hbo.vol = [];
+    hbr.vol = [];
+    for wav = 1:nWavs
+        mua{wav}.vol = [];
+    end
+elseif strcmpi(varInputs.imageType,'haem') %saving volume, but not mua
+    for wav = 1:nWavs
+        mua{wav}.vol = [];
+    end
+end
+
 %###################### reconMethod = multispectral #######################
 %##########################################################################
 if strcmpi(varInputs.reconMethod,'multispectral')
@@ -257,14 +269,6 @@ if strcmpi(varInputs.reconMethod,'standard')
                 end
             end
         end
-    end
-end
-
-if ~varInputs.saveVolumeImages
-    hbo.vol = [];
-    hbr.vol = [];
-    for wav = 1:nWavs
-        mua{wav}.vol = [];
     end
 end
 

@@ -1,4 +1,4 @@
-function DOTHUB_plotVolumeMeshImage(mesh,image,slice_dim,slice_pos,imageThresh,imrange,tissue_labels,image_label)
+function DOTHUB_plotVolumeImage(mesh,image,slice_dim,slice_pos,imageThresh,cmap,crange,image_label)
 
 %This function plots a volumetric node-wise image overlayed onto a volume 
 %mesh.
@@ -20,14 +20,9 @@ function DOTHUB_plotVolumeMeshImage(mesh,image,slice_dim,slice_pos,imageThresh,i
 % imageThresh =     The value below which the values of the image are
 %                   rendered transparent (e.g. a significance threshold)
 %
-% tissue_label =    cell of strings specifying labels of tissue indices. 
-%                   If absent, defaults to the numerical indices 
-%
-% image_label =     string specifying the quantity and/or unit of image to 
-%                   display on label caxis e.g. HbO (uM);
+% cmap =            colormap. (Optional).
 %
 %############################# Dependencies ###############################
-% plotmesh, Iso2Mesh, Qianqian Fang, https://github.com/fangq/iso2mesh
 %
 % #########################################################################
 % RJC, UCL, February 2020
@@ -40,16 +35,21 @@ function DOTHUB_plotVolumeMeshImage(mesh,image,slice_dim,slice_pos,imageThresh,i
 
 %Manage variables #################################
 tiss_ind = unique(mesh.elem(:,5));
-if ~exist('tissue_labels','var')
-    tissue_labels = tiss_ind;
-elseif isempty(tissue_labels)
-    tissue_labels = tiss_ind;
+if ~isfield(mesh,'labels')
+    tissue_labels = unique(mesh.elem(:,5));
+else
+    tissue_labels = mesh.labels;
 end
 
 if ~exist('image_label','var')
     image_label = '';
 elseif isempty(image_label)
     image_label = '';
+end
+
+if ~exist('cmap','var')
+    load('greyJet.mat');
+    cmap = greyJet;
 end
 % #################################
 % #################################
@@ -60,19 +60,10 @@ image(abs(image)<imageThresh) = nan;
 sliceWidth = 1.5;
 dim_label = {'x' 'y' 'z'};
 view_def = [90 0;180 0;0 90];
-load('greyJet.mat');
 
 %Handle tissue colormap
-tiss_cmap = colormap('gray');
-cmapL = size(tiss_cmap,1);
 nTiss = length(tiss_ind);
-tmp = floor(length(tiss_cmap)/(nTiss-1));
-tmp2 = floor(cmapL/nTiss);
-tiss_cmap_cols = tiss_cmap(round(1:tmp:end),:);
-for i = 1:nTiss
-    sz = length(tmp2*(i-1)+1:tmp2*i);
-    tiss_cmap(tmp2*(i-1)+1:tmp2*i,:) = repmat(tiss_cmap_cols(i,:),sz,1);
-end
+tiss_cmap = gray(nTiss);
 
 set(gcf,'Color','w');
 for i = 1:length(slice_dim)
@@ -89,8 +80,8 @@ for i = 1:length(slice_dim)
     mesh.node(:,4) = image;
     plotmesh(mesh.node,mesh.elem(:,1:4),[dim_label{slice_dim(i)} ' <' num2str(slice_pos(i)) '&' dim_label{slice_dim(i)} ' >' num2str(slice_pos(i)-sliceWidth)],'EdgeAlpha',0);
     h(i).ax2.Visible = 'off';
-    h(i).ax2.Colormap = greyJet;    
-    h(i).ax2.CLim = imrange;
+    h(i).ax2.Colormap = cmap;    
+    h(i).ax2.CLim = crange;
     view(view_def(slice_dim(i),:));
     drawnow
     h(i).ax2.Position = h(i).ax1.Position;
@@ -114,8 +105,8 @@ ylabel(h(i).cb1,'Tissue');
 h(i).ax2 = axes;
 h(i).ax2.Position = h(i).ax1.Position;
 h(i).ax2.Visible = 'off';
-h(i).ax2.CLim = imrange;
-h(i).ax2.Colormap = greyJet;   
+h(i).ax2.CLim = crange;
+h(i).ax2.Colormap = cmap;   
 h(i).cb2 = colorbar;
 h(i).cb2.Location = 'east';
 h(i).cb2.AxisLocation = 'out';

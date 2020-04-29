@@ -1,0 +1,3 @@
+[submodule "Dependencies/matlab-toml"]
+	path = Dependencies/matlab-toml
+	url = https://github.com/g-s-k/matlab-toml
