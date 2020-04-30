@@ -6,7 +6,8 @@ function [invjac, invjacFileName] = DOTHUB_invertJacobian(jac,prepro,varargin)
 %              toast mesh basis is assumed and rebuilt in order to create the volume and then GM
 %              images. If you don't have jac, please use DOTHUB_makeToastJacobian
 %
-% prepro    =  prepro structure or path to .prepro
+% prepro    =  prepro structure or path to .prepro. Only needed for
+%              covariance regularilization
 %
 % rmap      =  rmap structure or path to .rmap
 %
@@ -27,7 +28,7 @@ function [invjac, invjacFileName] = DOTHUB_invertJacobian(jac,prepro,varargin)
 %                   Regularization hyperparamter. See DOTHUB_invertJacobian for more details
 %              'rmap' - structure or path to .rmap file.
 %                   Necessary for spatially varying regularization.
-%              'saveFlag' - 'true' or 'false' (default 'false');
+%              'saveFlag' - 'true' or 'false' (default 'true');
 %                   Flag whether to save invjac to disk;
 %
 % ####################### OUTPUTS #########################################
@@ -53,7 +54,7 @@ addParameter(varInputs,'regMethod','tikhonov',validateRegMethod);
 addParameter(varInputs,'hyperParameter',0.01,@isnumeric);
 addParameter(varInputs,'rmap',[]);
 validateFlag = @(x) assert(x==0 || x==1);
-addParameter(varInputs,'saveFlag',false,validateFlag);
+addParameter(varInputs,'saveFlag',true,validateFlag);
 parse(varInputs,varargin{:});
 
 %varInputs.Results
@@ -104,11 +105,13 @@ if ischar(jac)
 else
     jacFileName = jac.fileName;
 end
-if ischar(prepro)
-    preproFileName = prepro;
-    prepro = load(preproFileName,'-mat');
-else
-    preproFileName = prepro.fileName;
+if ~isempty(prepro)
+    if ischar(prepro) %Don't necessarily need prepro
+        preproFileName = prepro;
+        prepro = load(preproFileName,'-mat');
+    else
+        preproFileName = prepro.fileName;
+    end
 end
 
 % #########################################################################
@@ -138,7 +141,7 @@ end
 Eall = [];
 for i = 1:nWavs
     tmp = JNat{i};
-    JNatCropped{i} = tmp(SD3D.MeasListAct(SD3D.MeasList(:,4)==i),:);
+    JNatCropped{i} = tmp(SD3D.MeasListAct(SD3D.MeasList(:,4)==i)==1,:);
 end
 
 % Determine reconMethod

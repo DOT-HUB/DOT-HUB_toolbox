@@ -108,7 +108,7 @@ end
 if isempty(invjac)
     varargininvjac = {'reconMethod',varInputs.reconMethod,'regMethod',varInputs.regMethod,...
         'hyperParameter',varInputs.hyperParameter,'rmap',rmap,'saveFlag',false};
-    [invjac, ~] = DOTHUB_invertJacobian(jac,prepro,varargininvjac{:});
+    [invjac, ~] = DOTHUB_invertJacobian(jac,prepro,varargininvjac{:},'saveFlag',false);
 else
     %invjac is being loaded directly
     %Overwrite varInputs to match those of specified invjac;
@@ -126,8 +126,7 @@ end
 % Set data in TOAST format
 % Convert data into toast style (toast wants = ln(Intensity_active)-ln(intensity_baseline)
 % Parsed data is OD (i.e. data_OD = -ln(intensity_active/mean));
-% Also, crop out bad channels;
-datarecon = -prepro.dod(:,prepro.SD3D.MeasListAct==1);
+datarecon = -prepro.dod;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Reconstruction
@@ -174,18 +173,6 @@ else
     basisFlag = 0;
 end
 
-if ~varInputs.saveVolumeImages %If not saving volume, populate empty
-    hbo.vol = [];
-    hbr.vol = [];
-    for wav = 1:nWavs
-        mua{wav}.vol = [];
-    end
-elseif strcmpi(varInputs.imageType,'haem') %saving volume, but not mua
-    for wav = 1:nWavs
-        mua{wav}.vol = [];
-    end
-end
-
 %###################### reconMethod = multispectral #######################
 %##########################################################################
 if strcmpi(varInputs.reconMethod,'multispectral')
@@ -193,7 +180,7 @@ if strcmpi(varInputs.reconMethod,'multispectral')
     for frame = 1:nFrames
         fprintf('Reconstructing frame %d of %d\n',frame,nFrames);
         
-        dataTmp = datarecon(frame,:);
+        dataTmp = datarecon(frame,SD3D.MeasListAct==1);
         img = invjac.invJ{1} * dataTmp'; %invjac.invJ should only have one entry.
         
         if basisFlag
@@ -231,7 +218,7 @@ if strcmpi(varInputs.reconMethod,'standard')
         
         muaImageAll = zeros(nWavs,nNodeNat);
         for wav = 1:nWavs
-            dataTmp = datarecon(frame,SD3D.MeasList(:,4)==wav);
+            dataTmp = datarecon(frame,SD3D.MeasList(:,4)==wav & SD3D.MeasListAct==1);
             invJtmp = invjac.invJ{wav};
             tmp = invJtmp * dataTmp';
             muaImageAll(wav,:) = tmp; %This will be nWavs * nNodeNat
@@ -269,6 +256,18 @@ if strcmpi(varInputs.reconMethod,'standard')
                 end
             end
         end
+    end
+end
+
+if ~varInputs.saveVolumeImages %If not saving volume, populate empty
+    hbo.vol = [];
+    hbr.vol = [];
+    for wav = 1:nWavs
+        mua{wav}.vol = [];
+    end
+elseif strcmpi(varInputs.imageType,'haem') %saving volume, but not mua
+    for wav = 1:nWavs
+        mua{wav}.vol = [];
     end
 end
 
