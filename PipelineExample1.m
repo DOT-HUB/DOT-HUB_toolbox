@@ -13,13 +13,15 @@
 %
 % RJC, UCL, April 2020.
 
+%Paths of pre-defined elements (.nirs file, atlas mesh, SD3D file, Homer2
+%cfg file)
 nirsFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.nirs';
 origMeshFullFileName = 'ExampleData/uNTS_fingerTapping/AdultMNI152.mshs';
 SD3DFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.SD3D';
-rmapFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.rmap';
+cfgFileName = 'ExampleData/uNTS_fingerTapping/preproPipelineExample1.cfg';
 
 %Run bespoke pre-processing script (simplest possible example included below)
-[prepro, preproFileName] = examplePreProcessingScript(nirsFileName);
+[prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileName);
 
 %Register chosen mesh to subject SD3D and create rmap
 [rmap, rmapFileName] = DOTHUB_meshRegistration(nirsFileName,origMeshFullFileName);
@@ -29,40 +31,14 @@ rmapFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.rmap';
 
 %You can either separately calculate the inverse, or just run
 %DOTHUB_reconstruction, which will then call the inversion.
-[invjac, invjacFileName] = DOTHUB_invertJacobian(jacFileName,preproFileName,'saveFlag',true,'reconMethod','multispectral','hyperParameter',0.02);%,'regMethod','covariance');
+[invjac, invjacFileName] = DOTHUB_invertJacobian(jacFileName,preproFileName,'saveFlag',true,'reconMethod','standard','hyperParameter',0.01);%,'regMethod','covariance');
 
 %Reconstruct
 [dotimg, dotimgFileName] = DOTHUB_reconstruction(preproFileName,[],invjacFileName,rmapFileName,'saveVolumeIMages',true);
 
-%Display results
+%Display peak response results on surface and in volume
 frames = 55:75;
 DOTHUB_plotSurfaceDOTIMG(dotimg,rmap,frames,'view',[-130 15])
-
 DOTHUB_plotVolumeDOTIMG(dotimg,origMeshFullFileName,frames);
-%jacFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.jac';
-%preproFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.prepro';
-%rmapFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.rmap';
 
 
-function [prepro, preproFileName] = examplePreProcessingScript(nirsFileName)
-
-load(nirsFileName,'-mat');
-
-od = hmrIntensity2OD(d);
-od = hmrBandpassFilt(od,1/mean(diff(t)),0.01,0.5);
-dc = hmrOD2Conc(od,SD3D,[6 6]);
-[dcAvg, dcStd, tHRF] = hmrDeconvHRF_DriftSS(dc,s,t,SD3D,[],ones(size(t)),[-5 25],1,1,[1 1],15,1,3,0);
-dodAvg = DOTHUB_hmrHRFConc2OD(dcAvg, SD3D,[6 6]);
-
-%USE CODE SNIPPET FROM DOTHUB_writePREPRO to define filename and logData
-[pathstr, name, ~] = fileparts(nirsFileName);
-ds = datestr(now,'yyyymmDDHHMMSS');
-preproFileName = fullfile(pathstr,[name '.prepro']);
-logData(1,:) = {'Created on: '; ds};
-logData(2,:) = {'Derived from data: ', nirsFileName};
-logData(3,:) = {'Pre-processed using:', mfilename('fullpath')};
-
-%DOTHUB_writePREPRO(preproFileName,logData,SD3D,tDOD,dod,tHRF,dcAvg,dcStd)
-[prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,SD3D,tHRF,dodAvg,tHRF,dcAvg,dcStd);
-
-end
