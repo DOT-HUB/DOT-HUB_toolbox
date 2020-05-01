@@ -58,6 +58,11 @@ function [dotimg, dotimgFileName] = DOTHUB_writeDOTIMG(dotimgFileName,logData,hb
 % MANAGE VARIABLES
 % #########################################################################
 
+if isempty(logData)
+    logData = {};
+    warning('logData is empty: this might make it harder to keep track of your data...');
+end
+
 dotimg.logData = logData;
 dotimg.hbo = hbo;
 dotimg.hbr = hbr;

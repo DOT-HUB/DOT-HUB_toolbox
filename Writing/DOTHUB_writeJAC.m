@@ -30,9 +30,9 @@ function [jac, jacFileName] = DOTHUB_writeJAC(jacFileName,logData,J,basis)
 %                       d(ln(Intensity_active/Intensity_baseline))/d(absorbtion coefficient (mm-1))
 %                       Note that the spatial dimension in the .vol variable can either be #nodes of
 %                       the corresponding volume mesh in rmapFileName or the
-%                       number of elements in the basis. The J{i}.gm is just 
-%                       for visualization and masking purposes. It contains 
-%                       the GM projection of the volume Jacobian. 
+%                       number of elements in the basis. The J{i}.gm is for 
+%                       visualization, masking and cortex-constrained recon purposes.
+%                       It contains the GM extraction of the volume Jacobian. 
 %                       Dimensions of channel x #gm_nodes
 
 % basis             :   (Optional) 1x3 vector specifying the basis in which J is defined.
@@ -60,6 +60,7 @@ function [jac, jacFileName] = DOTHUB_writeJAC(jacFileName,logData,J,basis)
 jac.J = J;
 
 if isempty(logData)
+    logData = {};
     warning('logData is empty: this might make it harder to keep track of your data...');
 end
 jac.logData = logData;

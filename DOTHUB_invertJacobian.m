@@ -16,6 +16,7 @@ function [invjac, invjacFileName] = DOTHUB_invertJacobian(jac,prepro,varargin)
 %                   Specifying whether to construct and invert a multispectral
 %                   jacobian or whether to recontruct each wavelength
 %                   separately and then combine them
+%              'reconSpace' - 'volume' or 'cortex' (default 'volume');
 %              'regMethod' - 'tikhonov' or 'covariance' or 'spatial' (default 'tikhonov')
 %                   Regularization method.
 %                   'tikonov' = standard 0th order
@@ -49,6 +50,8 @@ varInputs = inputParser;
 varInputs.CaseSensitive = false;
 validateReconMethod = @(x) assert(any(strcmpi({'standard','multispectral'},x)));
 addParameter(varInputs,'reconMethod','standard',validateReconMethod);
+validateSpace = @(x) assert(any(strcmpi({'volume','cortex'},x)));
+addParameter(varInputs,'reconSpace','volume',validateSpace);
 validateRegMethod = @(x) assert(any(strcmpi({'tikhonov','covariance','spatial'},x)));
 addParameter(varInputs,'regMethod','tikhonov',validateRegMethod);
 addParameter(varInputs,'hyperParameter',0.01,@isnumeric);
@@ -56,7 +59,7 @@ addParameter(varInputs,'rmap',[]);
 validateFlag = @(x) assert(x==0 || x==1);
 addParameter(varInputs,'saveFlag',true,validateFlag);
 parse(varInputs,varargin{:});
-
+varInputs = varInputs.Results;
 %varInputs.Results
 %      hyperParameter: 0.0100
 %         reconMethod: 'standard'
@@ -65,7 +68,7 @@ parse(varInputs,varargin{:});
 %    saveVolumeImages: 0
 
 %More parsing and error handling
-varInputs = varInputs.Results;
+
 if ~isempty(varInputs.rmap) %rmap parsed
     if ischar(varInputs.rmap)
         rmapFileName = varInputs.rmap;
@@ -81,8 +84,8 @@ if strcmpi(varInputs.regMethod,'spatial')
         error('For spatial regularization, the hyperParameter must be a vector');
     end
 end
-if strcmpi(varInputs.reconMethod,'cortical') && ~strcmpi(varInputs.regMethod,'spatial')
-    warning('You cannot combine cortically-contrained reconstruction and spatial regularization. Reverting to tikhonov...\n');
+if strcmpi(varInputs.reconSpace,'cortex') && strcmpi(varInputs.regMethod,'spatial')
+    warning('You cannot combine cortically-contrained reconstruction and spatial regularization. Reverting to tikhonov...');
     eval('varInputs.regMethod = ''tikhonov'';');
 end
 if (strcmpi(varInputs.reconMethod,'cortical') || strcmpi(varInputs.regMethod,'spatial')) && ~any(strcmpi(fnames,'rmap'))
@@ -121,17 +124,25 @@ wavelengths = SD3D.Lambda;
 nWavs = length(wavelengths);
 hyperParameter = varInputs.hyperParameter;
 
-if ~isempty(jac.basis) %In basis
-    basisFlag = 1;
-    nNodeNat = size(jac.J{1}.basis,2);
-    for wav = 1:nWavs
-        JNat{wav} = jac.J{wav}.basis;
-    end
-else
+if strcmpi(varInputs.reconSpace,'cortex') %Cortically constrained
     basisFlag = 0;
-    nNodeNat = size(jac.J{1}.vol,2);
+    nNodeNat = size(jac.J{1}.gm,2);
     for wav = 1:nWavs
-        JNat{wav} = jac.J{wav}.vol;
+        JNat{wav} = jac.J{wav}.gm;
+    end
+else  %Volume space
+    if ~isempty(jac.basis)  %In basis
+        basisFlag = 1;
+        nNodeNat = size(jac.J{1}.basis,2);
+        for wav = 1:nWavs
+            JNat{wav} = jac.J{wav}.basis;
+        end
+    else                    %Full mesh volume
+        basisFlag = 0;
+        nNodeNat = size(jac.J{1}.vol,2);
+        for wav = 1:nWavs
+            JNat{wav} = jac.J{wav}.vol;
+        end
     end
 end
     

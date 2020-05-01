@@ -26,6 +26,7 @@ function [dotimg, dotimgFileName] = DOTHUB_reconstruction(prepro,jac,invjac,rmap
 %                   Specifying whether to construct and invert a multispectral
 %                   jacobian or whether to recontruct each wavelength
 %                   separately and then combine them
+%              'reconSpace' - 'volume' or 'cortex' (default 'volume');
 %              'regMethod' - 'tikhonov' or 'covariance' or 'spatial' (default 'tikhonov')
 %                   Regularization method. See DOTHUB_invertJacobian for
 %                   more details
@@ -53,8 +54,12 @@ fprintf('################### Running DOTHUB_reconstruction ###################\n
 % #########################################################################
 varInputs = inputParser;
 varInputs.CaseSensitive = false;
-addParameter(varInputs,'reconMethod','standard',@ischar);
-addParameter(varInputs,'regMethod','tikhonov',@ischar);
+validateReconMethod = @(x) assert(any(strcmpi({'standard','multispectral'},x)));
+addParameter(varInputs,'reconMethod','standard',validateReconMethod);
+validateSpace = @(x) assert(any(strcmpi({'volume','cortex'},x)));
+addParameter(varInputs,'reconSpace','volume',validateSpace);
+validateRegMethod = @(x) assert(any(strcmpi({'tikhonov','covariance','spatial'},x)));
+addParameter(varInputs,'regMethod','tikhonov',validateRegMethod);
 addParameter(varInputs,'hyperParameter',0.01,@isnumeric);
 validateImageType = @(x) assert(any(strcmpi({'haem','mua','both'},x)));
 addParameter(varInputs,'imageType','haem',validateImageType);
@@ -62,15 +67,9 @@ validateFlag = @(x) assert(x==0 || x==1);
 addParameter(varInputs,'saveVolumeImages',false,validateFlag);
 addParameter(varInputs,'saveFlag',true,validateFlag);
 parse(varInputs,varargin{:});
+varInputs = varInputs.Results;
 
 %Basic error handling
-varInputs = varInputs.Results;
-if strcmpi(varInputs.regMethod,'spatial')
-    if length(varInputs.hyperParameter)<2
-        error('For spatial regularization, the hyperParameter must be a vector');
-    end
-end
-
 if (strcmpi(varInputs.imageType,'mua') || strcmpi(varInputs.imageType,'both')) && ~strcmpi(varInputs.reconMethod,'standard')
     error('To call for images of mua requires reconMethod = standard');
 end
@@ -106,20 +105,28 @@ end
 % #########################################################################
 % Calculate Inverted Jacobian if not parsed
 if isempty(invjac)
-    varargininvjac = {'reconMethod',varInputs.reconMethod,'regMethod',varInputs.regMethod,...
+    varargininvjac = {'reconMethod',varInputs.reconMethod,'reconSpace',varInputs.reconSpace,'regMethod',varInputs.regMethod,...
         'hyperParameter',varInputs.hyperParameter,'rmap',rmap,'saveFlag',false};
     [invjac, ~] = DOTHUB_invertJacobian(jac,prepro,varargininvjac{:},'saveFlag',false);
 else
     %invjac is being loaded directly
     %Overwrite varInputs to match those of specified invjac;
+    fprintf('invjac parsed directly, reverted to invjac input parameters...\n');
     fnames = fieldnames(varInputs);
-    toOverWrite = {'hyperParameter','reconMethod','regMethod'};
+    toOverWrite = {'hyperParameter','reconMethod','regMethod','reconSpace'};
     for i = 1:size(invjac.logData,1)
         lgInd = find(strcmpi(toOverWrite,invjac.logData{i,1}));
         if lgInd
             varInputs = setfield(varInputs,toOverWrite{lgInd},invjac.logData{i,2});
         end
     end
+    fprintf(['***INPUT PARAMETERS***\n'])
+    fnames = fieldnames(varInputs);
+    for i = 1:numel(fnames)
+        if strcmpi(fnames{i},'rmap');continue;end
+        fprintf([fnames{i} ' = ' num2str(getfield(varInputs,fnames{i})) '\n'])
+    end
+    fprintf('\n');
 end
 
 % #########################################################################
@@ -183,17 +190,25 @@ if strcmpi(varInputs.reconMethod,'multispectral')
         dataTmp = datarecon(frame,SD3D.MeasListAct==1);
         img = invjac.invJ{1} * dataTmp'; %invjac.invJ should only have one entry.
         
-        if basisFlag
+        if basisFlag %basis to volume to gm
             hbo_tmp = img(1:end/2);
             hbr_tmp = img(end/2+1:end);
             hbo.vol(frame,:) = hBasis.Map('S->M',hbo_tmp);
             hbr.vol(frame,:) = hBasis.Map('S->M',hbr_tmp);
+            hbo.gm(frame,:) = (vol2gm*hbo.vol(frame,:)');
+            hbr.gm(frame,:) = (vol2gm*hbr.vol(frame,:)');            
         else
-            hbo.vol(frame,:) = img(1:nNodeVol);
-            hbr.vol(frame,:) = img(nNode+1:2*nNodeVol);
+            if strcmpi(varInputs.reconSpace,'cortex') %GM to GM only
+                hbo.gm(frame,:) = img(1:nNodeVol);
+                hbr.gm(frame,:) = img(nNode+1:2*nNodeVol);    
+            else                                      %Vol to GM
+                hbo.vol(frame,:) = img(1:nNodeVol);
+                hbr.vol(frame,:) = img(nNode+1:2*nNodeVol);
+                hbo.gm(frame,:) = (vol2gm*hbo.vol(frame,:)');
+                hbr.gm(frame,:) = (vol2gm*hbr.vol(frame,:)');   
+            end
         end
-        hbo.gm(frame,:) = (vol2gm*hbo.vol(frame,:)');
-        hbr.gm(frame,:) = (vol2gm*hbr.vol(frame,:)');
+
     end
 end
 
@@ -225,24 +240,27 @@ if strcmpi(varInputs.reconMethod,'standard')
         end
         
         if ~strcmpi(varInputs.imageType,'mua') %Need to calculate haem images unless imageType = 'mua'
-            
             %##### CHECK THIS ########
             img = Eallinv*muaImageAll;% Should be (chromophores by nWavs)*(nWavs by nNodeNat) = chromophore x node
-            %#########################
-            
-            if basisFlag %Map first from basis to volume
+            %#########################           
+            if basisFlag %In basis, so map from basis to volume, the to GM
                 hbo_tmp = img(1,:);
                 hbr_tmp = img(2,:);
                 hbo.vol(frame,:) = hBasis.Map('S->M',hbo_tmp);
                 hbr.vol(frame,:) = hBasis.Map('S->M',hbr_tmp);
-            else %Already in volume
-                hbo.vol(frame,:) = img(1,:);
-                hbr.vol(frame,:) = img(2,:);
+            else
+                if strcmpi(varInputs.reconSpace,'cortex') %In GM already
+                    hbo.gm(frame,:) = img(1,:);
+                    hbr.gm(frame,:) = img(2,:);
+                else                                      %In volume, map to GM
+                    hbo.vol(frame,:) = img(1,:);
+                    hbr.vol(frame,:) = img(2,:);
+                    hbo.gm(frame,:) = (vol2gm*hbo.vol(frame,:)')';
+                    hbr.gm(frame,:) = (vol2gm*hbr.vol(frame,:)')';
+                end
             end
-            hbo.gm(frame,:) = (vol2gm*hbo.vol(frame,:)')';
-            hbr.gm(frame,:) = (vol2gm*hbr.vol(frame,:)')';
         end
-        
+                
         if muaFlag %Calculate mua images if imageType = 'both' or 'mua'
             for wav = 1:nWavs
                 if basisFlag
@@ -250,16 +268,21 @@ if strcmpi(varInputs.reconMethod,'standard')
                     mua{wav}.vol(frame,:) = tmp;
                     mua{wav}.gm(frame,:) = (vol2gm*tmp)';
                 else
-                    tmp = muaImageAll(wav,:);
-                    mua{wav}.vol(frame,:) = tmp;
-                    mua{wav}.gm(frame,:) = (vol2gm*tmp)';
+                    if strcmpi(varInputs.reconSpace,'cortex') %In GM already
+                        tmp = muaImageAll(wav,:);
+                        mua{wav}.gm(frame,:) = tmp;
+                    else                                      %In volume, map to GM
+                        tmp = muaImageAll(wav,:);
+                        mua{wav}.vol(frame,:) = tmp;
+                        mua{wav}.gm(frame,:) = (vol2gm*tmp)';
+                    end
                 end
             end
         end
     end
 end
 
-if ~varInputs.saveVolumeImages %If not saving volume, populate empty
+if ~varInputs.saveVolumeImages || strcmpi(varInputs.reconSpace,'cortex') %If not saving volume, populate empty
     hbo.vol = [];
     hbr.vol = [];
     for wav = 1:nWavs

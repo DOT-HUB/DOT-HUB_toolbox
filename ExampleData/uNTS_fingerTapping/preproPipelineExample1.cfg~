@@ -1,3 +1,0 @@
-@ hmrIntensity2OD dod (d
-@ hmrBandpassFilt dod (dod,t hpf %0.3f 0 lpf %0.1f 0.5
-@ hmrOD2Conc dc (dod,SD ppf %0.1f_%0.1f 6.0_6.0 

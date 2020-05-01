@@ -77,7 +77,8 @@ prepro.tDOD = tDOD;
 prepro.dod = dod;
 
 if isempty(logData)
-    warning('logData is empty: this might make it harder to keep track of your data. See comments for more info.');
+    logData = {};
+    warning('logData is empty: this might make it harder to keep track of your data...');
 end
 prepro.logData = logData; %This might be empty
 

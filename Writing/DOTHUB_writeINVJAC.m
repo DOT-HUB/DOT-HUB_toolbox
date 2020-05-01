@@ -56,6 +56,7 @@ function [invjac, invjacFileName] = DOTHUB_writeINVJAC(invjacFileName,logData,in
 invjac.invJ = invJ;
 invjac.basis = basis;
 if isempty(logData)
+    logData = {};
     warning('logData is empty: this might make it harder to keep track of your data...');
 end
 invjac.logData = logData;

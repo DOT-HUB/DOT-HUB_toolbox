@@ -75,6 +75,7 @@ for i = 1:SD3Dmesh.nDets
 end
 
 if isempty(logData)
+    logData = {};
     warning('logData is empty: this might make it harder to keep track of your data...');
 end
 

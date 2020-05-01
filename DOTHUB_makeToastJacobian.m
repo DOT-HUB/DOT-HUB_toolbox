@@ -282,6 +282,7 @@ for wav = 1:nWavs
         %Clear things, empty J.vol as we are in basis
         clear Jtmp
         J{wav}.vol = [];
+        
     else %In volume nodes
         J{wav}.vol = Jtmp.*repmat(c_medium,nChansPerWav,1);
         J{wav}.gm = (vol2gm*J{wav}.vol')'; 
