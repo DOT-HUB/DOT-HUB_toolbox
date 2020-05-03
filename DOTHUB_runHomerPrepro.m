@@ -32,7 +32,7 @@ function [prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileNa
 % #########################################################################
 % RJC, UCL, April 2020
 
-fprintf('################## Running DOTHUB_runHomerPrepro ####################\n');
+fprintf('################# Running DOTHUB_runHomerPrepro ##################\n');
 
 % MANAGE VARIABLES
 % #########################################################################

@@ -1,4 +1,4 @@
-function [dotimg, dotimgFileName] = DOTHUB_writeDOTIMG(dotimgFileName,logData,hbo,hbr,mua,tIMG,saveFlag)
+function [dotimg, dotimgFileName] = DOTHUB_writeDOTIMG(dotimgFileName,logData,hbo,hbr,mua,tImg,saveFlag)
 
 % This script creates a DOT images file (.dotimg)
 %
@@ -73,7 +73,7 @@ dotimg.logData = logData;
 dotimg.hbo = hbo;
 dotimg.hbr = hbr;
 dotimg.mua = mua;
-dotimg.timebase = tIMG;
+dotimg.tImg = tImg;
 
 %Save .dotimg file ###########################################################
 %Create filename ##########################################################
