@@ -23,33 +23,40 @@ function [rmap, rmapFileName] = DOTHUB_writeRMAP(rmapFileName,logData,SD3Dmesh,h
 % logData           :  (Optional). logData is a cell array of strings containing useful
 %                      info as per snippet above. Parse empty to ignore.
 
-% SD3Dmesh         :  The SD structure containing registered 3D optode
+% SD3Dmesh          :  The SD structure containing registered 3D optode
 %                      positions
-
+%
 % headVolumeMesh    :  The multi-layer volume mesh structure, registered
 %                      to the relevant individual. Contains fields:
-%                      node, face, elem.
-
+%                      node, face, elem, labels
+%
 % gmSurfaceMesh     :  The gm surface mesh structure, registered
 %                      to the relevant individual. Contains fields:
 %                      node, face.
-
+%
 % scalpSurfaceMesh  :  The scalp surface mesh structure, registered
 %                      to the relevant individual. Contains fields:
 %                      node, face.
-
+%
 % vol2gm            :  The sparse matrix mapping from head volume mesh
 %                      space to GM surface mesh space
-
-
+%
+%
 % ####################### OUTPUTS #########################################
-
+%
 % rmap              : A structure containing all fields for rmap
-
+%
 % rmapFileName      : The full path of the resulting .rmap file
+%
+% .rmap             :  A file containing a structure of:
+%                      rmap.logData             - as defined above
+%                      rmap.SD3Dmesh            - as defined above
+%                      rmap.headVolumeMesh      - as defined above
+%                      rmap.gmSurfaceMesh       - as defined above
+%                      rmap.scalpSurfaceMesh    - as defined above
+%                      rmap.vol2gm              - as defined above
+%                      rmap.fileName            - the path of the saved rmap file
 
-% rmapFileName.rmap : The rmap file containing the contents of rmap
-%                     structure.
 
 % ####################### Dependencies ####################################
 % #########################################################################

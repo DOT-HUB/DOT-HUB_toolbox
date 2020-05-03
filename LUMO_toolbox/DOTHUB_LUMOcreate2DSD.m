@@ -6,7 +6,7 @@ function SD = DOTHUB_LUMOcreate2DSD(nTiles,outname)
 
 % Create grid with x-spacing of tiles of 35 mm, with offset rows
 % and y-spacing of 30.31 mm.
-
+initialCent_Orient=[];
 if ~exist('nTiles','var')
     tmp = inputdlg('Enter number of LUMO tiles...','Tile number');
     nTiles = str2num(tmp{1});
@@ -27,15 +27,15 @@ grid(:,3) = 0;
 centers_zero = zeros(nTiles,3);
 centers_zero(:,1) = 0:xspace:(nTiles-1)*xspace;
 
-if ~exist('initialCent_Orient','var')
+%if ~exist('initialCent_Orient','var')
     centers = centers_zero;
     orientations = zeros(nTiles,1);
-else
-    centers(:,1:2) = initialCent_Orient(:,1:2);
-    centers(:,3) = 0;
-    centers_zero = centers;
-    orientations = initialCent_Orient(:,3);
-end
+%else
+%    centers(:,1:2) = initialCent_Orient(:,1:2);
+%    centers(:,3) = 0;
+%    centers_zero = centers;
+%    orientations = initialCent_Orient(:,3);
+%end
 
 
 %% Now enter editable display;
@@ -116,7 +116,7 @@ bt2.ButtonPushedFcn = @RotateGrid;
         
         uit.Data(:,1:2) = centers(:,1:2);
         uit.Data(:,3) = orientations;
-        getTileOptodePos_Callback
+        [source_array, detector_array] = getTileOptodePos_Callback;
     end
 
     function [source_array, detector_array] = getTileOptodePos_Callback

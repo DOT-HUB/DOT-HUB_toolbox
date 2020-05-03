@@ -23,7 +23,7 @@ function [invjac, invjacFileName] = DOTHUB_writeINVJAC(invjacFileName,logData,in
 %                      info as per snippet above. Parse empty to ignore.
 %                        
 % invJ              :   A cell array, with each cell containing a
-%                       wavelength-specific jacobian of dimensions channel x node. 
+%                       wavelength-specific jacobian of dimensions channel x space. 
 %                       If the reconMethod was multispectral, invJ only has one entry 
 %                       - the inverted multispectral jacobian.
 %
@@ -40,7 +40,11 @@ function [invjac, invjacFileName] = DOTHUB_writeINVJAC(invjacFileName,logData,in
 %
 % invjacFileName     :  The full path of the resulting .jac file
 %
-% invjacFileName.invjac file  :  File containing all data inputs (if saved)
+% .invjac            :  (If saveFlag) A file containing a structure of:
+%                       invjac.logData             - as defined above
+%                       invjac.invJ                - as defined above
+%                       invjac.basis               - as defined above
+%                       invjac.fileName            - the path of the saved invjac file
 %
 % ####################### Dependencies ####################################
 % #########################################################################

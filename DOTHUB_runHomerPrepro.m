@@ -222,6 +222,6 @@ logData(1,:) = {'Created on: '; ds};
 logData(2,:) = {'Derived from data: ', nirsFileName};
 logData(3,:) = {'Pre-processed using:', cfgFileName};
 
-%DOTHUB_writePREPRO(preproFileName,logData,SD3D,tDOD,dod,tHRF,dcAvg,dcStd)
-[prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,SD3D,tRecon,dodRecon,tHRF,dcAvg,dcAvgStd);
+%(preproFileName,logData,dod,tDOD,SD3D,s,dcAvg,dcAvgStd,tHRF)
+[prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,dodRecon,tRecon,SD3D,hmr.s,dcAvg,dcAvgStd,tHRF);
 
