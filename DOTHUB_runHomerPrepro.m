@@ -95,7 +95,11 @@ for iFunc = 1:procInput.procFunc.nFunc
             if isfield(hmr,argIn{ii})
                 eval(sprintf('%s = hmr.%s;',argIn{ii},argIn{ii}));
             else
-                eval(sprintf('%s = [];',argIn{ii}));  % if variable doesn't exist and not in hmr then make it empty DAB 11/8/11
+                if strcmpi(argIn{ii},'tIncMan')
+                    tIncMan = ones(length(hmr.t),1); %RJC addition
+                else
+                    eval(sprintf('%s = [];',argIn{ii}));  % if variable doesn't exist and not in hmr then make it empty DAB 11/8/11
+                end
             end
         end
     end
@@ -190,7 +194,7 @@ end
 delete(wb);
 
 % Output variables for reconstruction ###################################
-SD3D = hmr.SD3D;
+SD3D = SD;
 if fullFlag %Full timecourse is to be reconstructed
     dodRecon = dod;
     tRecon = t;
@@ -210,7 +214,7 @@ else %HRF is to be reconstructed
     %Find the DPF values used in cfg
     funcInd = find(strcmpi(procInput.procFunc.funcName,'hmrOD2Conc'));
     DPFs = procInput.procFunc.funcParamVal{funcInd}{:};
-    dodRecon = DOTHUB_hmrHRFConc2OD(dcAvg, SD3D,DPFs);
+    dodRecon = DOTHUB_hmrHRFConc2OD(dcAvg,SD3D,DPFs);
     tRecon = tHRF;
 end
 

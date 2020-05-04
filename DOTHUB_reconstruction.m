@@ -64,7 +64,7 @@ addParameter(varInputs,'hyperParameter',0.01,@isnumeric);
 validateImageType = @(x) assert(any(strcmpi({'haem','mua','both'},x)));
 addParameter(varInputs,'imageType','haem',validateImageType);
 validateFlag = @(x) assert(x==0 || x==1);
-addParameter(varInputs,'saveVolumeImages',false,validateFlag);
+addParameter(varInputs,'saveVolumeImages',true,validateFlag);
 addParameter(varInputs,'saveFlag',true,validateFlag);
 parse(varInputs,varargin{:});
 varInputs = varInputs.Results;

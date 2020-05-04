@@ -16,7 +16,7 @@ function [invjac, invjacFileName] = DOTHUB_invertJacobian(jac,prepro,varargin)
 %                   Specifying whether to construct and invert a multispectral
 %                   jacobian or whether to recontruct each wavelength
 %                   separately and then combine them
-%              'reconSpace' - 'volume' or 'cortex' (default 'volume');
+%              'reconSpace' - 'full' or 'cortex' (default 'full' = volume mesh or basis);
 %              'regMethod' - 'tikhonov' or 'covariance' or 'spatial' (default 'tikhonov')
 %                   Regularization method.
 %                   'tikonov' = standard 0th order
@@ -50,8 +50,8 @@ varInputs = inputParser;
 varInputs.CaseSensitive = false;
 validateReconMethod = @(x) assert(any(strcmpi({'standard','multispectral'},x)));
 addParameter(varInputs,'reconMethod','standard',validateReconMethod);
-validateSpace = @(x) assert(any(strcmpi({'volume','cortex'},x)));
-addParameter(varInputs,'reconSpace','volume',validateSpace);
+validateSpace = @(x) assert(any(strcmpi({'volume','basis','cortex'},x)));
+addParameter(varInputs,'reconSpace','full',validateSpace);
 validateRegMethod = @(x) assert(any(strcmpi({'tikhonov','covariance','spatial'},x)));
 addParameter(varInputs,'regMethod','tikhonov',validateRegMethod);
 addParameter(varInputs,'hyperParameter',0.01,@isnumeric);
@@ -130,7 +130,7 @@ if strcmpi(varInputs.reconSpace,'cortex') %Cortically constrained
     for wav = 1:nWavs
         JNat{wav} = jac.J{wav}.gm;
     end
-else  %Volume space
+else  %Full space
     if ~isempty(jac.basis)  %In basis
         basisFlag = 1;
         nNodeNat = size(jac.J{1}.basis,2);
