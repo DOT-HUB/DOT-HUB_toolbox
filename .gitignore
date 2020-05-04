@@ -5,3 +5,5 @@
 *.invjac
 *.qm
 ~*.pptx
+~*.docx
+*.docx
