@@ -1,4 +1,4 @@
-function [rmap, rmapFileName] = DOTHUB_meshRegistration(SD3DFullFileName,origMeshFullFileName)
+function [rmap, rmapFileName] = DOTHUB_meshRegistration(SD3DFileName,origMeshFileName)
 
 % This function takes the landmarks and source and detector locations for an individual
 % and registers the selected mesh (atlas or subject specific) into the native space of the
@@ -57,9 +57,9 @@ fprintf('################ Running DOTHUB_meshRegistration #################\n');
 
 %Enforce full path names here
 % Load SD3D
-load(SD3DFullFileName,'SD3D','-mat');
+load(SD3DFileName,'SD3D','-mat');
 % Load SD3D
-load(origMeshFullFileName,'-mat');
+load(origMeshFileName,'-mat');
 
 if ~exist('vol2gm','var')
     radius = 3;
@@ -100,12 +100,12 @@ end
 %% Write out .rmap file ####################################################
 % USE CODE SNIPPET FROM DOTHUB_writeRMAP to define name and logData
 ds = datestr(now,'yyyymmDDHHMMSS');
-[~, origMeshFileName, ~] = fileparts(origMeshFullFileName);
-[SD3DPath, SD3DFileName, ~] = fileparts(SD3DFullFileName);
+[~, origMeshFileName, ~] = fileparts(origMeshFileName);
+[SD3DPath, SD3DFileName, ~] = fileparts(SD3DFileName);
 rmapFileName = fullfile(SD3DPath,[SD3DFileName '.rmap']);
 logData(1,:) = {'Created on: ',ds};
-logData(2,:) = {'Positions derived from: ', SD3DFullFileName};
-logData(3,:) = {'Meshes derived from: ', origMeshFullFileName};
+logData(2,:) = {'Positions derived from: ', SD3DFileName};
+logData(3,:) = {'Meshes derived from: ', origMeshFileName};
 logData(4,:) = {'Registration method: ', regMethod};
 
 % Write

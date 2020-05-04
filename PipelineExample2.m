@@ -18,7 +18,7 @@
 %Paths of pre-defined elements (.nirs file, atlas mesh, SD3D file, Homer2
 %cfg file)
 nirsFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.nirs';
-origMeshFullFileName = 'ExampleData/uNTS_fingerTapping/AdultMNI152.mshs';
+origMeshFileName = 'Meshes/AdultMNI152.mshs';
 SD3DFileName = 'ExampleData/uNTS_fingerTapping/uNTS_FingerTap_Subj01.SD3D';
 cfgFileName = 'ExampleData/uNTS_fingerTapping/preproPipelineExample2.cfg';
 
@@ -26,7 +26,7 @@ cfgFileName = 'ExampleData/uNTS_fingerTapping/preproPipelineExample2.cfg';
 [prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileName);
 
 %Register chosen mesh to subject SD3D and create rmap
-[rmap, rmapFileName] = DOTHUB_meshRegistration(nirsFileName,origMeshFullFileName);
+[rmap, rmapFileName] = DOTHUB_meshRegistration(nirsFileName,origMeshFileName);
 
 %Calculate Jacobian (use small basis for speed of example)
 [jac, jacFileName] = DOTHUB_makeToastJacobian(rmapFileName,[10 10 10]);

@@ -1,7 +1,22 @@
+% DOTHUB Recon Pipeline Example 1.
+%
+% Individual optode positioning information, subject-specific .mshs file.
+% LUMO DATA
+%
 
 
 
-% function [prepro, preproFileName] = examplePreProcessingScript(nirsFileName)
+
+
+
+
+
+
+
+
+
+
+%% function [prepro, preproFileName] = examplePreProcessingScript(nirsFileName)
 % 
 % load(nirsFileName,'-mat');
 % 
