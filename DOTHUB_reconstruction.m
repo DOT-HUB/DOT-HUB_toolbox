@@ -248,7 +248,9 @@ if strcmpi(varInputs.reconMethod,'standard')
                 hbr_tmp = img(2,:);
                 hbo.vol(frame,:) = hBasis.Map('S->M',hbo_tmp);
                 hbr.vol(frame,:) = hBasis.Map('S->M',hbr_tmp);
-            else
+                hbo.gm(frame,:) = (vol2gm*hbo.vol(frame,:)')';
+                hbr.gm(frame,:) = (vol2gm*hbr.vol(frame,:)')';
+            else         %Not using basis
                 if strcmpi(varInputs.reconSpace,'cortex') %In GM already
                     hbo.gm(frame,:) = img(1,:);
                     hbr.gm(frame,:) = img(2,:);

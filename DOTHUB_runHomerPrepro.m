@@ -62,7 +62,7 @@ if exist('variableToReconstruct','var')
 else
     variableToReconstruct = 'HRF';
 end
-if strcmpi(variableToReconstruct,'full');
+if strcmpi(variableToReconstruct,'full')
     fullFlag = 1;
 else
     fullFlag = 0;
@@ -194,7 +194,12 @@ end
 delete(wb);
 
 % Output variables for reconstruction ###################################
+% Force MeasListAct to be the same for all wavelengths
 SD3D = SD;
+nWavs = length(SD.Lambda);
+tmp = reshape(SD.MeasListAct,length(SD.MeasListAct)/nWavs,nWavs);
+tmp2 = any(tmp'==0)';
+SD3D.MeasListAct = repmat(tmp2,2,1);
 if fullFlag %Full timecourse is to be reconstructed
     dodRecon = dod;
     tRecon = t;
