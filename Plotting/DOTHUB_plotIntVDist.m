@@ -31,6 +31,7 @@ end
 
 dists = DOTHUB_getSDdists(SD);
 dists = [dists dists];
+nWavs = length(SD.Lambda);
 
 if ~exist('xAxisUpperLim','var')
     xAxisUpperLim = max(dists)+1;
@@ -43,17 +44,22 @@ else
 end
 
 markersize = 40;
-scatter(dists(SD.MeasList(:,4)==1),mnD(SD.MeasList(:,4)==1),markersize,[0 0 1],'LineWidth',1);hold on;
-scatter(dists(SD.MeasList(:,4)==2),mnD(SD.MeasList(:,4)==2),markersize,[0 0 1],'Marker','s','LineWidth',1); %Second wav must be square for datatips to work.
-scatter(dists(SD.MeasListAct==1 & (SD.MeasList(:,4)==1)),mnD(SD.MeasListAct==1 & (SD.MeasList(:,4)==1)),markersize,[1 0 0],'LineWidth',1);
-scatter(dists(SD.MeasListAct==1 & (SD.MeasList(:,4)==2)),mnD(SD.MeasListAct==1 & (SD.MeasList(:,4)==2)),markersize,[1 0 0],'Marker','s','LineWidth',1);
+Markers = {'o','s','*','x','d'};
+count = 1;
+for i = 1:nWavs
+    scatter(dists(SD.MeasList(:,4)==i),mnD(SD.MeasList(:,4)==i),markersize,[0 0 1],Markers{i},'LineWidth',1);hold on;
+    legText{count} = ['All chan. ' num2str(SD.Lambda(i)) ' nm'];
+    count = count+1;
+    scatter(dists(SD.MeasListAct==1 & (SD.MeasList(:,4)==i)),mnD(SD.MeasListAct==1 & (SD.MeasList(:,4)==i)),markersize,[1 0 0],Markers{i},'LineWidth',1);
+    legText{count} = ['Good chan. ' num2str(SD.Lambda(i)) ' nm'];
+    count = count+1;
+end
 
-ylim([1e-6 5]);
 xlim([0 xAxisUpperLim]);
 set(gca,'YScale','log','XGrid','on','YGrid','on','FontSize',16);
 xlabel('S-D Distance (mm)');
 ylabel('Intensity (arb.)');
-legend(['All chan. ' num2str(SD.Lambda(1)) ' nm'],['Good chan. ' num2str(SD.Lambda(1)) ' nm'],['All chan. ' num2str(SD.Lambda(2)) ' nm'],['Good chan. ' num2str(SD.Lambda(2)) ' nm']);
+legend(legText);
 box on
 
 if max(dists)>70
@@ -90,7 +96,7 @@ index = event_obj.Target.Children.DataIndex;
 %this could be channel index or index of channel(goodchan)
 %determine if it is a point from all chan, good chan, and define
 %wavelength;
-if strcmpi(event_obj.Target.Marker,'square');
+if strcmpi(event_obj.Target.Marker,'square')
     wav = 2;
 else
     wav = 1;

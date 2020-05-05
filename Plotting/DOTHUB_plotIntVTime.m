@@ -35,7 +35,6 @@ dists = DOTHUB_getSDdists(SD);
 dists = [dists dists];
 
 plot(t,d(:,SD.MeasListAct==1));
-ylim([1e-6 2.5]);
 xlim([min(t) max(t)]);
 set(gca,'YScale','log','XGrid','on','YGrid','on','FontSize',16);
 xlabel('Time (s)');
