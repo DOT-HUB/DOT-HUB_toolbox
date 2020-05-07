@@ -198,7 +198,7 @@ if strcmpi(varInputs.reconMethod,'multispectral')
             
             dataTmp = squeeze(datarecon(frame,SD3D.MeasListAct==1,cond));
             img = invjac.invJ{1} * dataTmp'; %invjac.invJ should only have one entry.
-            
+             
             if basisFlag %basis to volume to gm
                 hbo_tmp = img(1:end/2);
                 hbr_tmp = img(end/2+1:end);
