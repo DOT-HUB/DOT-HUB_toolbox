@@ -15,10 +15,10 @@ function DOTHUB_plotSurfaceDOTIMG(dotimg,rmap,frames,varargin)
 %
 % varargin      : input argument pairs, with options:
 %
+%                 'condition' : integer specifying condition to plot
 %                 'shading'   : 'interp', 'flat', 'faceted'. (Optional). Defaults to interp.
 %                 'imageType' : 'haem', 'mua', default 'haem'
 %                 'colormap'  : preferred colormap array
-%                 'condition' : integer specifying condition to plot
 %                 'view'      : view angle, defaults to [-37.5 30]
 %
 % OUTPUTS #################################################################
@@ -40,7 +40,7 @@ varInputs = varInputs.Results;
 
 viewAng = varInputs.view;
 shadingtype = varInputs.shading;
-cond = varInputs.condition;
+condition = varInputs.condition;
 
 if ischar(dotimg)
     dotimgFileName = dotimg;
@@ -61,8 +61,8 @@ end
 % Define image to display and run plotting routines #######################
 if strcmpi(varInputs.imageType,'haem')
     if ndims(dotimg.hbo) == 3 %Conditions exist
-        img(1,:) = squeeze(mean(dotimg.hbo.gm(cond,frames,:),2));
-        img(2,:) = squeeze(mean(dotimg.hbr.gm(cond,frames,:),2));
+        img(1,:) = squeeze(mean(dotimg.hbo.gm(frames,:,condition),2));
+        img(2,:) = squeeze(mean(dotimg.hbr.gm(frames,:,condition),2));
     else
         img(1,:) = squeeze(mean(dotimg.hbo.gm(frames,:),1));
         img(2,:) = squeeze(mean(dotimg.hbr.gm(frames,:),1));
@@ -74,9 +74,9 @@ else strcmpi(varInputs.imageType,'mua')
     nWavs = length(dotimg.mua);
     for i = 1:nWavs
         if ndims(dotimg.mua{i}.gm) == 3 %Conditions exist
-            img(i,:) = squeeze(mean(dotimg.mua{i}.gm(cond,frames,:),2));
+            img(i,:) = squeeze(mean(dotimg.mua{i}.gm(frames,:,condition),2));
         else
-            img(i,:) = squeeze(mean(dotimg.mua{i}.gm(frames,:),1));
+            img(i,:) = squeeze(mean(dotimg.mua{i}.gm(frames,:,condition),1));
         end
         subplotLabels{1,i} = [' \Delta\muA at Wav. ' num2str(i) ' mm^-^1'];
     end
@@ -87,7 +87,7 @@ hFig = gcf;
 set(gcf,'Color','w','Units','Normalized');
 for i = 1:nSubplot
     subplot(1,nSubplot,i);
-    [hAxis, hPatch, hColorbar] = DOTHUB_plotSurfaceImage(rmap.gmSurfaceMesh,img(i,:),viewAng,shadingtype,varInputs.colormap);
+    [hAxis, ~, hColorbar] = DOTHUB_plotSurfaceImage(rmap.gmSurfaceMesh,img(i,:),viewAng,shadingtype,varInputs.colormap);
     set(hAxis,'FontSize',16);
     hColorbar.Location = 'South';
     tmp = hColorbar.Position;

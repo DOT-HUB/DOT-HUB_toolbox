@@ -85,6 +85,14 @@ end
 if ischar(prepro)
     preproFileName = prepro;
     prepro = load(preproFileName,'-mat');
+    if ndims(prepro.dod)==3
+        nCond = size(prepro.dod,3);
+    else
+        nCond = 1;
+        tmp = prepro.dod;
+        prepro = rmfield(prepro,'dod');
+        prepro.dod(:,:,1) = tmp; %Easier to assign a dummy condition dimension
+    end
 end
 
 if ischar(jac)
@@ -100,6 +108,12 @@ end
 if ischar(rmap)
     rmapFileName = rmap;
     rmap = load(rmapFileName,'-mat');
+end
+
+if (strcmpi(varInputs.imageType,'mua') || strcmpi(varInputs.imageType,'both')) %mua images called for
+    muaFlag = 1;
+else
+    muaFlag = 0;
 end
 
 % #########################################################################
@@ -152,21 +166,14 @@ wavelengths = SD3D.Lambda;
 nWavs = length(prepro.SD3D.Lambda);
 
 % pre-assign large things
-if ~(strcmpi(varInputs.imageType,'mua')) %only need haem variables if imageType not 'mua'
-    hbo.vol = zeros(nFrames,nNodeVol);
-    hbr.vol = zeros(nFrames,nNodeVol);
-    hbo.gm = zeros(nFrames,nNodeGM);
-    hbr.gm = zeros(nFrames,nNodeGM);
-end
-if (strcmpi(varInputs.imageType,'mua') || strcmpi(varInputs.imageType,'both')) %If mua images are called for, pre-assign
-    muaFlag = 1;
-    mua = cell(nWavs,1);
-    for wav = 1:nWavs
-        mua{wav}.vol = zeros(nFrames,nNodeVol);
-        mua{wav}.gm = zeros(nFrames,nNodeGM);
-    end
-else
-    muaFlag = 0;
+hbo.vol = zeros(nFrames,nNodeVol,nCond);
+hbr.vol = zeros(nFrames,nNodeVol,nCond);
+hbo.gm = zeros(nFrames,nNodeGM,nCond);
+hbr.gm = zeros(nFrames,nNodeGM,nCond);
+mua = cell(nWavs,1);
+for wav = 1:nWavs
+    mua{wav}.vol = zeros(nFrames,nNodeVol,nCond);
+    mua{wav}.gm = zeros(nFrames,nNodeGM,nCond);
 end
 
 if ~isempty(invjac.basis) %If using a basis
@@ -184,99 +191,124 @@ end
 %##########################################################################
 if strcmpi(varInputs.reconMethod,'multispectral')
     fprintf('Reconstructing images...\n');
-    for frame = 1:nFrames
-        fprintf('Reconstructing frame %d of %d\n',frame,nFrames);
-        
-        dataTmp = datarecon(frame,SD3D.MeasListAct==1);
-        img = invjac.invJ{1} * dataTmp'; %invjac.invJ should only have one entry.
-        
-        if basisFlag %basis to volume to gm
-            hbo_tmp = img(1:end/2);
-            hbr_tmp = img(end/2+1:end);
-            hbo.vol(frame,:) = hBasis.Map('S->M',hbo_tmp);
-            hbr.vol(frame,:) = hBasis.Map('S->M',hbr_tmp);
-            hbo.gm(frame,:) = (vol2gm*hbo.vol(frame,:)');
-            hbr.gm(frame,:) = (vol2gm*hbr.vol(frame,:)');            
-        else
-            if strcmpi(varInputs.reconSpace,'cortex') %GM to GM only
-                hbo.gm(frame,:) = img(1:nNodeVol);
-                hbr.gm(frame,:) = img(nNode+1:2*nNodeVol);    
-            else                                      %Vol to GM
-                hbo.vol(frame,:) = img(1:nNodeVol);
-                hbr.vol(frame,:) = img(nNode+1:2*nNodeVol);
-                hbo.gm(frame,:) = (vol2gm*hbo.vol(frame,:)');
-                hbr.gm(frame,:) = (vol2gm*hbr.vol(frame,:)');   
+    for cond = 1:nCond
+        fprintf(['Reconstructing condition ' num2str(cond) ' of ' num2str(nCond) '...\n']);
+        for frame = 1:nFrames
+            fprintf('Reconstructing frame %d of %d\n',frame,nFrames);
+            
+            dataTmp = squeeze(datarecon(frame,SD3D.MeasListAct==1,cond));
+            img = invjac.invJ{1} * dataTmp'; %invjac.invJ should only have one entry.
+            
+            if basisFlag %basis to volume to gm
+                hbo_tmp = img(1:end/2);
+                hbr_tmp = img(end/2+1:end);
+                hbo_tmpVol = hBasis.Map('S->M',hbo_tmp);
+                hbr_tmpVol = hBasis.Map('S->M',hbr_tmp);
+                hbo_tmpGM = (vol2gm*hbo_tmpVol);
+                hbr_tmpGM = (vol2gm*hbr_tmpVol);
+                
+                hbo.vol(frame,:,cond) = hbo_tmpVol;
+                hbr.vol(frame,:,cond) = hbr_tmpVol;
+                hbo.gm(frame,:,cond) = hbo_tmpGM;
+                hbr.gm(frame,:,cond) = hbr_tmpGM;
+            else
+                if strcmpi(varInputs.reconSpace,'cortex') %GM to GM only
+                    hbo.gm(frame,:,cond) = img(1:end/2);
+                    hbr.gm(frame,:,cond) = img(end/2+1:end);
+                else                                      %Vol to GM
+                    hbo_tmpVol = img(1:end/2);
+                    hbr_tmpVol = img(end/2+1:end);
+                    hbo_tmpGM = (vol2gm*hbo_tmpVol');
+                    hbr_tmpGM = (vol2gm*hbr_tmpVol');
+                    
+                    hbo.vol(frame,:,cond) = hbo_tmpVol;
+                    hbr.vol(frame,:,cond) = hbr_tmpVol;
+                    hbo.gm(frame,:,cond) = hbo_tmpGM;
+                    hbr.gm(frame,:,cond) = hbr_tmpGM;
+                end
             end
         end
-
     end
 end
-
 
 %###################### reconMethod = standard ############################
 %##########################################################################
 if strcmpi(varInputs.reconMethod,'standard')
     fprintf('Reconstructing images...\n');
-    
-    if ~strcmpi(varInputs.imageType,'mua') %Need to calculate haem images except if mua called
-        Eall = [];
-        for i = 1:nWavs
-            Etmp = GetExtinctions(wavelengths(i));
-            Etmp = Etmp(1:2); %HbO and HbR only
-            Eall = [Eall; Etmp./1e7]; %This will be nWavs x 2;
-        end
-        Eallinv = pinv(Eall); %This will be (n chromophores(2)) x nWavs;
-    end
-    
-    for frame = 1:nFrames
-        fprintf('Reconstructing frame %d of %d\n',frame,nFrames);
-        
-        muaImageAll = zeros(nWavs,nNodeNat);
-        for wav = 1:nWavs
-            dataTmp = datarecon(frame,SD3D.MeasList(:,4)==wav & SD3D.MeasListAct==1);
-            invJtmp = invjac.invJ{wav};
-            tmp = invJtmp * dataTmp';
-            muaImageAll(wav,:) = tmp; %This will be nWavs * nNodeNat
+    for cond = 1:nCond
+        fprintf(['Reconstructing condition ' num2str(cond) ' of ' num2str(nCond) '...\n']);
+        if ~strcmpi(varInputs.imageType,'mua') %Need to calculate haem images except if mua called
+            Eall = [];
+            for i = 1:nWavs
+                Etmp = GetExtinctions(wavelengths(i));
+                Etmp = Etmp(1:2); %HbO and HbR only
+                Eall = [Eall; Etmp./1e7]; %This will be nWavs x 2;
+            end
+            Eallinv = pinv(Eall); %This will be (n chromophores(2)) x nWavs;
         end
         
-        if ~strcmpi(varInputs.imageType,'mua') %Need to calculate haem images unless imageType = 'mua'
-            %##### CHECK THIS ########
-            img = Eallinv*muaImageAll;% Should be (chromophores by nWavs)*(nWavs by nNodeNat) = chromophore x node
-            %#########################           
-            if basisFlag %In basis, so map from basis to volume, the to GM
-                hbo_tmp = img(1,:);
-                hbr_tmp = img(2,:);
-                hbo.vol(frame,:) = hBasis.Map('S->M',hbo_tmp);
-                hbr.vol(frame,:) = hBasis.Map('S->M',hbr_tmp);
-                hbo.gm(frame,:) = (vol2gm*hbo.vol(frame,:)')';
-                hbr.gm(frame,:) = (vol2gm*hbr.vol(frame,:)')';
-            else         %Not using basis
-                if strcmpi(varInputs.reconSpace,'cortex') %In GM already
-                    hbo.gm(frame,:) = img(1,:);
-                    hbr.gm(frame,:) = img(2,:);
-                else                                      %In volume, map to GM
-                    hbo.vol(frame,:) = img(1,:);
-                    hbr.vol(frame,:) = img(2,:);
-                    hbo.gm(frame,:) = (vol2gm*hbo.vol(frame,:)')';
-                    hbr.gm(frame,:) = (vol2gm*hbr.vol(frame,:)')';
+        for frame = 1:nFrames
+            fprintf('Reconstructing frame %d of %d\n',frame,nFrames);
+            
+            muaImageAll = zeros(nWavs,nNodeNat);
+            for wav = 1:nWavs
+                dataTmp = squeeze(datarecon(frame,SD3D.MeasList(:,4)==wav & SD3D.MeasListAct==1,cond));
+                invJtmp = invjac.invJ{wav};
+                tmp = invJtmp * dataTmp';
+                muaImageAll(wav,:) = tmp; %This will be nWavs * nNodeNat
+            end
+            
+            if ~strcmpi(varInputs.imageType,'mua') %Need to calculate haem images unless imageType = 'mua'
+                
+                %##### CHECK THIS ########
+                img = Eallinv*muaImageAll;% Should be (chromophores by nWavs)*(nWavs by nNodeNat) = chromophore x node
+                %#########################
+                
+                if basisFlag %In basis, so map from basis to volume, the to GM
+                    hbo_tmp = img(1,:)';
+                    hbr_tmp = img(2,:)';
+                    hbo_tmpVol = hBasis.Map('S->M',hbo_tmp);
+                    hbr_tmpVol = hBasis.Map('S->M',hbr_tmp);
+                    hbo_tmpGM = (vol2gm*hbo_tmpVol');
+                    hbr_tmpGM = (vol2gm*hbr_tmpVol');
+                    
+                    hbo.vol(frame,:,cond) = hbo_tmpVol;
+                    hbr.vol(frame,:,cond) = hbr_tmpVol;
+                    hbo.gm(frame,:,cond) = hbo_tmpGM;
+                    hbr.gm(frame,:,cond) = hbr_tmpGM;
+                else         %Not using basis
+                    if strcmpi(varInputs.reconSpace,'cortex') %In GM already
+                        hbo.gm(frame,:,cond) = img(1,:);
+                        hbr.gm(frame,:,cond) = img(2,:);
+                    else                                      %In volume, map to GM
+                        hbo_tmpVol = img(1,:);
+                        hbr_tmpVol = img(2,:);
+                        hbo_tmpGM = (vol2gm*hbo_tmpVol');
+                        hbr_tmpGM = (vol2gm*hbr_tmpVol');
+                        
+                        hbo.vol(frame,:,cond) = hbo_tmpVol;
+                        hbr.vol(frame,:,cond) = hbr_tmpVol;
+                        hbo.gm(frame,:,cond) = hbo_tmpGM;
+                        hbr.gm(frame,:,cond) = hbr_tmpGM;
+                    end
                 end
             end
-        end
-                
-        if muaFlag %Calculate mua images if imageType = 'both' or 'mua'
-            for wav = 1:nWavs
-                if basisFlag
-                    tmp = hBasis.Map('S->M',muaImageAll(wav,:));
-                    mua{wav}.vol(frame,:) = tmp;
-                    mua{wav}.gm(frame,:) = (vol2gm*tmp)';
-                else
-                    if strcmpi(varInputs.reconSpace,'cortex') %In GM already
-                        tmp = muaImageAll(wav,:);
-                        mua{wav}.gm(frame,:) = tmp;
-                    else                                      %In volume, map to GM
-                        tmp = muaImageAll(wav,:);
-                        mua{wav}.vol(frame,:) = tmp;
-                        mua{wav}.gm(frame,:) = (vol2gm*tmp)';
+            
+            if muaFlag %Calculate mua images if imageType = 'both' or 'mua'
+                for wav = 1:nWavs
+                    if basisFlag
+                        tmp = hBasis.Map('S->M',muaImageAll(wav,:));
+                        mua{wav}.vol(frame,:,cond) = tmp;
+                        mua{wav}.gm(frame,:,cond) = (vol2gm*tmp)';
+                    else
+                        if strcmpi(varInputs.reconSpace,'cortex') %In GM already
+                            tmp = muaImageAll(wav,:);
+                            mua{wav}.gm(frame,:,cond) = tmp;
+                        else                                      %In volume, map to GM
+                            tmp = muaImageAll(wav,:);
+                            mua{wav}.vol(frame,:,cond) = tmp;
+                            mua{wav}.gm(frame,:,cond) = (vol2gm*tmp)';
+                        end
                     end
                 end
             end
@@ -284,6 +316,19 @@ if strcmpi(varInputs.reconMethod,'standard')
     end
 end
 
+if nCond==1
+    hbo.vol = squeeze(hbo.vol);
+    hbo.gm = squeeze(hbo.gm);
+    hbr.vol = squeeze(hbr.vol);
+    hbr.gm = squeeze(hbr.gm);
+    if muaFlag
+        for wav = 1:nWavs
+            mua{wav}.vol = squeeze(mua{wav}.vol);
+            mua{wav}.gm = squeeze(mua{wav}.gm);
+        end
+    end
+end
+    
 if ~varInputs.saveVolumeImages || strcmpi(varInputs.reconSpace,'cortex') %If not saving volume, populate empty
     hbo.vol = [];
     hbr.vol = [];

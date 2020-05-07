@@ -16,10 +16,10 @@ function DOTHUB_plotVolumeDOTIMG(dotimg,rmap,frames,varargin)
 %
 % varargin      : input argument pairs, with options:
 %
-%                 'imageType'   : 'haem', 'mua', default 'haem'
-%
 %                 'condition'   : integer specifying condition to plot
 %                                 (defaults to 1)
+%                 'imageType'   : 'haem', 'mua', default 'haem'
+%
 %                 'sliceDim'    : The dimension to take the slice. If a vector, 
 %                                 create a sublot for each up to N = 3;
 %                                 Defaults to [1 2 3];
@@ -43,17 +43,17 @@ varInputs = inputParser;
 varInputs.CaseSensitive = false;
 validateImageType = @(x) assert(any(strcmpi({'haem','mua'},x)));
 addParameter(varInputs,'imageType','haem',validateImageType);
-addParameter(varInputs,'condition',1,@isnumeric);
 addParameter(varInputs,'sliceDim',[1 2 3],@isnumeric);
 addParameter(varInputs,'slicePos',[],@isnumeric);
 addParameter(varInputs,'imageThresh',[],@isnumeric);
 addParameter(varInputs,'cRange',[],@isnumeric);
 addParameter(varInputs,'colormap','greyJet');
+addParameter(varInputs,'condition',1,@isnumeric);
 parse(varInputs,varargin{:});
 varInputs = varInputs.Results;
 
-cond = varInputs.condition;
 sliceDim = varInputs.sliceDim;
+condition = varInputs.condition;
 
 if ischar(dotimg)
     dotimgFileName = dotimg;
@@ -75,11 +75,11 @@ cmap = varInputs.colormap;
 % Define image to display and run plotting routines #######################
 if strcmpi(varInputs.imageType,'haem')
     if ndims(dotimg.hbo) == 3 %Conditions exist
-        img(1,:) = squeeze(mean(dotimg.hbo.vol(cond,frames,:),2));
-        img(2,:) = squeeze(mean(dotimg.hbr.vol(cond,frames,:),2));
+        img(1,:) = squeeze(mean(dotimg.hbo.vol(frames,:,condition),2));
+        img(2,:) = squeeze(mean(dotimg.hbr.vol(frames,:,condition),2));
     else
-        img(1,:) = squeeze(mean(dotimg.hbo.vol(frames,:),1));
-        img(2,:) = squeeze(mean(dotimg.hbr.vol(frames,:),1));
+        img(1,:) = squeeze(mean(dotimg.hbo.vol(frames,:,condition),1));
+        img(2,:) = squeeze(mean(dotimg.hbr.vol(frames,:,condition),1));
     end
     nSubplot = 2;
     imageLabels = {'HbO, \muM','HbR, \muM'};
@@ -88,7 +88,7 @@ else strcmpi(varInputs.imageType,'mua')
     nWavs = length(dotimg.mua);
     for i = 1:nWavs
         if ndims(dotimg.mua{i}.vol) == 3 %Conditions exist
-            img(i,:) = squeeze(mean(dotimg.mua{i}.vol(cond,frames,:),2));
+            img(i,:) = squeeze(mean(dotimg.mua{i}.vol(frames,:,condition),2));
         else
             img(i,:) = squeeze(mean(dotimg.mua{i}.vol(frames,:),1));
         end
