@@ -1,39 +1,42 @@
- function [SD3D, SD3DFileName] = DOTHUB_LUMOpolhemus2SD3D(posCSVFileName,infantFlag)
+ function [SD3D, SD3DFileName] = DOTHUB_LUMOpolhemus2SD3D(posCSVFileName,infantFlag,saveFlag)
 
 %This script takes the polhemus data associated with the measurement
 %points on the backs of the tiles and creates a 3D map of source and
 %detector positions associated with that array via a plane and projection
-%method. It then creates an SD_3D structure
-
+%method. It then creates an SD_3D structure assuming all source-detector
+%pairs form a channel
+%
 % ASSUMPTIONS:
 % [1] The user has collected the 3 points for an integer number of tiles
 % [2] These points are collected in the correct order (anticlockwise from A)
-
+%
 % INPUTS: ################################################################
 % posCSVFileName =      the .csv file name This data is a four-column CSV of
 %                       position label, then x, y, z coordinate (assumed in cm).
 %                       The first five rows should be Nz, Iz, Ar, Al, Cz. The
 %                       following rows should be SrcA, SrcB, SrcC of each of the N
 %                       tiles in turn.
-
+%
 % infantFlag =          true if light-guides associated with this array are the infant style
-
+%
+% saveFlag =            true if resulting SD file should be saved (default true)
+%
 % OUTPUTS: ###############################################################
 % SD_3D = The SD file containing the 3D information associated with polhemus
 % data. Also contains the a 'Landmarks' variable that saves the cranial
 % landmarks (Nz Iz Ar Al Cz). Also save out into an .SD file with a name
 % matching the input .csv appended with _3D.
-
+%
 % SD_3DFileName = Filename of the saved SD_3D variable.
-
+%
 % RJC, UCL, December 2019
-
+%
 % UPDATES ################################################################
 % RJC - Dec 2019 - Converted the affine transformation of the tile positions 
 %                  to the polhemus measurements to a rigid transformation.
-
+%
 % TO DO LIST #############################################################
-% Allow multiple file inputs and averaging of polhemus data.
+% Allow multiple file inputs and averaging of polhemus data?
 
 %Manage Inputs ###########################################################
 %#########################################################################
@@ -41,6 +44,7 @@ if ~exist('posCSVFileName','var')
     [file,path] = uigetfile('*.csv','Select Polhemus data set (.csv)','MultiSelect','on');
     posCSVFileName = fullfile(path,file);
 end
+
 if ~exist('infantFlag','var')
     answer = questdlg('Which light-guides were used in this array?','Select light guide type','ADULT','INFANT','ADULT');
     if strcmp(answer,'INFANT')
@@ -48,10 +52,21 @@ if ~exist('infantFlag','var')
     else
         infantFlag = 0;
     end
+elseif isempty(infantFlag)
+    answer = questdlg('Which light-guides were used in this array?','Select light guide type','ADULT','INFANT','ADULT');
+    if strcmp(answer,'INFANT')
+        infantFlag = 1;
+    else
+        infantFlag = 0;
+    end    
+end
+
+if ~exist('saveFlag','var')
+    saveFlag = 1;
 end
 
 %Target SD output names
-[path,name,ext] = fileparts(posCSVFileName);
+[path,name,~] = fileparts(posCSVFileName);
 if isempty(path)
     path = pwd;
 end
@@ -67,9 +82,6 @@ end
 %Wavelengths
 wavelength1 = 735;
 wavelength2 = 850;
-
-%distLimit
-%distLimit = 60; %mm
 
 %#########################################################################
 %#########################################################################
@@ -286,7 +298,9 @@ SD.MeasList = [SD.MeasList; SD.MeasList];
 SD.MeasList(end/2 + 1:end,4) = 2;
 SD3D = SD;
 
-fprintf(['Saving SD3D to ' SD3DFileName ' ...\n']);
-save(SD3DFileName,'SD3D');
+if saveFlag
+    fprintf(['Saving SD3D to ' SD3DFileName ' ...\n']);
+    save(SD3DFileName,'SD3D');
+end
 
 
