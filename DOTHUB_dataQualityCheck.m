@@ -96,7 +96,7 @@ title(fname,'Interpreter','none','FontSize',16,'FontWeight','Bold');
 % Plot channel-wise intvdist plots
 f3 = figure('Units','Normalized','Position',[0 0 0.8 0.8],'Color','w');
 subplot(1,2,1);
-DOTHUB_plotIntVDist(d,SD,1)
+DOTHUB_plotIntVDist(d,SDtmp,1)
 subplot(1,2,2);
 DOTHUB_plotChanHist(SDtmp);
 sgtitle(fname,'Interpreter','none','FontSize',16,'FontWeight','Bold');
