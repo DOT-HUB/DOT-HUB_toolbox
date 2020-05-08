@@ -3,7 +3,7 @@ function DOTHUB_plotIntVDist(d,SD,labelFlag,xAxisUpperLim)
 % This function creates an intensity versus SD-distance drop-off curve
 % figure.
 %
-%######################## INPUTS ##########################################
+% ######################## INPUTS ##########################################
 %
 % d             : The intensity data matrix (timepoints x channels) (Homer2 style)
 % SD            : The source-detector structure (Homer2 style). Should be 3D.
@@ -12,12 +12,12 @@ function DOTHUB_plotIntVDist(d,SD,labelFlag,xAxisUpperLim)
 % xAxisUpperLim : (Optional). The upper limit on the x axis. Defaults to
 %                 max distance in array, but cropping useful for papers.
 %
-%######################## OUTPUTS #########################################
+% ######################## OUTPUTS #########################################
 %
-%Outputs are figures...
+% Outputs are figures...
 %
-%######################## Dependencies ####################################
-%This script requires other functions in the DOTHUB function library
+% ######################## Dependencies ####################################
+% This script requires other functions in the DOTHUB function library
 %
 % #########################################################################
 % RJC, UCL, April 2020
