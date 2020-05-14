@@ -14,7 +14,7 @@ function [rmap, rmapFileName] = DOTHUB_meshRegistration(SD3DFileName,origMeshFil
 %                           itself be named after the posData.csv from which is
 %                           was derived
 %
-% origMeshFullFileName  :   The full path to the original mesh .mat file, which contains 
+% origMeshFullFileName  :   The full path to the original mesh .mshs file, which contains 
 %                           the following variables:
 %    
 %                             % headVolumeMesh    :   The multi-layer volume mesh structure, Contains

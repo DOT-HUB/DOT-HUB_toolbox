@@ -1,6 +1,6 @@
 function [jac, jacFileName] = DOTHUB_makeNIRFASTJacobian(rmap)
 
-% Calculates Jacobian using TNIRFAST
+% Calculates Jacobian using NIRFAST (UNFINISHED)
 %
 % #########################################################################
 % INPUTS ##################################################################

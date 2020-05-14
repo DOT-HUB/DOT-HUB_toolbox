@@ -1,20 +1,16 @@
 %function [nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirsHyper(lumoDIRs,layoutFileNames,posCSVFileName,eventsCSVFileName)
 
-lumoDIRs{1} = '/Users/RCooper/Dropbox/Projects/LUMO/24Tile_Hyperscanning/Pilot/Filename_8-5-2020_8-56_Vis.LUMO';
-lumoDIRs{2} = '/Users/RCooper/Dropbox/Projects/LUMO/24Tile_Hyperscanning/Pilot/Filename_8-5-2020_8-56.LUMO';
+lumoDIRs{1} = '/Users/RCooper/Dropbox/Projects/LUMO/24Tile_Hyperscanning/Pilot/Visual.LUMO';
+lumoDIRs{2} = '/Users/RCooper/Dropbox/Projects/LUMO/24Tile_Hyperscanning/Pilot/Prefrontal.LUMO';
 
 layoutFileNames{1} = '/Users/RCooper/Dropbox/Projects/LUMO/24Tile_Hyperscanning/Visual_24TileHyper.json';
 layoutFileNames{2} = '/Users/RCooper/Dropbox/Projects/LUMO/24Tile_Hyperscanning/Prefrontal_24TileHyper.json';
 
 % This script is designed to combine multiple LUMO files in to one .nirs
 % file. The assumed use case is when two or more independent LUMO arrays are
-% applied to a single individual. Therefore, to is a polhemus file, th
-% This script reads multiple .LUMO files (which are actually just directories)
-% and (if it is not contained within the .LUMO - which it should be)
-% also loads the associated .JSON layout from a seperate file.
-%
-% If subject-specific registration data (from polhemus or other method) is available
-% in .cvs format, this too can be parsd. If it is parsed, the function
+% applied to a single individual. Therefore, if a .csv polhemus file is
+% parsed, it should be for both arrays, measured in the same order as
+% listed in lumoDIRs. If it is parsed, the function
 % DOTHUB_LUMOPolhemus2SD is called to determine optode positions from the
 % polhemus data. The resulting 3D optode positions overwrite the default 3D
 % data from the .JSON file.

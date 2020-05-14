@@ -141,6 +141,9 @@ if ~isempty(errnodes_ind)
     end
 end
 
+% Clear MEX
+clear MEX
+
 % Make toast-handle for mesh and check configuration
 fprintf('Building TOAST mesh\n');
 eltp = ones(length(headVolumeMesh.elem),1)*3;

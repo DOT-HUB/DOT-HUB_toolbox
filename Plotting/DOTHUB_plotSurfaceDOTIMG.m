@@ -6,7 +6,7 @@ function DOTHUB_plotSurfaceDOTIMG(dotimg,rmap,frames,varargin)
 %
 % dotimg        : The dotimg structure or path to dotimg file. Contains
 %                 hbo.gm, hbr.gm and/or mua{1}.gm, stat.gm etc.
-%    
+%
 % rmap          : rmap or mshs structure or path. must contain
 %                 gmSurfaceMesh variable
 %
@@ -15,11 +15,13 @@ function DOTHUB_plotSurfaceDOTIMG(dotimg,rmap,frames,varargin)
 %
 % varargin      : input argument pairs, with options:
 %
-%                 'condition' : integer specifying condition to plot
-%                 'shading'   : 'interp', 'flat', 'faceted'. (Optional). Defaults to interp.
-%                 'imageType' : 'haem', 'mua', default 'haem'
-%                 'colormap'  : preferred colormap array
-%                 'view'      : view angle, defaults to [-37.5 30]
+%                 'condition'   : integer specifying condition to plot
+%                 'shading'     : 'interp', 'flat', 'faceted'. (Optional). Defaults to interp.
+%                 'imageType'   : 'haem', 'mua', default 'haem'
+%                 'colormap'    : preferred colormap array
+%                 'view'        : view angle, defaults to [-37.5 30]
+%                 'hrfExplorer  : true or flase to add subplot showing selected node pseudochannel
+%                                 default false;
 %
 % OUTPUTS #################################################################
 %
@@ -30,8 +32,10 @@ varInputs = inputParser;
 varInputs.CaseSensitive = false;
 validateShading = @(x) assert(any(strcmpi({'flat','interp','faceted'},x)));
 validateImageType = @(x) assert(any(strcmpi({'haem','mua'},x)));
+validatehrfExplorer = @(x) assert(any(strcmpi({'on','off'},x)));
 addParameter(varInputs,'shading','interp',validateShading);
 addParameter(varInputs,'imageType','haem',validateImageType);
+addParameter(varInputs,'hrfExplorer',false,validatehrfExplorer);
 addParameter(varInputs,'colormap','greyJet');
 addParameter(varInputs,'condition',1,@isnumeric);
 addParameter(varInputs,'view',[-37.5 30],@isnumeric);
@@ -41,6 +45,7 @@ varInputs = varInputs.Results;
 viewAng = varInputs.view;
 shadingtype = varInputs.shading;
 condition = varInputs.condition;
+hrfExplorer = varInputs.hrfExplorer;
 
 if ischar(dotimg)
     dotimgFileName = dotimg;
@@ -97,3 +102,55 @@ for i = 1:nSubplot
 end
 [~,fname,~] = fileparts(dotimg.fileName);
 sgtitle(fname,'FontSize',16,'Interpreter','none');
+
+if hrfExplorer
+    dcmObj = datacursormode(hFig);
+    spPosition = [0.4 0.7 0.2 0.2];
+    aHRF = axes('Position',spPosition);
+    set(dcmObj,'UpdateFcn',{@dcmUpdateHRF,dotimg,rmap,condition,varInputs.imageType,aHRF},'Enable', 'on');
+end
+
+
+
+function out = dcmUpdateHRF(hDataTip, event_obj, dotimg, rmap, condition, imageType, aHRF)
+
+cla(aHRF);
+axes(aHRF);
+out = '';
+
+%Determine which subplot we are clicked on;
+tmp = event_obj.Target.Parent.Position;
+plt = round( (tmp(1)+(tmp(3)/2)) / (tmp(1)+tmp(3)));
+
+[~,ind] = DOTHUB_nearestNode(event_obj.Position,rmap.gmSurfaceMesh.node(:,1:3));
+if ndims(dotimg.hbo.gm) == 3 %Conditions exist
+    if strcmpi(imageType,'haem')
+        hrf(:,1) = dotimg.hbo.gm(:,ind,condition);
+        hrf(:,2) = dotimg.hbr.gm(:,ind,condition);
+        hrf(:,3) = sum(hrf(:,1:2),2);
+        plot(dotimg.tImg,hrf(:,1),'r');hold on;
+        plot(dotimg.tImg,hrf(:,2),'b');
+        plot(dotimg.tImg,hrf(:,3),'g');hold off;
+        xlabel('Time (s)');
+        ylabel('uM');
+    else
+        hrf(:,1) = dotimg.mua{1}.gm(:,ind,condition);
+        hrf(:,2) = dotimg.mua{2}.gm(:,ind,condition);        
+        plot(dotimg.tImg,hrf);
+    end
+else
+    if strcmpi(imageType,'haem')
+        hrf(:,1) = dotimg.hbo.gm(:,ind);
+        hrf(:,2) = dotimg.hbr.gm(:,ind);
+        hrf(:,3) = sum(hrf(:,1:2),2);
+        plot(dotimg.tImg,hrf(:,1),'r');hold on;
+        plot(dotimg.tImg,hrf(:,2),'b');
+        plot(dotimg.tImg,hrf(:,3),'g');
+        xlabel('Time (s)');
+        ylabel('uM');
+    else
+        hrf(:,1) = dotimg.mua{1}.gm(:,ind);
+        hrf(:,2) = dotimg.mua{2}.gm(:,ind);        
+        plot(dotimg.tImg,hrf);
+    end
+end

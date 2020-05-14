@@ -18,12 +18,12 @@
 %Paths of pre-defined elements (.nirs file, atlas mesh, SD3D file, Homer2
 %cfg file)
 nirsFileName = 'ExampleData/Example2/uNTS_FingerTap_Subj01.nirs';
-origMeshFileName = 'Meshes/AdultMNI152.mshs';
+origMeshFileName = 'ExampleMeshes/AdultMNI152.mshs';
 SD3DFileName = 'ExampleData/Example2/uNTS_FingerTap_Subj01.SD3D';
 cfgFileName = 'ExampleData/Example2/preproPipelineExample2.cfg';
 
 %Run data quality checks
-DOTHUB_dataQualityCheck(nirsFileName,[500 5.99e6],12,0)
+%DOTHUB_dataQualityCheck(nirsFileName,[500 5.99e6],12,0)
 
 %Run bespoke pre-processing script (simplest possible example included below)
 [prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileName);
