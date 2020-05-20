@@ -1,32 +1,35 @@
-function DOTHUB_plotHRF(timebase,data,errdata,blockendtime,fontsize)
+function DOTHUB_plotHRF(timebase,data,errdata,blockendtime,yLimits,fontsize)
  
 %This function plots a single-channel HRF, with shaded error bars etc and
 %other embellishments 
-
+%
 %############################### INPUTS ###################################
-
+%
 % timebase      =   a vector of time points for the HRF
-
+%
 % data          =   hrf data of dimensions time x chromophore [oxy deoxy tot]
 %                   in micromolar units!
-
+%
 % errdata       =   error on the hrf data with same dimensions as data (optional)
-
+%
 % blockendtime  =   timebase value at which stimualtion trial/block ends
 %                   (optional). Assued to start at timebase = 0. If parsed, block period is shaded.
-
+%
+% yLimits       =   Force ylims, default ignores.
+%
 % fontsize      =   axis fontsize (optional). Defaults to 16.
-
+%
 %############################# Dependencies ###############################
 %shadedErrorBar.m by Rob Campbell https://github.com/raacampbell/shadedErrorBar
-
+%
 % #########################################################################
 % RJC, UCL, April 2020
 % 
 % ############################## Updates ##################################
 % #########################################################################
-
+%
 % ############################### TO DO ###################################
+% Update to varargin and parseinputs
 % #########################################################################
 
 if ~exist('errdata','var')
@@ -41,6 +44,13 @@ else
     blockFlag = 1;
 end
 
+ylFlag = 1;
+if ~exist('yLimits','var')
+    ylFlag = 0;
+elseif isempty(yLimits)
+    ylFlag = 0;
+end
+
 if ~exist('fontsize','var')
     fontsize = 16;
 end
@@ -49,7 +59,7 @@ if size(data,1) ~= size(timebase,1) %Correct timebase orientation if needed
     timebase = timebase';
 end
 
-if max(data(:))<1e-4;
+if max(data(:))<1e-4
     warning('Are you sure you parsed data in micromolar units?');
 end
 
@@ -59,7 +69,7 @@ if errFlag
     plot(timebase, data(:,1), 'r','LineWidth',1.5);hold on;
     plot(timebase, data(:,2), 'b','LineWidth',1.5);
     plot(timebase, data(:,3), 'g','LineWidth',1.5);
-    legend('HbO', 'HbR', 'HbT');
+    legend('HbO', 'HbR', 'HbT','Autoupdate','off');
     
     shadedErrorBar(timebase, data(:,3),errdata(:,3),{'g','LineWidth',1.5},0.6);    
     shadedErrorBar(timebase, data(:,2),errdata(:,2),{'b','LineWidth',1.5},0.6);
@@ -75,12 +85,15 @@ else
     plot(timebase, data(:,3), 'g','LineWidth',1.5);
     xlabel('Time (s)','fontsize',fontsize);
     ylabel('Concentration change (\muM)','fontsize',fontsize);
-    legend('HbO', 'HbR', 'HbT');
+    legend('HbO', 'HbR', 'HbT','Autoupdate','off');
     set(gca,'fontsize',fontsize);
     hold off;
 end
 
 xlim([min(timebase) max(timebase)]);
+if ylFlag
+    ylim(yLimits);
+end
 yl = ylim;
 
 if blockFlag
