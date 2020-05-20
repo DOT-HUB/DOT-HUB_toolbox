@@ -1,4 +1,4 @@
-function hFig = DOTHUB_LUMOarrayplot(y,tHRF,SD,ylimits,distRange,overSizeRatios,titString,fontSize,lineWidth)
+function hFig = DOTHUB_LUMOarrayPlot(y,tHRF,SD,ylimits,distRange,overSizeRatios,titString,fontSize,lineWidth)
 
 %This function is designed to plot HRFs derived from LUMO data in the 2D 
 %arrangement dictated by the SD variable, with indications of the tile 
@@ -169,7 +169,7 @@ if exist('titString','var')
     tHand.Position = [0.5 0.95 0];
 end
 
-dists = DOTHUB_GetSDdists(SD);
+dists = DOTHUB_getSDdists(SD);
 for i = 1:nchan
     
     if SD.MeasListAct(i)==1 & dists(i)>= distRange(1) & dists(i)<=distRange(2)
