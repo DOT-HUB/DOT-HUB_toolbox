@@ -126,6 +126,7 @@ hyperParameter = varInputs.hyperParameter;
 
 if strcmpi(varInputs.reconSpace,'cortex') %Cortically constrained
     basisFlag = 0;
+    invJbasis = [];
     nNodeNat = size(jac.J{1}.gm,2);
     for wav = 1:nWavs
         JNat{wav} = jac.J{wav}.gm;
@@ -133,6 +134,7 @@ if strcmpi(varInputs.reconSpace,'cortex') %Cortically constrained
 else  %Full space
     if ~isempty(jac.basis)  %In basis
         basisFlag = 1;
+        invJbasis = jac.basis;
         nNodeNat = size(jac.J{1}.basis,2);
         for wav = 1:nWavs
             JNat{wav} = jac.J{wav}.basis;
@@ -293,5 +295,5 @@ for i = 1:length(fnames)
     if strcmpi(fnames{i},'rmap');continue; end
     logData(end+1,:) = {fnames{i}, getfield(varInputs,fnames{i})};
 end
-[invjac, invjacFileName] = DOTHUB_writeINVJAC(invjacFileName,logData,invJ,jac.basis,varInputs.saveFlag);
+[invjac, invjacFileName] = DOTHUB_writeINVJAC(invjacFileName,logData,invJ,invJbasis,varInputs.saveFlag);
 
