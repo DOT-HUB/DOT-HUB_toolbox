@@ -36,7 +36,7 @@ function [invjac, invjacFileName] = DOTHUB_invertJacobian(jac,prepro,varargin)
 %
 % invjac            : The invjac stucture
 %
-% invjacFileName    : The full pathname of the
+% invjacFileName    : The full pathname of the target invjac file.
 %
 % ####################### Dependencies ####################################
 % #########################################################################

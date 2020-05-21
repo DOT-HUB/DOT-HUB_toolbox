@@ -27,6 +27,8 @@ end
 
 if ~exist('shadingtype','var')
     shadingtype = 'interp';
+elseif isempty(shadingtype)
+    shadingtype = 'interp';
 end
 
 nodes = mesh.node;
