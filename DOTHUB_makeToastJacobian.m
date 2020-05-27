@@ -79,7 +79,6 @@ end
 %minutes, so if it hangs for longer, you can be certain there is a problem,
 %whereas the full calculations can take hours, so you can't be sure it is
 %working.
-testFlag = 1;
 
 % #########################################################################
 % Load rmap ###############################################################
@@ -220,34 +219,34 @@ bicgstabtol=1e-12;
 
 % Test how long this will take using single channel
 % #########################################################################
-if testFlag == 1
-    try
-    disp('Running test calculation...');
-    DOTHUB_writeToastQM('tmp.qm',SD3Dmesh.SrcPos(1,:),SD3Dmesh.DetPos(1,:),1)
-    hMesh.ReadQM('tmp.qm');
-    qvec = hMesh.Qvec ('Neumann', 'Gaussian', 2);
-    mvec = hMesh.Mvec ('Gaussian', 2, refIndVec(1,:)');
-    
-    if basisFlag
-        hBasis = toastBasis(hMesh,basis,fineBasis);
-    else
-        hBasis = 0;
-    end
-    
-    if hMesh.isvalid
-        fprintf('Running toastJacobianCW test...\n');
-        tic;
-        Jtest = toastJacobianCW(hMesh, hBasis, qvec, mvec, muaVec(1,:)', musPrimeVec(1,:)', refIndVec(1,:)', jtype, bicgstabtol); %#ok<NASGU>
-        duration = toc;
-    end
-    %Assume linear with optode number (very approximate)
-    fprintf('Test complete...\n');
-    fprintf(['Estimated processing time estimate for full Jacobian, per wavelength = ' num2str(duration*0.5*(SD3Dmesh.nDets + SD3Dmesh.nSrcs)/60,'%0.2f') ' mins\n']);
-    delete('tmp.qm');
-    catch
-        fprintf('Test of toastJacobianCW failed. Please check inputs...\n');
-    end
-end
+% if testFlag == 1
+%     try
+%     disp('Running test calculation...');
+%     DOTHUB_writeToastQM('tmp.qm',SD3Dmesh.SrcPos(1,:),SD3Dmesh.DetPos(1,:),1)
+%     hMesh.ReadQM('tmp.qm');
+%     qvec = hMesh.Qvec ('Neumann', 'Gaussian', 2);
+%     mvec = hMesh.Mvec ('Gaussian', 2, refIndVec(1,:)');
+%     
+%     if basisFlag
+%         hBasis = toastBasis(hMesh,basis,fineBasis);
+%     else
+%         hBasis = 0;
+%     end
+%     
+%     if hMesh.isvalid
+%         fprintf('Running toastJacobianCW test...\n');
+%         tic;
+%         Jtest = toastJacobianCW(hMesh, hBasis, qvec, mvec, muaVec(1,:)', musPrimeVec(1,:)', refIndVec(1,:)', jtype, bicgstabtol); %#ok<NASGU>
+%         duration = toc;
+%     end
+%     Assume linear with optode number (very approximate)
+%     fprintf('Test complete...\n');
+%     fprintf(['Estimated processing time estimate for full Jacobian, per wavelength = ' num2str(duration*0.5*(SD3Dmesh.nDets + SD3Dmesh.nSrcs)/60,'%0.2f') ' mins\n']);
+%     delete('tmp.qm');
+%     catch
+%         fprintf('Test of toastJacobianCW failed. Please check inputs...\n');
+%     end
+% end
 
 % #########################################################################
 % Calculate full Jacobian
