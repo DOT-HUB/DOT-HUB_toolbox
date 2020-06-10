@@ -80,6 +80,7 @@ dcrop = d(goodRange(1):goodRange(2),:);
 dRange = [0 2.5];
 SNRthresh = 12;
 SDrange = [0 1e6];
+SDtmp.MeasListAct = ones(size(SDtmp.MeasList,1),1);
 SDtmp = enPruneChannels(dcrop,SDtmp,ones(size(dcrop,1),1),dRange,SNRthresh,SDrange,0);
 SDtmp.MeasListAct(end/2+1:end) = SDtmp.MeasListAct(1:end/2);
 
@@ -102,7 +103,7 @@ title(fname,'Interpreter','none','FontSize',16,'FontWeight','Bold');
 % Plot channel-wise intvdist plots
 f3 = figure('Units','Normalized','Position',[0 0 0.8 0.8],'Color','w');
 subplot(1,2,1);
-DOTHUB_plotIntVTime(dcrop,SDtmp,1);
+DOTHUB_plotIntVDist(dcrop,SDtmp,1);
 subplot(1,2,2);
 DOTHUB_plotChanHist(SDtmp);
 sgtitle(fname,'Interpreter','none','FontSize',16,'FontWeight','Bold');
