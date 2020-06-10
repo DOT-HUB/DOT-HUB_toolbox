@@ -52,7 +52,7 @@ hold off;
 % Determine if data is LUMO data (to allow module labelling) 
 % ##########################################################################
 % ##### (Temporary solution? Need to define module elements in .SD3D?) #####
-if SD.nSrcs == (2/3)*SD.nDets && rem(SD.nSrcs,3)==0 && rem(SD.nDets,4)==0 &&min(dists)<12
+if SD.nSrcs == (3/4)*SD.nDets && rem(SD.nSrcs,3)==0 && rem(SD.nDets,4)==0 &&min(dists)<12
     lumoFlag = 1;
 else
     lumoFlag = 0;
