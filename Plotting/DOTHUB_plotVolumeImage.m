@@ -47,8 +47,8 @@ elseif isempty(image_label)
     image_label = '';
 end
 
+load('greyJet.mat');
 if ~exist('cmap','var')
-    load('greyJet.mat');
     cmap = greyJet;
 end
 % #################################
@@ -64,6 +64,9 @@ view_def = [90 0;180 0;0 90];
 %Handle tissue colormap
 nTiss = length(tiss_ind);
 tiss_cmap = gray(nTiss);
+%#####
+tiss_cmap(3,:)=greyJet(32,:);
+%#####
 
 set(gcf,'Color','w');
 for i = 1:length(slice_dim)
