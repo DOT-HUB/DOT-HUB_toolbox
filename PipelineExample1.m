@@ -2,12 +2,6 @@
 %
 % Individual optode positioning information, subject-specific .mshs file.
 % LUMO DATA
-%
-
-
-
-
-
 
 
 
