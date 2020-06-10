@@ -132,7 +132,7 @@ classdef DOTHUB_getPLYPoints < matlab.apps.AppBase
             %Make landmark labels uneditable
             if indices(1)<=5 && indices(2)==1
                 tmp = {'Nasion' 'Inion' 'Ar' 'Al' 'Cz'};
-                app.UITable.Data{indices(1),indices(2)} = tmp(indices(1));
+                app.UITable.Data{indices(1),indices(2)} = tmp{indices(1)};
                 return
             else
                 app.UITable.Data{indices(1),indices(1)} = newData;
@@ -190,49 +190,19 @@ classdef DOTHUB_getPLYPoints < matlab.apps.AppBase
             tmp = app.UITable.Data;
             popInd = ~cellfun(@isempty,tmp(:,1));
             tmpData = tmp(popInd,1:4);
-            
-            %Check scaling
-            answer = questdlg('Do you want to scale these measurements (LUMO TILES)?','Scale?','Yes','No','Yes');
-            if strcmpi(answer,'Yes') %Determine mean euc distance between points on the same tile, and scale
-                dataTmp = cell2mat(app.UITable.Data(6:end,2:4));
-                if mod(length(dataTmp),3)~=0
-                    error('Number of positions is not a multiple of 3...')
-                end
-                nTile = length(dataTmp)/3;
-                count = 1;
-                for ii = 1:nTile
-                    A = dataTmp(1+(ii-1)*3,:);
-                    B = dataTmp(2+(ii-1)*3,:);
-                    C = dataTmp(3+(ii-1)*3,:);
-                    triDist(count) = sqrt(sum((A-B).^2));
-                    count = count+1;
-                    triDist(count) = sqrt(sum((A-C).^2));
-                    count = count+1;        
-                    triDist(count) = sqrt(sum((B-C).^2));
-                    count = count+1;                          
-                end
-                %Determine scaling factor;
-                scaleFact = 18/mean(triDist);
-                figure;
-                hist(triDist*scaleFact);
-                xlabel('Extracted triangle edge distance (should be 18) (mm)');
-                ylabel('Count');
-                
-                for ii = 1:size(tmpData,1)
-                    for jj = 2:4
-                        tmpData{ii,jj} = tmpData{ii,jj}.*scaleFact;
-                    end
-                end
-                    
-            end
+
             if ~isempty(app.plyFileName)
                 [pathtmp,nametmp,~] = fileparts(app.plyFileName);
                 [file,path,~] = uiputfile([pathtmp '/' nametmp '_Positions.csv']);
             else
                 [file,path,~] = uiputfile([pwd '/' 'Positions.csv']);
             end
-           
-            writecell(tmpData,fullfile(path,file));
+            if file==0
+                return
+            end
+            headings = {'Location','X','Y','Z'};
+            outData = [headings;tmpData];
+            writecell(outData,fullfile(path,file));
         end
 
         % Button pushed function: AligntolandmarksButton
@@ -305,7 +275,7 @@ classdef DOTHUB_getPLYPoints < matlab.apps.AppBase
                 return
             end
             inputList = readtable(fullfile(pname,fname),'ReadVariableNames',0);
-            inputList = table2cell(inputList(:,1:4));
+            inputList = table2cell(inputList(2:end,1:4));
             app.UITable.Data = inputList;
             %Replot points
             UIPlotPoints(app);
@@ -336,10 +306,10 @@ classdef DOTHUB_getPLYPoints < matlab.apps.AppBase
                 count = count+1;
             end
             %Determine scaling factor;
-            scaleFact = 18/mean(triDist);
+            scaleFact = 1.8/mean(triDist);
             f1 = figure;
             hist(triDist*scaleFact);
-            xlabel('Extracted triangle edge distance (should be 18) (mm)');
+            xlabel('Extracted triangle edge distance (should be 1.8) (cm)');
             ylabel('Count');
             
             for ii = 1:size(tmpData,1)
