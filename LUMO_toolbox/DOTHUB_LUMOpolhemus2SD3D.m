@@ -99,7 +99,6 @@ PolPoints = allPos(6:end,:);
 
 %Translate and Rotate so that Iz is at 0 0 0, Nz is at 0 y 0, Ar and Al have same z
 %value and Cz is on top
-
 Iz = landmarks(2,:);
 landmarks = landmarks - repmat(Iz,size(landmarks,1),1);
 PolPoints = PolPoints - repmat(Iz,size(PolPoints,1),1);
