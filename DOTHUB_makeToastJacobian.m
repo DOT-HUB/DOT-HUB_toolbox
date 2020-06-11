@@ -27,8 +27,11 @@ function [jac, jacFileName] = DOTHUB_makeToastJacobian(rmap,basis)
 %                    %                           space to GM surface mesh space
 %
 % basis        :   (Optiona) 1x3 vector specifying basis dimensions if desired. 
-%                  A basis of [50 50 50] is aassigned by default if
-%                  nnodes>200k.
+%                  If you don't want to specify a basis don't parse or parse empty
+%                  in which case calculation will be in volume unless
+%                  nnodes>200k, in which case a basis of [50 50 50] is assigned.
+%                  If you parse basis = 0, a basis will not be assigned no
+%                  matter how large your volume is.
 %            
 % OUTPUTS #################################################################
 %
@@ -59,16 +62,28 @@ end
 
 basisFlag = 0;
 nNodeVol = size(rmap.headVolumeMesh.node,1);
-if ~exist('basis','var')
-    if nNodeVol>2e5 %HARD CODE NODE LIMIT AT 200,000
+nodeLimit = 2e5;%HARD CODE NODE LIMIT AT 200,000
+if ~exist('basis','var') %Not parsed. Volume unless nodes exceed limit...
+    if nNodeVol>nodeLimit 
         basisFlag = 1;
         basis = [50 50 50];
         fineBasis = basis.*2;
     else
         basis = []; %No basis
     end
-elseif basis==0
-    basis = [];
+elseif isempty(basis)  %Parsed empty. Volume unless nodes exceed limit...
+    if nNodeVol>nodeLimit 
+        basisFlag = 1;
+        basis = [50 50 50];
+        fineBasis = basis.*2;
+    else
+        basis = []; %No basis
+    end    
+elseif basis==0  %Parsed as zero = calc in volume no matter the size.
+    if nNodeVol>nodeLimit 
+        warning('Basis parsed as 0: Calculating Jacobian in volume space despite large node count...');
+    end
+    basis = []; %No basis
 elseif ~isempty(basis) %Basis exists and is not empty, use.
     basisFlag = 1;
     fineBasis = basis.*2;
