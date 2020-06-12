@@ -93,7 +93,7 @@ if saveFlag
     if exist(dotimgFileName,'file')
         warning([name ext ' will be overwritten...']);
     end
-    save(dotimgFileName,'-struct','dotimg');
+    save(dotimgFileName,'-struct','dotimg','-v7.3');
     fprintf('################### Writing .dotimgimg file #######################\n');
     fprintf(['.dotimg data file saved as ' dotimgFileName '\n']);
 end

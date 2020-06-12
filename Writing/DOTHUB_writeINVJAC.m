@@ -83,7 +83,7 @@ if saveFlag
         warning([name ext ' will be overwritten...']);
     end
     %Save .invjac file ###########################################################
-    save(invjacFileName,'-struct','invjac');
+    save(invjacFileName,'-struct','invjac','-v7.3');
     fprintf('###################### Writing .invjac file #########################\n');
     fprintf(['.invjac data file saved as ' invjacFileName '\n']); 
 end

@@ -92,7 +92,7 @@ if exist(jacFileName,'file')
 end
 
 %Save .jac file ###########################################################
-save(jacFileName,'-struct','jac');
+save(jacFileName,'-struct','jac','-v7.3');
 fprintf('##################### Writing .jac file #########################\n');
 fprintf(['.jac data file saved as ' jacFileName '\n']);
 fprintf('\n');
