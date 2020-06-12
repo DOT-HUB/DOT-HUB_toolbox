@@ -18,7 +18,7 @@
 %
 % RJC, UCL
 
-function dod = DOTHUB_hmrHRFConc2OD(dc, SD, ppf)
+function dod = DOTHUB_hmrConc2OD(dc, SD, ppf)
 
 nWav = length(SD.Lambda);
 ml = SD.MeasList;
