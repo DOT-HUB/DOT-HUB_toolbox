@@ -7,3 +7,4 @@
 ~*.pptx
 ~*.docx
 *.docx
+.DS_Store
