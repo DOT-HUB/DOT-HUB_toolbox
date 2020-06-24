@@ -160,7 +160,7 @@ bt2.ButtonPushedFcn = @RotateGrid;
         end
         linend = source_array(1:3:end,[1 2]);
         linstart = detector_array(3:4:end,[1 2]);
-        for i = 1:length(linend);
+        for i = 1:size(linend,1);
             line(ax,[linstart(i,1) linend(i,1)],[linstart(i,2) linend(i,2)],'color','g','LineWidth',2);hold on;
             plot(ax,linstart(i,1),linstart(i,2),'g.','MarkerSize',20);
         end
@@ -209,6 +209,7 @@ bt2.ButtonPushedFcn = @RotateGrid;
         for s = 1:SD_2Dtmp.nSrcs
             for d = 1:SD_2Dtmp.nDets
                 SD_2Dtmp.MeasList(count,:) = [s d 0 1];
+                count = count+1;
             end
         end
         SD_2Dtmp.MeasList = [SD_2Dtmp.MeasList; SD_2Dtmp.MeasList];
