@@ -9,8 +9,6 @@ function [invjac, invjacFileName] = DOTHUB_invertJacobian(jac,prepro,varargin)
 % prepro    =  prepro structure or path to .prepro. Only needed for
 %              covariance regularilization
 %
-% rmap      =  rmap structure or path to .rmap
-%
 % varargin  =  optional input pairs:
 %              'reconMethod' - 'multispec' or 'standard' (default 'standard');
 %                   Specifying whether to construct and invert a multispectral
