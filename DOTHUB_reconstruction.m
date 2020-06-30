@@ -269,8 +269,8 @@ if strcmpi(varInputs.reconMethod,'standard')
                     hbr_tmp = img(2,:)';
                     hbo_tmpVol = hBasis.Map('S->M',hbo_tmp);
                     hbr_tmpVol = hBasis.Map('S->M',hbr_tmp);
-                    hbo_tmpGM = (vol2gm*hbo_tmpVol');
-                    hbr_tmpGM = (vol2gm*hbr_tmpVol');
+                    hbo_tmpGM = (vol2gm*hbo_tmpVol);
+                    hbr_tmpGM = (vol2gm*hbr_tmpVol);
                     
                     hbo.vol(frame,:,cond) = hbo_tmpVol;
                     hbr.vol(frame,:,cond) = hbr_tmpVol;
