@@ -1,4 +1,4 @@
-function DOTHUB_plotIntVDist(d,SD,labelFlag,xAxisUpperLim)
+function DOTHUB_plotIntVDist(d,SD,labelFlag,xAxisUpperLim,varargin)
 
 % This function creates an intensity versus SD-distance drop-off curve
 % figure.
@@ -11,6 +11,9 @@ function DOTHUB_plotIntVDist(d,SD,labelFlag,xAxisUpperLim)
 %                 labelling (optional, default false);
 % xAxisUpperLim : (Optional). The upper limit on the x axis. Defaults to
 %                 max distance in array, but cropping useful for papers.
+%
+% varargin  =  optional input pairs:
+%              'hAxes' - optional axis handle
 %
 % ######################## OUTPUTS #########################################
 %
@@ -29,6 +32,14 @@ if ~exist('labelFlag','var')
     labelFlag = 0;
 end
 
+varInputs = inputParser;
+addParameter(varInputs,'hAxes','',@ishandle);
+parse(varInputs,varargin{:});
+varInputs = varInputs.Results;
+if isempty(varInputs.hAxes)
+    varInputs.hAxes = gca;
+end
+      
 dists = DOTHUB_getSDdists(SD);
 dists = [dists dists];
 nWavs = length(SD.Lambda);
@@ -47,27 +58,27 @@ markersize = 40;
 Markers = {'o','s','*','x','d'};
 count = 1;
 for i = 1:nWavs
-    scatter(dists(SD.MeasList(:,4)==i),mnD(SD.MeasList(:,4)==i),markersize,[0 0 1],Markers{i},'LineWidth',1);hold on;
+    scatter(varInputs.hAxes,dists(SD.MeasList(:,4)==i),mnD(SD.MeasList(:,4)==i),markersize,[0 0 1],Markers{i},'LineWidth',1);
+    hold(varInputs.hAxes,'on');
     legText{count} = ['All chan. ' num2str(SD.Lambda(i)) ' nm'];
     count = count+1;
-    scatter(dists(SD.MeasListAct==1 & (SD.MeasList(:,4)==i)),mnD(SD.MeasListAct==1 & (SD.MeasList(:,4)==i)),markersize,[1 0 0],Markers{i},'LineWidth',1);
+    scatter(varInputs.hAxes,dists(SD.MeasListAct==1 & (SD.MeasList(:,4)==i)),mnD(SD.MeasListAct==1 & (SD.MeasList(:,4)==i)),markersize,[1 0 0],Markers{i},'LineWidth',1);
     legText{count} = ['Good chan. ' num2str(SD.Lambda(i)) ' nm'];
     count = count+1;
 end
 
-xlim([0 xAxisUpperLim]);
-set(gca,'YScale','log','XGrid','on','YGrid','on','FontSize',16);
-xlabel('S-D Distance (mm)');
-ylabel('Intensity (arb.)');
-legend(legText);
-box on
+xlim(varInputs.hAxes,[0 xAxisUpperLim]);
+set(varInputs.hAxes,'YScale','log','XGrid','on','YGrid','on','box','on','FontSize',16);
+xlabel(varInputs.hAxes,'S-D Distance (mm)');
+ylabel(varInputs.hAxes,'Intensity (arb.)');
+legend(varInputs.hAxes,legText);
 
 if max(dists)>70
     noisefloorest = mean(mnD(dists>70));
-    line([0 xAxisUpperLim],[noisefloorest noisefloorest],'LineWidth',2,'LineStyle','-.','Color','k');
-    text(1,noisefloorest*0.75,['Noise floor ~ ' num2str(noisefloorest,'%0.2e')]);
+    line(varInputs.hAxes,[0 xAxisUpperLim],[noisefloorest noisefloorest],'LineWidth',2,'LineStyle','-.','Color','k');
+    text(varInputs.hAxes,1,noisefloorest*0.75,['Noise floor ~ ' num2str(noisefloorest,'%0.2e')]);
 end
-hold off;
+hold(varInputs.hAxes,'off');
 
 % Determine if data is LUMO data (to allow module labelling) 
 % ##########################################################################

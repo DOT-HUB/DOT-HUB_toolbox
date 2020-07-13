@@ -90,7 +90,7 @@ if isempty(lumoPath)
 end
 
 if ~exist('layoutFileName','var') %Not parsed so check exists in .LUMO
-    jsonTmp = dir([lumoDIR '/*.json']);
+    jsonTmp = dir([lumoDIR '/layout.json']);
     if isempty(jsonTmp) %Not contained in .LUMO, so load
         [filename, pathname, ~] = uigetfile('*.json','Select .json layout file');
         layoutFileName = [pathname '/' filename];
@@ -121,7 +121,13 @@ end
 metadata = toml.read([lumoDIR '/metadata.toml']);
 recordingdata = toml.read([lumoDIR '/' metadata.file_names.recordingdata_file]); %To be updated to recording.toml
 events = toml.read([lumoDIR '/' metadata.file_names.event_file]);
-hardware = toml.read([lumoDIR '/' metadata.file_names.layout_file]); %To be updated to hardware.toml
+if isfield(metadata.file_names,'layout_file') %Old file naming structure
+    hardware = toml.read([lumoDIR '/' metadata.file_names.layout_file]);
+elseif isfield(metadata.file_names,'hardware_file') %Updated file naming structure
+    hardware = toml.read([lumoDIR '/' metadata.file_names.hardware_file]);
+else
+    error('No hardware.toml or layout.toml found in LUMO directory');
+end
 
 %Load layout JSON
 layoutData = jsondecode(fileread(layoutFileName));
