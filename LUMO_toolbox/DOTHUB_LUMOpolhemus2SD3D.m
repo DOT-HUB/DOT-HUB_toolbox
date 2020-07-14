@@ -65,11 +65,16 @@ if ~exist('saveFlag','var')
     saveFlag = 1;
 end
 
-%Target SD output names
-[path,name,~] = fileparts(posCSVFileName);
+%Target SD output names and force full path name
+[path,name,ext] = fileparts(posCSVFileName);
 if isempty(path)
     path = pwd;
 end
+if isempty(ext)
+    ext = '.csv';
+end
+posCSVFileName = fullfile(path,[name ext]);
+
 SD3DFileName = fullfile(path,[name '.SD3D']);
 
 %Define offset
