@@ -122,10 +122,10 @@ disp('Loading .toml contents...');
 metadata = toml.read([lumoDIR '/metadata.toml']);
 recordingdata = toml.read([lumoDIR '/' metadata.file_names.recordingdata_file]); %To be updated to recording.toml
 events = toml.read([lumoDIR '/' metadata.file_names.event_file]);
-if isfield(metadata.file_names,'layout_file') %Old file naming structure
-    hardware = toml.read([lumoDIR '/' metadata.file_names.layout_file]);
-elseif isfield(metadata.file_names,'hardware_file') %Updated file naming structure
+if isfield(metadata.file_names,'hardware_file') %Updated file naming structure
     hardware = toml.read([lumoDIR '/' metadata.file_names.hardware_file]);
+elseif ~contains(metadata.file_names.layout_file,'json') %Old file naming structure (layout_file is hardware.toml!)
+    hardware = toml.read([lumoDIR '/' metadata.file_names.layout_file]);
 else
     error('No hardware.toml or layout.toml found in LUMO directory');
 end
@@ -138,6 +138,7 @@ logFileID = fopen([lumoDIR '/' metadata.file_names.log_file]);
 logtxt = textscan(logFileID,'%s');
 
 %Load intensity binaries
+disp('Loading intensity data...');
 nIntFiles = length(metadata.intensity_files);
 for i = 1:nIntFiles
     fname = metadata.intensity_files{1,i}.file_name;
