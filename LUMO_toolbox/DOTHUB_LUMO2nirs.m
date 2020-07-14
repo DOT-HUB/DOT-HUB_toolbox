@@ -118,6 +118,7 @@ end
 
 % LOAD DATA  ###############################################################
 %Load toml contents
+disp('Loading .toml contents...');
 metadata = toml.read([lumoDIR '/metadata.toml']);
 recordingdata = toml.read([lumoDIR '/' metadata.file_names.recordingdata_file]); %To be updated to recording.toml
 events = toml.read([lumoDIR '/' metadata.file_names.event_file]);
