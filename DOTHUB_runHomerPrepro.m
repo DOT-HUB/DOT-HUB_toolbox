@@ -219,7 +219,7 @@ else %HRF is to be reconstructed
     %Find the DPF values used in cfg
     funcInd = find(strcmpi(procInput.procFunc.funcName,'hmrOD2Conc'));
     DPFs = procInput.procFunc.funcParamVal{funcInd}{:};
-    dodRecon = DOTHUB_hmrHRFConc2OD(dcAvg,SD3D,DPFs);
+    dodRecon = DOTHUB_hmrConc2OD(dcAvg,SD3D,DPFs);
     tRecon = tHRF;
 end
 
