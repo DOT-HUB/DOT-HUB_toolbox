@@ -1,4 +1,4 @@
-function [SD_2D,SD_3D] = DOTHUB_LUMOlayout2SD(layoutFilename)
+function [SD_2D,SD_3D] = DOTHUB_LUMOlayout2SD(layoutFilename,plotFlag,saveFlag)
 
 %This function converts the LUMO .json layout file to SD. It assumes all
 %docks are populated (as it must), and uses the 3D data to determine the
@@ -6,7 +6,7 @@ function [SD_2D,SD_3D] = DOTHUB_LUMOlayout2SD(layoutFilename)
 
 %############################# INPUTS #####################################
 
-% jsoNFilename :    The path of the .json layout file to convert to SD. 
+% jsoNFilename :    The path of the .json layout file to convert to SD.
 %                   If layoutFile is not parsed (or parsed empty)
 %                   it will be requested.
 
@@ -30,9 +30,16 @@ function [SD_2D,SD_3D] = DOTHUB_LUMOlayout2SD(layoutFilename)
 if ~exist('layoutFilename','var')
     [filename, pathname, ~] = uigetfile('*.json','Select .json layout file');
     layoutFilename = [pathname '/' filename];
-elseif isempth(layoutFilename)
+elseif isempty(layoutFilename)
     [filename, pathname, ~] = uigetfile('*.json','Select .json layout file');
     layoutFilename = [pathname '/' filename];
+end
+
+if ~exist('plotFlag','var')
+    plotFlag = 1;
+end
+if ~exist('saveFlag','var')
+    saveFlag = 1;
 end
 
 %Load data
@@ -109,27 +116,30 @@ for n = 1:nNodes
     end
 end
 
-% Display ####################################### 
-figure;
-subplot(1,2,1);
-for i = 1:length(SD.MeasList)
-    line([SD.SrcPos(SD.MeasList(i,1),1) SD.DetPos(SD.MeasList(i,2),1)],[SD.SrcPos(SD.MeasList(i,1),2) SD.DetPos(SD.MeasList(i,2),2)],'LineWidth',2,'Color','c');
-    hold on;
+% Display #######################################
+if plotFlag;
+    figure;
+    subplot(1,2,1);
+    for i = 1:length(SD.MeasList)
+        line([SD.SrcPos(SD.MeasList(i,1),1) SD.DetPos(SD.MeasList(i,2),1)],[SD.SrcPos(SD.MeasList(i,1),2) SD.DetPos(SD.MeasList(i,2),2)],'LineWidth',2,'Color','c');
+        hold on;
+    end
+    plot(SD.SrcPos(:,1),SD.SrcPos(:,2),'r.','MarkerSize',20);
+    plot(SD.DetPos(:,1),SD.DetPos(:,2),'b.','MarkerSize',20);
+    axis equal;
+    
+    subplot(1,2,2);
+    for i = 1:length(SD.MeasList)
+        line([SD_3D.SrcPos(SD_3D.MeasList(i,1),1) SD_3D.DetPos(SD_3D.MeasList(i,2),1)],[SD_3D.SrcPos(SD_3D.MeasList(i,1),2) SD_3D.DetPos(SD_3D.MeasList(i,2),2)],[SD_3D.SrcPos(SD_3D.MeasList(i,1),3) SD_3D.DetPos(SD_3D.MeasList(i,2),3)],'LineWidth',2,'Color','c');
+        hold on;
+    end
+    plot3(SD_3D.SrcPos(:,1),SD_3D.SrcPos(:,2),SD_3D.SrcPos(:,3),'r.','MarkerSize',20);hold on;
+    plot3(SD_3D.DetPos(:,1),SD_3D.DetPos(:,2),SD_3D.DetPos(:,3),'b.','MarkerSize',20);
+    axis equal;
 end
-plot(SD.SrcPos(:,1),SD.SrcPos(:,2),'r.','MarkerSize',20);
-plot(SD.DetPos(:,1),SD.DetPos(:,2),'b.','MarkerSize',20);
-axis equal;
 
-subplot(1,2,2);
-for i = 1:length(SD.MeasList)
-    line([SD_3D.SrcPos(SD_3D.MeasList(i,1),1) SD_3D.DetPos(SD_3D.MeasList(i,2),1)],[SD_3D.SrcPos(SD_3D.MeasList(i,1),2) SD_3D.DetPos(SD_3D.MeasList(i,2),2)],[SD_3D.SrcPos(SD_3D.MeasList(i,1),3) SD_3D.DetPos(SD_3D.MeasList(i,2),3)],'LineWidth',2,'Color','c');
-    hold on;
+% Save #######################################
+if saveFlag
+    save(outname2D,'SD'); SD = SD_3D;
+    save(outname3D,'SD');
 end
-plot3(SD_3D.SrcPos(:,1),SD_3D.SrcPos(:,2),SD_3D.SrcPos(:,3),'r.','MarkerSize',20);hold on;
-plot3(SD_3D.DetPos(:,1),SD_3D.DetPos(:,2),SD_3D.DetPos(:,3),'b.','MarkerSize',20);
-axis equal;
-
-% Save ####################################### 
-save(outname2D,'SD'); SD = SD_3D;
-save(outname3D,'SD');
-
