@@ -11,9 +11,9 @@ if ~exist('nTiles','var')
     tmp = inputdlg('Enter number of LUMO tiles...','Tile number');
     nTiles = str2num(tmp{1});
 end
-xspace = 35;
-yspace = 30.31;
-ng = 6;
+xspace = 17.5;
+yspace = 15.1505;
+ng = 12;
 
 %buildgrid
 xlin = -ng*xspace:xspace:+ng*xspace;
