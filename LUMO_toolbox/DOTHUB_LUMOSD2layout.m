@@ -11,7 +11,8 @@ function DOTHUB_LUMOSD2layout(SDinput2D,SDinput3D,groupid,outname)
 %               probe layout information (usually phantom-measured for a 
 %               given cap). If 3D positions are not available, just parse
 %               the 2D SD in stead.
-%groupid    =   The intended group ID for this layout (in decimal)
+%groupid    =   The intended group ID for this layout (in decimal).
+%               Defaults to 1
 
 %outname    =   The intended output name for the new .json file. Default is
 %               'LUMO_LayoutFile_' datestr(clock) '.JSON'
