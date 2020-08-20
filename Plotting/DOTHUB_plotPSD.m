@@ -34,6 +34,7 @@ fs = length(t)/range(t);
 [psd,freq] = periodogram(d,rectwin(size(d,1)),size(d,1),fs,'psd');
 psddb = 10*log10(psd);
 plot(freq,psddb(:,SD.MeasListAct==1));
+axis tight
 xlim([min(freq) max(freq)]);
 set(gca,'YScale','linear','XGrid','on','YGrid','on','FontSize',16);
 xlabel('Freq (Hz))');
