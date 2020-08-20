@@ -341,6 +341,7 @@ nirs.t = t;
 nirs.CondNames = CondNames;
 
 nirsFileName = fullfile(lumoPath, [lumoName '.nirs']);
+fprintf(['Saving file to ' nirsFileName ' ...\n']);
 save(nirsFileName,'-struct','nirs','-v7.3');
 
 
