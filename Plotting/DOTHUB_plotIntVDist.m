@@ -71,7 +71,6 @@ xlim(varInputs.hAxes,[0 xAxisUpperLim]);
 set(varInputs.hAxes,'YScale','log','XGrid','on','YGrid','on','box','on','FontSize',16);
 xlabel(varInputs.hAxes,'S-D Distance (mm)');
 ylabel(varInputs.hAxes,'Intensity (arb.)');
-legend(varInputs.hAxes,legText);
 
 if max(dists)>70
     noisefloorest = mean(mnD(dists>70));
@@ -79,11 +78,13 @@ if max(dists)>70
     text(varInputs.hAxes,1,noisefloorest*0.75,['Noise floor ~ ' num2str(noisefloorest,'%0.2e')]);
 end
 hold(varInputs.hAxes,'off');
+drawnow
+legend(varInputs.hAxes,legText);
 
 % Determine if data is LUMO data (to allow module labelling) 
 % ##########################################################################
 % ##### (Temporary solution? Need to define module elements in .SD3D?) #####
-if SD.nSrcs == (2/3)*SD.nDets && rem(SD.nSrcs,3)==0 && rem(SD.nDets,4)==0 &&min(dists)<12
+if SD.nSrcs == (3/4)*SD.nDets && rem(SD.nSrcs,3)==0 && rem(SD.nDets,4)==0 &&min(dists)<12
     lumoFlag = 1;
 else
     lumoFlag = 0;
