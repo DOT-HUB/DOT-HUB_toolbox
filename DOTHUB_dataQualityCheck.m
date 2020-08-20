@@ -90,7 +90,10 @@ title(fname,'Interpreter','none','FontSize',16,'FontWeight','Bold');
 
 % Plot PSD of all data
 f2 = figure('Units','Normalized','Position',[0 0 0.8 0.8],'Color','w');
-DOTHUB_plotPSD(t,d,SDclean,1)
+subplot(1,2,1);
+DOTHUB_plotPSD(t,d,SDclean,1);
+subplot(1,2,2);
+DOTHUB_plotPSD(t,d,SDtmp,1);
 title(fname,'Interpreter','none','FontSize',16,'FontWeight','Bold');
 
 % Plot channel-wise intvdist plots
