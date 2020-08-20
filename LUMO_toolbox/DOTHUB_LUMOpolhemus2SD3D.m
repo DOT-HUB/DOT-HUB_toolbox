@@ -18,6 +18,7 @@
 %                       tiles in turn.
 %
 % infantFlag =          true if light-guides associated with this array are the infant style
+%                       If a vector of length nTiles, take tile-specific value.
 %
 % saveFlag =            true if resulting SD file should be saved (default true)
 %
@@ -45,20 +46,29 @@ if ~exist('posCSVFileName','var')
     posCSVFileName = fullfile(path,file);
 end
 
+mixedFlag = 0;
 if ~exist('infantFlag','var')
-    answer = questdlg('Which light-guides were used in this array?','Select light guide type','ADULT','INFANT','ADULT');
+    answer = questdlg('Which light-guides were used in this array?','Select light guide type','ADULT','INFANT','MIXED','ADULT');
     if strcmp(answer,'INFANT')
         infantFlag = 1;
-    else
+    elseif strcmp(answer,'ADULT')
         infantFlag = 0;
+    elseif  strcmp(answer,'MIXED')
+        mixedFlag = 1;
+    else
+        return
     end
 elseif isempty(infantFlag)
     answer = questdlg('Which light-guides were used in this array?','Select light guide type','ADULT','INFANT','ADULT');
     if strcmp(answer,'INFANT')
         infantFlag = 1;
-    else
+    elseif strcmp(answer,'ADULT')
         infantFlag = 0;
-    end    
+    elseif  strcmp(answer,'MIXED')
+        mixedFlag = 1;
+    else
+        return
+    end   
 end
 
 if ~exist('saveFlag','var')
@@ -74,15 +84,7 @@ if isempty(ext)
     ext = '.csv';
 end
 posCSVFileName = fullfile(path,[name ext]);
-
 SD3DFileName = fullfile(path,[name '.SD3D']);
-
-%Define offset
-if infantFlag
-    offset = 12.94; %Infant offset length (mm)
-else
-    offset = 18.75; %Adult offset length (mm)
-end
 
 %Wavelengths
 wavelength1 = 735;
@@ -101,6 +103,34 @@ allPos = [dataArray{2} dataArray{3} dataArray{4}]*10; %Polhemus output in cm, co
 %Crop out landmarks and polhemus measurement points
 landmarks = allPos(1:5,:);
 PolPoints = allPos(6:end,:);
+
+if mod(size(PolPoints,1),3)~=0
+    error('The selected .csv file does not seem to contain a multiple of 3 points');
+else
+    nTiles = size(PolPoints,1)/3;
+end
+%Define offsets vector
+if mixedFlag
+    prompt = 'Enter nTile space-separated values of 1 (Adult) and 0 (Infant)';
+    dlgtitle = 'Light guide specification';
+    dims = [1 45];
+    answer = inputdlg(prompt,dlgtitle,dims);
+    answer = str2num(cell2mat(answer));
+    if isempty(answer)
+        error('No light guide specification provided')
+    else
+        offset = zeros(nTiles,1);
+        offset(answer==1) = 18.75;
+        offset(answer==0) = 12.94;
+        if any(offset==0)
+            error('Error in light guide specification')
+        end
+    end      
+elseif infantFlag==1
+    offset = ones(nTiles,1)*12.94; %Infant offset length (mm)
+elseif infantFlag==0
+    offset = ones(nTiles,1)*18.75; %Adult offset length (mm)
+end
 
 %Translate and Rotate so that Iz is at 0 0 0, Nz is at 0 y 0, Ar and Al have same z
 %value and Cz is on top
@@ -167,11 +197,6 @@ tile(5,:) = [-8.88*cosd(30) 8.88*sind(30) 0];
 tile(6,:) = [0 0 0];
 tile(7,:) = [8.88*cosd(30) 8.88*sind(30) 0];
 
-tile_offset = tile - repmat([0 0 offset],size(tile,1),1);
-tile_all = [tile; tile_offset];
-%Assume there are a full number of tiles polhemus measurements
-nTiles = floor(size(PolPoints,1)/3);
-
 %Tile loop;
 SrcPos = [];
 DetPos = [];
@@ -235,7 +260,7 @@ for i = 1:nTiles
     mappedTile = (Rot*tile')' + repmat(midpoint',1,size(tile,1))';
     
     %Now projection tile in along normal
-    projMappedTile = mappedTile - normnorm.*offset;
+    projMappedTile = mappedTile - normnorm.*offset(i);
     
     %Plot measured pos, mapped tile, normal vector
     plot3(mappedTile(1:3,1),mappedTile(1:3,2),mappedTile(1:3,3),'r.','MarkerSize',30);hold on;
@@ -256,6 +281,7 @@ end
 axis equal
 xlabel('X (mm)');ylabel('Y (mm)');zlabel('Z (mm)');
 title('Calculated Projections');
+pause(0.5);drawnow
 
 f2 = figure;
 set(f2,'Name','Polhemus-derived array');
@@ -275,6 +301,7 @@ end
 axis equal
 xlabel('X (mm)');ylabel('Y (mm)');zlabel('Z (mm)');
 title('Polhemus-derived array');
+pause(0.5);drawnow
 
 SD.SrcPos = SrcPos;
 SD.DetPos = DetPos;
