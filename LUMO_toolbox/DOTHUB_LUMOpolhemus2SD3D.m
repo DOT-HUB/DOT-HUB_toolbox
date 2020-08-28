@@ -59,7 +59,7 @@ if ~exist('infantFlag','var')
         return
     end
 elseif isempty(infantFlag)
-    answer = questdlg('Which light-guides were used in this array?','Select light guide type','ADULT','INFANT','ADULT');
+    answer = questdlg('Which light-guides were used in this array?','Select light guide type','ADULT','INFANT','MIXED','ADULT');
     if strcmp(answer,'INFANT')
         infantFlag = 1;
     elseif strcmp(answer,'ADULT')
