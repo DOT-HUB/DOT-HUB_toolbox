@@ -67,14 +67,14 @@ function [nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirsHyper(lumoDIRs,lay
 
 % MANAGE VARIABLES  #######################################################
 if ~exist('lumoDIRs','var')
-    display('Select parent directory containing .LUMO folders');
+    disp('Select parent directory containing .LUMO folders');
     lumoParentDIR = uigetdir(pwd,'Select parent directory containing .LUMO folders...');
     tmp = dir([lumoParentDIR '/*.LUMO']);
     for i = 1:length(tmp)
         lumoDIRs{i} = [tmp(i).folder '/' tmp(i).name];
     end
 elseif isempty(lumoDIRs)
-    display('Select parent directory containing .LUMO folders');
+    disp('Select parent directory containing .LUMO folders');
     lumoParentDIR = uigetdir(pwd,'Select parent directory containing .LUMO folders...');
     tmp = dir([lumoParentDIR '/*.LUMO']);
     for i = 1:length(tmp)
@@ -102,7 +102,7 @@ if ~exist('layoutFileNames','var') %Not parsed so check exists in .LUMO
         jsonTmp = dir([lumoDIRs{ff} '/*.json']);
         if isempty(jsonTmp) %Not contained in .LUMO, so load
             [~,tmp,~] = fileparts(lumoDIRs{ff});
-            display(['Select .json layout file associated ' tmp '.LUMO...']);
+            disp(['Select .json layout file associated ' tmp '.LUMO...']);
             [filename, pathname, ~] = uigetfile('*.json',['Select .json layout file associated ' tmp '.LUMO...']);
             layoutFileNames{ff} = [pathname '/' filename];
         else
@@ -114,7 +114,7 @@ elseif isempty(layoutFileNames) %Parsed empty so check exists in .LUMO
         jsonTmp = dir([lumoDIRs{ff} '/*.json']);
         if isempty(jsonTmp) %Not contained in .LUMO, so load
             [~,tmp,~] = fileparts(lumoDIRs{ff});
-            display(['Select .json layout file associated ' tmp '.LUMO...']);
+            disp(['Select .json layout file associated ' tmp '.LUMO...']);
             [filename, pathname, ~] = uigetfile('*.json',['Select .json layout file associated ' tmp '.LUMO...']);
             layoutFileNames{ff} = [pathname '/' filename];
         else
@@ -129,11 +129,11 @@ end
 
 polhemusFlag = 1; %REQUIRED
 if ~exist('posCSVFileName','var')
-    display('Load combined Polhemus data...');
+    disp('Load combined Polhemus data...');
     [filename, pathname, ~] = uigetfile('*.csv','Load combined Polhemus data...');
     posCSVFileName = [pathname '/' filename];
 elseif isempty(posCSVFileName)
-    display('Load combined Polhemus data...');
+    disp('Load combined Polhemus data...');
     [filename, pathname, ~] = uigetfile('*.csv','Load combined Polhemus data...');
     posCSVFileName = [pathname '/' filename];
 end
@@ -374,7 +374,7 @@ dcomb = dcomb(:,sind);
 
 if polhemusFlag %If polhemus information is parsed, calculate S-D positions from that file
     fprintf(['Using ' posCSVFileName ' to define optode positions...\n']);
-    [SD_POL, SD3DFileName] = DOTHUB_LUMOpolhemus2SD3D(posCSVFileName);
+    [SD_POL, SD3DFileName] = DOTHUB_LUMOpolhemus2SD3D(posCSVFileName,[],0); %Set saveflag to 0 because this function assumes all source-detector pairs form channels - not true in this case.
     SD3Dcomb.SrcPos = SD_POL.SrcPos;
     SD3Dcomb.DetPos = SD_POL.DetPos;
     SD3Dcomb.Landmarks = SD_POL.Landmarks;
@@ -429,12 +429,17 @@ nirs.s = scomb;
 nirs.t = tcomb;
 nirs.CondNames = CondNamesComb;
 
+
+disp(['Saving SD3D file to ' SD3DFileName '...']);
+SD3D = SD3Dcomb;
+save(SD3DFileName,'SD3D');
+
 outName = lumoName{1};
 for ff = 2:nFiles
     outName = [outName '+' lumoName{ff}];
 end
 nirsFileName = fullfile(lumoPath{1}, [outName '.nirs']);
-fprintf(['Saving file to ' nirsFileName ' ...\n']);
+disp(['Saving file to ' nirsFileName ' ...\n']);
 save(nirsFileName,'-struct','nirs','-v7.3');
 
 
