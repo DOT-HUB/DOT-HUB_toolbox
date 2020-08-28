@@ -1,10 +1,4 @@
-%function [nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirsHyper(lumoDIRs,layoutFileNames,posCSVFileName,eventsCSVFileName)
-
-lumoDIRs{1} = '/Users/RCooper/Dropbox/Projects/LUMO/24Tile_Hyperscanning/Pilot/Visual.LUMO';
-lumoDIRs{2} = '/Users/RCooper/Dropbox/Projects/LUMO/24Tile_Hyperscanning/Pilot/Prefrontal.LUMO';
-
-layoutFileNames{1} = '/Users/RCooper/Dropbox/Projects/LUMO/24Tile_Hyperscanning/Visual_24TileHyper.json';
-layoutFileNames{2} = '/Users/RCooper/Dropbox/Projects/LUMO/24Tile_Hyperscanning/Prefrontal_24TileHyper.json';
+function [nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirsHyper(lumoDIRs,layoutFileNames,posCSVFileName,eventsCSVFileName)
 
 % This script is designed to combine multiple LUMO files in to one .nirs
 % file. The assumed use case is when two or more independent LUMO arrays are
@@ -22,7 +16,12 @@ layoutFileNames{2} = '/Users/RCooper/Dropbox/Projects/LUMO/24Tile_Hyperscanning/
 %
 % ######################## INPUTS #########################################
 %
-% lumoDIRs           :   A cell array of strings, each a path to the .LUMO data directory
+% lumoDIRs           :   A cell array of strings, each a path to the .LUMO
+%                       data directory. If not parsed, a parent directory,
+%                       which should contain the .lumo files will be
+%                       requested. Note that the order matlab loads the two
+%                       will depend on file naming, and must match the
+%                       order tiles are listed in the combind .csv file.
 %
 % layoutFileNames    :   A cell array of strings specifying the the path of the .json layout file
 %                       (only required if not present inside .LUMO directories). If layoutFile variable is
@@ -30,13 +29,13 @@ layoutFileNames{2} = '/Users/RCooper/Dropbox/Projects/LUMO/24Tile_Hyperscanning/
 %                       the .LUMO directory. If layoutFile is not parsed (or parsed empty)
 %                       and it is not present in the .LUMO direcroty, it will be requested.
 %
-% posCSVFileName     :  The path to a .csv file containing (for all lumoDIRs)
-%                       the 3D positioning data associated with this LUMO recording.
-%                       This data is a four-column CSV of position label, then x, y, z (cm).
+% posCSVFileName     :  The path to a .csv file containing the 3D positioning data
+%                       associated with all the selected .LUMO files in a
+%                       single .csv within the same coordinate space with
+%                       the same landmarks. This data is a four-column CSV of position label, then x, y, z (cm).
 %                       The first five rows should be Nz, Iz, Ar, Al, Cz. The
 %                       following rows should be SrcA, SrcB, SrcC of each of the N
-%                       tiles in turn. If polhemusCSV is not parsed, the 3D
-%                       information in the .json layout file is assumed.
+%                       tiles in turn. If not parse, it is requested.
 %
 % eventsCSVFileName :   (Optional) The path of a .csv file containing two columns: time of event
 %                       (in seconds) and event label. If the eventsCSV is parsed,
@@ -61,12 +60,28 @@ layoutFileNames{2} = '/Users/RCooper/Dropbox/Projects/LUMO/24Tile_Hyperscanning/
 %
 % #########################################################################
 % RJC, UCL, April 2020
-%
+% TO DO:
+% Merge events from multiple files - if CondName is the same, assume events
+% can be merged. At the moment I am jut eliminating replicated conditions.
 % #########################################################################
 
 % MANAGE VARIABLES  #######################################################
-if ~iscell(lumoDIRs)
-    error('This function expects multiple lumoDIR inouts as a cell')
+if ~exist('lumoDIRs','var')
+    disp('Select parent directory containing .LUMO folders');
+    lumoParentDIR = uigetdir(pwd,'Select parent directory containing .LUMO folders...');
+    tmp = dir([lumoParentDIR '/*.LUMO']);
+    for i = 1:length(tmp)
+        lumoDIRs{i} = [tmp(i).folder '/' tmp(i).name];
+    end
+elseif isempty(lumoDIRs)
+    disp('Select parent directory containing .LUMO folders');
+    lumoParentDIR = uigetdir(pwd,'Select parent directory containing .LUMO folders...');
+    tmp = dir([lumoParentDIR '/*.LUMO']);
+    for i = 1:length(tmp)
+        lumoDIRs{i} = [tmp(i).folder '/' tmp(i).name];
+    end
+elseif ~iscell(lumoDIRs)
+    error('This function expects multiple lumoDIR inputs as a cell')
 end
 
 nFiles = length(lumoDIRs);
@@ -86,7 +101,10 @@ if ~exist('layoutFileNames','var') %Not parsed so check exists in .LUMO
     for ff = 1:nFiles
         jsonTmp = dir([lumoDIRs{ff} '/*.json']);
         if isempty(jsonTmp) %Not contained in .LUMO, so load
-            error('Layout .json not found within .LUMO and not parsed.')
+            [~,tmp,~] = fileparts(lumoDIRs{ff});
+            disp(['Select .json layout file associated ' tmp '.LUMO...']);
+            [filename, pathname, ~] = uigetfile('*.json',['Select .json layout file associated ' tmp '.LUMO...']);
+            layoutFileNames{ff} = [pathname '/' filename];
         else
             layoutFileNames{ff} = [lumoDIRs{ff} '/' jsonTmp(1).name];
         end
@@ -95,7 +113,10 @@ elseif isempty(layoutFileNames) %Parsed empty so check exists in .LUMO
     for ff = 1:nFiles
         jsonTmp = dir([lumoDIRs{ff} '/*.json']);
         if isempty(jsonTmp) %Not contained in .LUMO, so load
-            error('Layout .json not found within .LUMO and not parsed.')
+            [~,tmp,~] = fileparts(lumoDIRs{ff});
+            disp(['Select .json layout file associated ' tmp '.LUMO...']);
+            [filename, pathname, ~] = uigetfile('*.json',['Select .json layout file associated ' tmp '.LUMO...']);
+            layoutFileNames{ff} = [pathname '/' filename];
         else
             layoutFileNames{ff} = [lumoDIRs{ff} '/' jsonTmp(1).name];
         end
@@ -106,11 +127,15 @@ if ~iscell(layoutFileNames) || length(layoutFileNames) ~= length(lumoDIRs)
     error('Parsed layoutFileName does not match expected size or type')
 end
 
-polhemusFlag = 0;
-if exist('posCSVFileName','var')
-    if ~isempty(posCSVFileName)
-        polhemusFlag = 1;
-    end
+polhemusFlag = 1; %REQUIRED
+if ~exist('posCSVFileName','var')
+    disp('Load combined Polhemus data...');
+    [filename, pathname, ~] = uigetfile('*.csv','Load combined Polhemus data...');
+    posCSVFileName = [pathname '/' filename];
+elseif isempty(posCSVFileName)
+    disp('Load combined Polhemus data...');
+    [filename, pathname, ~] = uigetfile('*.csv','Load combined Polhemus data...');
+    posCSVFileName = [pathname '/' filename];
 end
 
 eventsFileFlag = 0;
@@ -127,10 +152,17 @@ for ff = 1:nFiles
     
     % LOAD DATA ###############################################################
     %Load toml contents
+    disp(['Loading .toml contents of LUMO file ' num2str(ff) '...']);
     metadata = toml.read([lumoDIR '/metadata.toml']);
     recordingdata = toml.read([lumoDIR '/' metadata.file_names.recordingdata_file]); %To be updated to recording.toml
     events = toml.read([lumoDIR '/' metadata.file_names.event_file]);
-    hardware = toml.read([lumoDIR '/' metadata.file_names.layout_file]); %To be updated to hardware.toml
+    if isfield(metadata.file_names,'hardware_file') %Updated file naming structure
+        hardware = toml.read([lumoDIR '/' metadata.file_names.hardware_file]);
+    elseif ~contains(metadata.file_names.layout_file,'json') %Old file naming structure (layout_file is hardware.toml!)
+        hardware = toml.read([lumoDIR '/' metadata.file_names.layout_file]);
+    else
+        error('No hardware.toml or layout.toml found in LUMO directory');
+    end
     
     %Load layout JSON
     layoutData = jsondecode(fileread(layoutFileName));
@@ -299,6 +331,7 @@ end
 %%
 mnLength = min(tLength);
 dcomb = [];
+scomb = [];
 SD3Dcomb.SrcPos = [];
 SD3Dcomb.DetPos = [];
 SD3Dcomb.MeasList = [];
@@ -306,7 +339,7 @@ SD3Dcomb.MeasListAct = [];
 SD3Dcomb.nSrcs = 0;
 SD3Dcomb.nDets = 0;
 SD3Dcomb.SrcPowers = [];
-CondNames = {};
+CondNamesAll = {};
 for ff = 1:nFiles
     dtmp = allnirs{ff}.d;
     dtmp = dtmp(1:mnLength,:);
@@ -314,9 +347,7 @@ for ff = 1:nFiles
 
     stmp = allnirs{ff}.s;
     stmp = stmp(1:mnLength,:);
-    for i = 1:size(stmp,2)
-        sall(ff,:,i) = stmp(:,i);
-    end
+    scomb = [scomb stmp];
     
     SD3Dcomb.SrcPos = [SD3Dcomb.SrcPos; allnirs{ff}.SD3D.SrcPos];
     SD3Dcomb.DetPos = [SD3Dcomb.DetPos; allnirs{ff}.SD3D.DetPos];   
@@ -330,21 +361,22 @@ for ff = 1:nFiles
     SD3Dcomb.nSrcs = max(SD3Dcomb.MeasList(:,1));
     SD3Dcomb.nDets = max(SD3Dcomb.MeasList(:,2));
     
-    CondNames = [CondNames allnirs{ff}.CondNames];
+    CondNamesAll = [CondNamesAll allnirs{ff}.CondNames];
 end
 
-%Now sort MeasList
+%Now sort MeasList and data!
 [~,sind] = sort(SD3Dcomb.MeasList(:,4));
 for i = 1:4
     SD3Dcomb.MeasList(:,i) = SD3Dcomb.MeasList(sind,i);
 end
 SD3Dcomb.MeasListAct = SD3Dcomb.MeasListAct(sind);
+dcomb = dcomb(:,sind);
 
 if polhemusFlag %If polhemus information is parsed, calculate S-D positions from that file
     fprintf(['Using ' posCSVFileName ' to define optode positions...\n']);
-    [SD_POL, SD3DFileName] = DOTHUB_LUMOpolhemus2SD3D(posCSVFileName,[],0);
-    SD3Dcomb.SrcPos(1:end) = SD_POL.SrcPos(1:end);
-    SD3Dcomb.DetPos(1:end) = SD_POL.DetPos(1:end);
+    [SD_POL, SD3DFileName] = DOTHUB_LUMOpolhemus2SD3D(posCSVFileName,[],0); %Set saveflag to 0 because this function assumes all source-detector pairs form channels - not true in this case.
+    SD3Dcomb.SrcPos = SD_POL.SrcPos;
+    SD3Dcomb.DetPos = SD_POL.DetPos;
     SD3Dcomb.Landmarks = SD_POL.Landmarks;
 end
 
@@ -355,8 +387,10 @@ SD3Dcomb.SpatialUnit = allnirs{1}.SD.SpatialUnit;
 SD3Dcomb.Lambda = allnirs{1}.SD.Lambda;
 
 %Handle stimuli;
-%For now just add
-scomb = squeeze(sum(sall))';
+%For now remove conditions that are repeated (so will wipe events assigned
+%same condition name for ff>1
+[CondNamesComb,IA] = unique(CondNamesAll,'stable');
+scomb = scomb(:,IA);
 
 %Now create 2DSD - shift each additional array to below the last
 SDcomb = SD3Dcomb;
@@ -365,7 +399,7 @@ if isfield(allnirs{1}.SD3D,'Landmarks') %Don't want landmarks in 2D
 end
 SDcomb.SrcPos = [];
 SDcomb.DetPos = [];
-offset = [0 0 0];
+
 for ff = 1:nFiles
     %First centre the array
     tmpSP = allnirs{ff}.SD.SrcPos;
@@ -393,13 +427,19 @@ nirs.aux = Auxcomb;
 nirs.d = dcomb;
 nirs.s = scomb;
 nirs.t = tcomb;
-nirs.CondNames = CondNames;
+nirs.CondNames = CondNamesComb;
+
+
+disp(['Saving SD3D file to ' SD3DFileName '...']);
+SD3D = SD3Dcomb;
+save(SD3DFileName,'SD3D');
 
 outName = lumoName{1};
 for ff = 2:nFiles
     outName = [outName '+' lumoName{ff}];
 end
 nirsFileName = fullfile(lumoPath{1}, [outName '.nirs']);
+disp(['Saving file to ' nirsFileName ' ...\n']);
 save(nirsFileName,'-struct','nirs','-v7.3');
 
 
