@@ -120,13 +120,7 @@ end
 %Load toml contents
 disp('Loading .toml contents...');
 metadata = toml.read([lumoDIR '/metadata.toml']);
-
-if isfield(metadata.file_names, 'sd_file')
-    recordingdata = toml.read([lumoDIR '/' metadata.file_names.sd_file]);
- else
-    recordingdata = toml.read([lumoDIR '/' metadata.file_names.recordingdata_file]); %To be updated to recording.toml
-end
-
+recordingdata = toml.read([lumoDIR '/' metadata.file_names.recordingdata_file]); %To be updated to recording.toml
 events = toml.read([lumoDIR '/' metadata.file_names.event_file]);
 if isfield(metadata.file_names,'hardware_file') %Updated file naming structure
     hardware = toml.read([lumoDIR '/' metadata.file_names.hardware_file]);
@@ -186,7 +180,6 @@ SD.Lambda = recordingdata.variables.wavelength;
 SD.SpatialUnit = 'mm';
 MLAtmp = recordingdata.variables.chans_list_act'; %temporary measlistact
 
-
 % Now determine optode positions from 2D information in layout JSON file
 % Also use same loop to extract source power information
 SD.SrcPos = zeros(SD.nSrcs,3);
@@ -200,25 +193,14 @@ for n = 1:nNodes
         SD.DetPos(det+(n-1)*4,1) = layoutData.docks(nid).optodes(det).coordinates_2d.x;
         SD.DetPos(det+(n-1)*4,2) = layoutData.docks(nid).optodes(det).coordinates_2d.y;
     end
-    
-    
     for src = 1:3
         SD.SrcPos(src+(n-1)*3,1) = layoutData.docks(nid).optodes(src+4).coordinates_2d.x;
         SD.SrcPos(src+(n-1)*3,2) = layoutData.docks(nid).optodes(src+4).coordinates_2d.y;
         
-    end
-    
-    if isfield(metadata.file_names, 'sd_file')
-         oldLUMOflag=true;
-    else
-       for src = 1:3
         SD.SrcPowers(src+(n-1)*3,1) = hardware.Hub.Group.Node{1,n}.Source{1,src*2-1}.Source_power;
         SD.SrcPowers(src+(n-1)*3 + SD.nSrcs,1) = hardware.Hub.Group.Node{1,n}.Source{1,src*2}.Source_power;
-      end
-      end
+    end
 end
-
-      
 
 %Make SD.MeasList
 SD.MeasList = ones(size(chansList,1),4);
