@@ -13,7 +13,8 @@ function DOTHUB_dataQualityCheck(nirsFileName,printFigFlag,timeSelectFlag)
 % printFigFlag: (Optional). If true, the figures are printed to the directory 
 %               of the nirs file. Default is true.
 % timeSelectFlag: (Optional). If true, user will be prompted to manually
-%               select a time period from the recording for analysis.           
+%               select a time period from the recording for analysis. 
+%               Default is false          
 %
 %######################## OUTPUTS #########################################
 %
@@ -47,8 +48,8 @@ if ~exist('printFigFlag','var')
 end
 
 if ~exist('timeSelectFlag','var')
-    timeSelectFlag = 1;
-else timeSelectFlag =0
+    timeSelectFlag = 0;
+else timeSelectFlag =1
 end
 
 %Load data ############################################################
@@ -66,16 +67,25 @@ dists = DOTHUB_getSDdists(SDtmp);
 % MOTION CHECK  #######################################################
 %timeSelectFlag allows the user to select a clean period (motion free) for analysis. 
 %A subset of channels are plotted to decrease computer load (this can
-%always be changed to plot all channels).
+%always be changed to plot all channels). % For manual time period selection, click once at the beginning of the segment to
+% select the start point. Drag the cursor and click again to select the end
+% point. Hit enter when finished. After, the figure will reappear with the
+% selected time period highlighted in blue. This is to make sure that the correct period(s) was(were)
+%selected beforre proceeding. If the period is correct, type 'y' and hit enter. 
 if (timeSelectFlag==1) 
     my_ans = 'n';
     while my_ans == 'n';
     fig1 = figure; set(fig1, 'units', 'normalized', 'outerposition', [0 0 0.8 0.8], 'color', [1 1 1])
-    plot(d(:,1500:2000)); xlim([0 size(d,1)]); ylim([0 1.5]); title('Select segment to include (start-end pair) - Press enter when finished', 'fontsize', 20)
+    if size(d,2)>=500;     
+        plot(datasample(d,500,2));
+    else
+        plot(d);
+    end
+    xlim([0 size(d,1)]); ylim([0 1.5]); title('Select segment to include (start-end pair) - Press enter when finished', 'fontsize', 20)
     xlabel ('Time (samples)','Fontsize', 15); ylabel('Intensity (raw)', 'Fontsize', 15)
     set(gca, 'Yscale', 'log')
+                
     hold on
-% do data brushing manually
     [x, ~] = ginput;
 % If you select segments
     if  ~isempty(x)
@@ -99,10 +109,17 @@ if (timeSelectFlag==1)
         mrk_data(:,1) = ceil(x(1:2:size(x,1)));
         mrk_data(:,2) = ceil(x(2:2:size(x,1)));
         
-% Check outcome
+% Then Check outcome
         close all
+       
         fig1 = figure; set(fig1, 'units', 'normalized', 'outerposition', [0 0 0.8 0.8], 'color', [1 1 1])
-        plot(d(:,1500:2000)); xlim([0 size(d,1)]); title('Select segment to include (start-end pair) - Press enter when finished', 'fontsize', 14)
+        if size(d,2)>=500; 
+        plot(datasample(d,500,2));
+        else
+            plot(d);
+        end    
+        xlim([0 size(d,1)]); title('Select segment to include (start-end pair) - Press enter when finished', 'fontsize', 14)
+            
         hold on
         for i = 1: size(mrk_data,1)
             area([mrk_data(i,1) mrk_data(i,2)], [1.5 1.5], 'FaceColor', 'c',...
@@ -136,13 +153,11 @@ if (timeSelectFlag==1)
    else
        clean_idx = ones(size(d,1),1);
        my_ans = 'y';
-  end
-   data.ini = mrk_data(1,1);
-   data.end = mrk_data(1,2);
+   end
    dcrop=d(clean_idx==1, :);
    
-   close all
-    end
+close all
+end
 end
 
 % - this script below does not focus on motion content, but providing
