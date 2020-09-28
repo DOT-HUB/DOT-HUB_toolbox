@@ -9,6 +9,8 @@ function [invjac, invjacFileName] = DOTHUB_invertJacobian(jac,prepro,varargin)
 % prepro    =  prepro structure or path to .prepro. Only needed for
 %              covariance regularilization
 %
+% rmap      =  rmap structure or path to .rmap
+%
 % varargin  =  optional input pairs:
 %              'reconMethod' - 'multispec' or 'standard' (default 'standard');
 %                   Specifying whether to construct and invert a multispectral
@@ -173,16 +175,69 @@ if strcmpi(varInputs.reconMethod,'standard')
                 S=svd(JJT);
                 invJ{i} = Jtmp'/(JJT + eye(length(JJT))*(varInputs.hyperParameter*max(S)));
             end
-            
         case 'covariance'
-            fprintf('Covariance reconstruction coming soon \n');
-            return
-            
+            fprintf('Under construction...\n');
+            invJ = cell(nWavs,1);
+            for i = 1:nWavs
+                Jtmp = JNatCropped{i};
+                %Extract relevant chunk of prepro.dod to calculate covariance. %Might be better to pass the reference data directly?
+                if length(find(prepro.tDOD<0))>1  %Must be an HRF
+                    [~,ind] = min(abs(prepro.tDOD));
+                    covData = prepro.dod(1:ind,:);
+                else %take first 30 seconds, or 10% of data, whichever is less.
+                    if range(tDOD)< 30
+                        covData = prepro.dod;
+                    else
+                        fs = 1/mean(diff(tDOD));
+                        covData = prepro.dod(1:round(fs*30),:);
+                    end
+                end   
+                sigma_v = cov(covData); 
+                sigma_u = sparse(1:2*nNodeNat,1:2*nNodeNat,1);
+                JJT = Jtmp*sigma_u*Jtmp';
+                l1 = hyperParameter*trace(JJT)/trace(sigma_v);
+                invJ{i} = sigma_u*Jtmp' / ( JJT + sigma_v*l1);
+            end
         case 'spatial'
-            fprintf('Spatially varying regularization reconstruction coming soon \n');
-            return
-            %load rmap
+            fprintf('Running spatial regularized inversion (beta!) \n');
+            l1 = hyperParameter(1); % Typical Tikhonov regularization parameter
+            l2 = hyperParameter(2); % Spatial regularization parameter
+            invJ = cell(nWavs,1);
+            for i = 1:nWavs
+                Jtmp = JNatCropped{i};
+
+                JJT = Jtmp*Jtmp';  % Prepare Jacobian matrix for inversion (i.e. create square matrix)
+                L = sqrt(diag(JJT) + l2*max(diag(JJT))); % Apply regularization
+                Linv = 1./L; % Invert matrix
+
+                % Find Atild
+                Atild = zeros(size(Jtmp));
+                for ind = 1:length(Linv)
+                    Atild(ind,:) = Jtmp(ind,:)*Linv(ind);
+                end
+                atildtatild = Atild*Atild';
+                [satild] = svd(atildtatild);
+                mxsatild = max(satild);
+
+                % Apply spatial regularization
+                val2binv = atildtatild;
+                for ind = 1:length(satild)
+                    val2binv(ind,ind) = atildtatild(ind,ind) + l1*mxsatild;
+                end
+                clear JJT   % Clear for efficiency
+
+                % Invert matrix
+                inva = val2binv\Atild;
+                clear Atild val2binv  % Clear huge matrices for efficiency
+                invJtmp = zeros(size(inva))';
+                for ind = 1:size(inva,1)
+                    invJtmp(:,ind) = inva(ind,:)*Linv(ind);
+                end
+                invJ{i} = invJtmp;
+            end
+            %load rmap???? % I don't understand this
     end
+    clear JJT   % Clear for efficiency
 end
 
 % #########################################################################
@@ -242,7 +297,7 @@ if strcmpi(varInputs.reconMethod,'multispectral')
             invJ{1} = sigma_u*Jmulti' / ( JJT + sigma_v*l1);
             
         case 'spatial'
-            fprintf('Covariance reconstruction coming soon \n');
+            fprintf('Running spatial regularized inversion (beta!) \n');
             
             l1 = hyperParameter(1); % Typical Tikhonov regularization parameter
             l2 = hyperParameter(2); % Spatial regularization parameter

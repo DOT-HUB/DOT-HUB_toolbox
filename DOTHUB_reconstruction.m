@@ -204,8 +204,8 @@ if strcmpi(varInputs.reconMethod,'multispectral')
                 hbr_tmp = img(end/2+1:end);
                 hbo_tmpVol = hBasis.Map('S->M',hbo_tmp);
                 hbr_tmpVol = hBasis.Map('S->M',hbr_tmp);
-                hbo_tmpGM = (vol2gm*hbo_tmpVol);
-                hbr_tmpGM = (vol2gm*hbr_tmpVol);
+                hbo_tmpGM = (vol2gm*hbo_tmpVol(:));
+                hbr_tmpGM = (vol2gm*hbr_tmpVol(:));
                 
                 hbo.vol(frame,:,cond) = hbo_tmpVol;
                 hbr.vol(frame,:,cond) = hbr_tmpVol;
@@ -218,8 +218,8 @@ if strcmpi(varInputs.reconMethod,'multispectral')
                 else                                      %Vol to GM
                     hbo_tmpVol = img(1:end/2);
                     hbr_tmpVol = img(end/2+1:end);
-                    hbo_tmpGM = (vol2gm*hbo_tmpVol');
-                    hbr_tmpGM = (vol2gm*hbr_tmpVol');
+                    hbo_tmpGM = (vol2gm*hbo_tmpVol(:));
+                    hbr_tmpGM = (vol2gm*hbr_tmpVol(:));
                     
                     hbo.vol(frame,:,cond) = hbo_tmpVol;
                     hbr.vol(frame,:,cond) = hbr_tmpVol;
