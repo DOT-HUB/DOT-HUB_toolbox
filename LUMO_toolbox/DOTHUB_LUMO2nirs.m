@@ -65,6 +65,7 @@ function [nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirs(lumoDIR,layoutFil
 % Also note that the plan is to cap the max channel length in the .json layout files to
 % 60 mm by default, which will trickle down to this conversion.
 % RJC 20200217 - Tidied for GITHUB first commit.
+% EGJ 20200923 - Updated to handle zero intensity values
 % #########################################################################
 
 % #########################################################################
@@ -330,6 +331,26 @@ end
 
 % Define AUX matrix #######################################################
 aux = zeros(length(t),8);
+
+% Convert zero intensity values to noise floor estimate ###################
+if size(d,1) == 1 % if only one sample
+    mnD = d;
+else
+    mnD = mean(d);
+end
+dists_3D = DOTHUB_getSDdists(SD3D);
+SDS_noise = 70; % SD channels greater than this (mm) are deemed to be in the the noise floor
+n_zeros = sum(d==0,'all');
+if n_zeros > 0
+    if max(dists_3D) >= SDS_noise
+        noisefloorest = mean(mnD(dists_3D>SDS_noise));
+        d(d == 0) = noisefloorest;
+        disp([newline 'Warning - zero intensity values have been converted to noise floor estimate'])
+    else
+        d(d == 0) = 1e-6;
+        disp([newline 'Warning - zero intensity values have been converted to 1e-6'])
+    end
+end
 
 % OUTPUT ##################################################################
 nirs.SD = SD;
