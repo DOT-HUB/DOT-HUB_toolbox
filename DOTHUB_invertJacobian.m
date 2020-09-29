@@ -176,7 +176,7 @@ if strcmpi(varInputs.reconMethod,'standard')
                 invJ{i} = Jtmp'/(JJT + eye(length(JJT))*(varInputs.hyperParameter*max(S)));
             end
         case 'covariance'
-            fprintf('Under construction...\n');
+            fprintf('Covariance reconstruction (beta!)\n');
             invJ = cell(nWavs,1);
             for i = 1:nWavs
                 Jtmp = JNatCropped{i};
@@ -235,7 +235,7 @@ if strcmpi(varInputs.reconMethod,'standard')
                 end
                 invJ{i} = invJtmp;
             end
-            %load rmap???? % I don't understand this
+            
     end
     clear JJT   % Clear for efficiency
 end
