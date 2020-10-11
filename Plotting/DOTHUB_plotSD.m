@@ -34,8 +34,8 @@ end
 
 if ischar(SD)
     tmp = load(SD,'-mat');
-    fn = fielnames(tmp);
-    eval(['SD = tmp.' fn(1)]);
+    fn = fieldnames(tmp);
+    eval(['SD = tmp.' fn{1}]);
 end
 
 if ~isfield(SD,'MeasListAct')

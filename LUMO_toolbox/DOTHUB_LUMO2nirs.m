@@ -138,9 +138,10 @@ logFileID = fopen([lumoDIR '/' metadata.file_names.log_file]);
 logtxt = textscan(logFileID,'%s');
 
 %Load intensity binaries
-disp('Loading intensity data...');
+disp('Loading intensity data');
 nIntFiles = length(metadata.intensity_files);
 for i = 1:nIntFiles
+    disp(['Loading intensity data file ' num2str(i) ' of ' num2str(nIntFiles) '...']);
     fname = metadata.intensity_files{1,i}.file_name;
     time_range = metadata.intensity_files{1,i}.time_range;
     fileID = fopen([lumoDIR '/' fname]);

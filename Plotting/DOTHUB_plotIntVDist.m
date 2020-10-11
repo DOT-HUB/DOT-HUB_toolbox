@@ -78,7 +78,6 @@ if max(dists)>70
     text(varInputs.hAxes,1,noisefloorest*0.75,['Noise floor ~ ' num2str(noisefloorest,'%0.2e')]);
 end
 hold(varInputs.hAxes,'off');
-drawnow
 legend(varInputs.hAxes,legText);
 
 % Determine if data is LUMO data (to allow module labelling) 
@@ -109,9 +108,9 @@ index = event_obj.Target.Children.DataIndex;
 %determine if it is a point from all chan, good chan, and define
 %wavelength;
 if strcmpi(event_obj.Target.Marker,'square')
-    wav = 2;
+    wav = '850nm';
 else
-    wav = 1;
+    wav = '735nm';
 end
 if event_obj.Target.CData(1) == 1 %Is red, so index is relative to good data
     tmp = 1:size(SD.MeasList,1);
@@ -125,7 +124,7 @@ tmpD = mod(SD.MeasList(:,2),4); tmpD(tmpD==0) = 4;
 si = SD.SrcPos(SD.MeasList(index,1),:);
 di = SD.DetPos(SD.MeasList(index,2),:);
 labels = {['Channel ',num2str(index),', dist = ',num2str(sqrt(sum((si-di).^2)),4),' mm'],...
-          ['Source = ' num2str(SD.MeasList(index,1)) ' (Tile ' num2str(ceil(SD.MeasList(index,1)/3)) ', Src = ' srcLabs{tmpS(index)} ')'],...
+          ['Source = ' num2str(SD.MeasList(index,1)) ' (Tile ' num2str(ceil(SD.MeasList(index,1)/3)) ', Src = ' srcLabs{tmpS(index)} ', Wav = ' wav ')'],...
           ['Detector = ' num2str(SD.MeasList(index,2)) ' (Tile ' num2str(ceil(SD.MeasList(index,2)/4)) ', Detector = ' num2str(tmpD(index)) ')']};
 
       

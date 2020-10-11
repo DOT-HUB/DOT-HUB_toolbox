@@ -50,7 +50,7 @@ if ~exist('SNRthresh','var')
 end
 
 if ~exist('printFigFlag','var')
-    printFigFlag = 1;
+    printFigFlag = 0;
 end
 
 
@@ -59,8 +59,13 @@ load(nirsFileName,'-mat');
 
 %Determine SD distances  ##############################################
 if ~exist('SD3D','var')
-   warning('SD3D not found in .nirs file, taking distance estimates from SD')
-   SDtmp = SD;
+   if exist('SD_3D','var')
+    warning('SD3D not found but SD_3D is. Please update to latest LUMO2nirs.')
+    SDtmp = SD_3D;
+   else
+      warning('SD3D not found in .nirs file, taking distance estimates from 2D SD')
+      SDtmp = SD;
+   end
 else
    SDtmp = SD3D;
 end
