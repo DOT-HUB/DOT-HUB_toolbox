@@ -32,7 +32,7 @@ function [mshs, mshsFileName] = DOTHUB_writeMSHS(mshsFileName,logData,headVolume
 % vol2gm            :  The sparse matrix mapping from head volume mesh
 %                      space to GM surface mesh space
 %
-% Landmarks         :  (Optional) A matrix of cranial landmark positions on this mesh.
+% landmarks         :  (Optional) A matrix of cranial landmark positions on this mesh.
 %                      (5x3 Nz, Iz, Ar, Al, Cz)
 %
 % tenFive           :  (Optional) The 10-5 locations for this mesh: .positions (n x 3)
@@ -79,10 +79,10 @@ if ~exist('tenFive','var')
 else
     mshs.tenFive = tenFive;
 end
-if ~exist('Landmarks','var')
-    mshs.Landmarks = [];
+if ~exist('landmarks','var')
+    mshs.landmarks = [];
 else
-    mshs.Landmarks = Landmarks;
+    mshs.landmarks = landmarks;
 end
 
 mshs.logData = logData;
