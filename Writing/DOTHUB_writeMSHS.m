@@ -1,4 +1,4 @@
-function [mshs, mshsFileName] = DOTHUB_writeMSHS(mshsFileName,logData,headVolumeMesh,gmSurfaceMesh,scalpSurfaceMesh,vol2gm,Landmarks,tenFive)
+function [mshs, mshsFileName] = DOTHUB_writeMSHS(mshsFileName,logData,headVolumeMesh,gmSurfaceMesh,scalpSurfaceMesh,vol2gm,landmarks,tenFive)
 
 % This script creates a mesh file created from a given head model. Could be from an atlas or from an individual 
 
