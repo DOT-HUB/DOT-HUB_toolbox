@@ -70,7 +70,11 @@ if isempty(logData)
     logData = {};
     warning('logData is empty: this might make it harder to keep track of your data...');
 end
-
+if ~exist('logData','var')
+    mshs.logData = [];
+else
+    mshs.logData = logData;
+end
 
 %Create mshs struct #######################################################
 mshs = struct('headVolumeMesh',headVolumeMesh,'gmSurfaceMesh',gmSurfaceMesh,'scalpSurfaceMesh',scalpSurfaceMesh,'vol2gm',vol2gm);
