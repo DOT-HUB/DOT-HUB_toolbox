@@ -22,9 +22,8 @@ function DOTHUB_plotChanHist(SD,xAxisUpperLim)
 % #########################################################################
 
 dists = DOTHUB_getSDdists(SD);
-dists = [dists dists];
 SD.MeasListAct(end/2+1:end) = SD.MeasListAct(1:end/2);
-goodChan = SD.MeasListAct==1;
+goodChan = SD.MeasListAct(1:end/2)==1;
 
 if ~exist('xAxisUpperLim','var')
     xAxisUpperLim = 62.5;
