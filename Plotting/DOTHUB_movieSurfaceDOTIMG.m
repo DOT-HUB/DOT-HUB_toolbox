@@ -23,6 +23,9 @@ function DOTHUB_movieSurfaceDOTIMG(dotimg,rmap,varargin)
 %
 % RJC UCL, April 2020 #####################################################
 
+% TO DO               #####################################################
+% Add input that allows sub-selection of frames within DOTIMG to moviefy
+
 % Manage Variables ########################################################
 varInputs = inputParser;
 varInputs.CaseSensitive = false;
@@ -33,6 +36,7 @@ addParameter(varInputs,'imageType','haem',validateImageType);
 addParameter(varInputs,'colormap','greyJet');
 addParameter(varInputs,'condition',1,@isnumeric);
 addParameter(varInputs,'view',[-37.5 30],@isnumeric);
+addParameter(varInputs,'cbScaleFactor',1,@isnumeric);
 parse(varInputs,varargin{:});
 varInputs = varInputs.Results;
 
@@ -40,21 +44,31 @@ viewAng = varInputs.view;
 shadingtype = varInputs.shading;
 condition = varInputs.condition;
 hrfExplorer = false;
+cbScaleFactor = varInputs.cbScaleFactor;
 
 if ischar(dotimg)
     dotimgFileName = dotimg;
     dotimg = load(dotimgFileName,'-mat');
 end
 
-%Work out how many frames there are in dotimg.hbo.gm
-%Work out max scale of any famr to fix colorbar (add scale as varargin to
+%Work out how many frames we need to videoify, and work out max scale of any frame to fix colorbar (add scale as varargin to
+if strcmpi(varInputs.imageType,'haem')
+    nFrames = size(dotimg.hbo.gm,1);
+    scalMax = max(abs([dotimg.hbo.gm(:); dotimg.hbr.gm(:)]));
+elseif strcmpi(varInputs.imageType,'mua')
+    nFrames = size(dotimg.mua{1}.gm,1); % is this indexing correct?
+    scalMax = max(abs([dotimg.mua{1}.gm(:); dotimg.mua{2}.gm(:)]));
+end
+%
 %plot call.
 %Run loop around frames
+MovToWrite(nFrames) = struct('cdata',[],'colormap',[]);
 f1 = figure('color','w');
 for frame = 1:nFrames
-    DOTHUB_plotSurfaceDOTIMG(dotimg,rmap,frames,varargin)
+    [~, ~, hColorbar] = DOTHUB_plotSurfaceDOTIMG(dotimg,rmap,frame,varargin{:});
     drawnow;
-    MovToWrite(i) = getframe(f1);
+    hColorbar.Limits = [-scalMax scalMax]*cbScaleFactor;
+    MovToWrite(frame) = getframe(f1);
 end
 v = VideoWriter(tit,'MPEG-4');
 v.FrameRate = 10;

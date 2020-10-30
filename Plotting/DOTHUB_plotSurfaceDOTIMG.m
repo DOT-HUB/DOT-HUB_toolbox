@@ -1,4 +1,4 @@
-function DOTHUB_plotSurfaceDOTIMG(dotimg,rmap,frames,varargin)
+function [hAxis, hPatch, hColorbar] = DOTHUB_plotSurfaceDOTIMG(dotimg,rmap,frames,varargin)
 
 % Takes dotimg and rmap/mshs files or structures and displays node-wise distribution on surface mesh
 %
@@ -92,7 +92,7 @@ hFig = gcf;
 set(gcf,'Color','w','Units','Normalized');
 for i = 1:nSubplot
     subplot(1,nSubplot,i);
-    [hAxis, ~, hColorbar] = DOTHUB_plotSurfaceImage(rmap.gmSurfaceMesh,img(i,:),viewAng,shadingtype,varInputs.colormap);
+    [hAxis, hPatch, hColorbar] = DOTHUB_plotSurfaceImage(rmap.gmSurfaceMesh,img(i,:),viewAng,shadingtype,varInputs.colormap);
     set(hAxis,'FontSize',16);
     hColorbar.Location = 'South';
     tmp = hColorbar.Position;
