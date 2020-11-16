@@ -30,11 +30,13 @@ if ~exist('labelFlag','var')
     labelFlag = 0;
 end
 
+dists = DOTHUB_getSDdists(SD);
+dists = [dists dists];
+
 fs = length(t)/range(t);
 [psd,freq] = periodogram(d,rectwin(size(d,1)),size(d,1),fs,'psd');
 psddb = 10*log10(psd);
 plot(freq,psddb(:,SD.MeasListAct==1));
-axis tight
 xlim([min(freq) max(freq)]);
 set(gca,'YScale','linear','XGrid','on','YGrid','on','FontSize',16);
 xlabel('Freq (Hz))');
@@ -45,7 +47,7 @@ hold off;
 % Determine if data is LUMO data (to allow module labelling) 
 % ##########################################################################
 % ##### (Temporary solution? Need to define module elements in .SD3D?) #####
-if SD.nSrcs == (2/3)*SD.nDets && rem(SD.nSrcs,3)==0 && rem(SD.nDets,4)==0 &&min(dists)<12
+if SD.nSrcs == (3/4)*SD.nDets && rem(SD.nSrcs,3)==0 && rem(SD.nDets,4)==0 && min(dists)<12
     lumoFlag = 1;
 else
     lumoFlag = 0;
@@ -74,9 +76,16 @@ srcLabs = {'A','B','C'};
 tmpD = mod(SD.MeasList(:,2),4); tmpD(tmpD==0) = 4;
 si = SD.SrcPos(SD.MeasList(index,1),:);
 di = SD.DetPos(SD.MeasList(index,2),:);
+n_channels = SD.nSrcs*SD.nDets*length(SD.Lambda);
+if index <= n_channels/2
+    lambda = SD.Lambda(1);
+else
+    lambda = SD.Lambda(2);
+end
 labels = {['Channel ',num2str(index),', dist = ',num2str(sqrt(sum((si-di).^2)),4),' mm'],...
           ['Source = ' num2str(SD.MeasList(index,1)) ' (Tile ' num2str(ceil(SD.MeasList(index,1)/3)) ', Src = ' srcLabs{tmpS(index)} ')'],...
-          ['Detector = ' num2str(SD.MeasList(index,2)) ' (Tile ' num2str(ceil(SD.MeasList(index,2)/4)) ', Detector = ' num2str(tmpD(index)) ')']};
+          ['Detector = ' num2str(SD.MeasList(index,2)) ' (Tile ' num2str(ceil(SD.MeasList(index,2)/4)) ', Detector = ' num2str(tmpD(index)) ')'],...
+          ['Wavelength = ',num2str(lambda),' nm']};
 
 function labels = DOTHUB_psdplot_tiplabels(~,event_obj,SD,psddb)
 
@@ -89,6 +98,3 @@ di = SD.DetPos(SD.MeasList(index,2),:);
 labels = {['Channel ',num2str(index),', dist = ',num2str(sqrt(sum((si-di).^2)),4),' mm'],...
           ['Source = ' num2str(SD.MeasList(index,1))],...
           ['Detector = ' num2str(SD.MeasList(index,2))]};
-
-
-
