@@ -351,7 +351,7 @@ logData(2,:) = {'Associated prepro file: ', prepro.fileName};
 logData(3,:) = {'Associated invjac file: ', invjac.fileName};
 logData(4,:) = {'reconMethod: ', varInputs.reconMethod};
 logData(5,:) = {'regMethod: ', varInputs.regMethod};
-logData(6,:) = {'hyperParameter: ', varInputs.regMethod};
+logData(6,:) = {'hyperParameter: ', varInputs.hyperParameter};
 
 [dotimg, dotimgFileName] = DOTHUB_writeDOTIMG(dotimgFileName,logData,hbo,hbr,mua,prepro.tDOD,varInputs.saveFlag);
 
