@@ -54,6 +54,7 @@ varInputs = varInputs.Results;
 
 sliceDim = varInputs.sliceDim;
 condition = varInputs.condition;
+slicePos = varInputs.slicePos;
 
 if ischar(dotimg)
     dotimgFileName = dotimg;
@@ -103,7 +104,10 @@ if isempty(varInputs.slicePos)
         [~,tmp] = max(img(i,:));
         slicePosAll(i,:) = rmap.headVolumeMesh.node(tmp,1:3);
     end
+else
+    slicePosAll = vertcat(slicePos, slicePos);
 end
+
 if isempty(varInputs.imageThresh)
     for i = 1:nSubplot
         imageThreshAll(i) = 0.1*max(abs(img(i,:)));
