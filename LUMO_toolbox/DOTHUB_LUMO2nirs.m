@@ -93,7 +93,7 @@ end
 if ~exist('layoutFileName','var') %Not parsed so check exists in .LUMO
     jsonTmp = dir([lumoDIR '/layout.json']);
     if isempty(jsonTmp) %Not contained in .LUMO, so load
-        [filename, pathname, ~] = uigetfile('*.json','Select .json layout file');
+        [filename, pathname, ~] = uigetfile({'*.json';'*.JSON'},'Select .json layout file');
         layoutFileName = [pathname '/' filename];
     else
         layoutFileName = [lumoDIR '/' jsonTmp(1).name];
