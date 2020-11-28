@@ -176,8 +176,13 @@ if timeSelectFlag==0
     ind = diff(fntMot);
     [lngth,loc] = max(ind);
     goodRange = [fntMot(loc)+1 fntMot(loc)+lngth];
-    dcrop = d(goodRange(1):goodRange(2),:);
+    if isempty(goodRange) || (goodRange(2)-goodRange(1) < fs*5) %if there is no goodRange, or goodRange is less than 5 seconds in length
+        dcrop = d;
+    else
+        dcrop = d(goodRange(1):goodRange(2),:);
+    end
 end
+
 % SNR PRUNE  ##############################################################
 dRange = [0 2.5];
 SNRthresh = 12;
@@ -203,14 +208,17 @@ f2 = figure('Units','Normalized','Position',[0 0 0.8 0.8],'Color','w');
 DOTHUB_plotPSD(t,dcrop,SDclean,1)
 title(fname,'Interpreter','none','FontSize',16,'FontWeight','Bold');
 
-% Plot PSD of user-selected data if timeSelectFlag=1 or automatically
-% detected clean data if timeSelectFlag=0
+% Plot Intensity versus Distance scatter plot and histogram
 f3 = figure('Units','Normalized','Position',[0 0 0.8 0.8],'Color','w');
 subplot(1,2,1);
 DOTHUB_plotIntVDist(dcrop,SDtmp,1);
 subplot(1,2,2);
 DOTHUB_plotChanHist(SDtmp);
 sgtitle(fname,'Interpreter','none','FontSize',16,'FontWeight','Bold');
+
+% Plot greyscale intensity matrix
+f4 = figure('Units','Normalized','Position',[0 0 0.8 0.8],'Color','w');
+DOTHUB_plotIntMatrix(d,SD)
 
 % PRINT SUMMARY ###########################################################
 diary(fullfile(fpath,[fname '_dataQualityCheck.txt']));
@@ -253,4 +261,6 @@ if printFigFlag
     print(f2,filename,'-djpeg','-r400');
     filename = [fpath '/' fname '_intvdistplot.jpg'];
     print(f3,filename,'-djpeg','-r400');
+    filename = [fpath '/' fname '_intMatrix.jpg'];
+    print(f4,filename,'-djpeg','-r400');
 end
