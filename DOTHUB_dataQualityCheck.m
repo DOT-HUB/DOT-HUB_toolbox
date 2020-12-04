@@ -34,6 +34,7 @@ function DOTHUB_dataQualityCheck(nirsFileName,printFigFlag,timeSelectFlag)
 
 % MANAGE VARIABLES  ##################################################
 if ~exist('nirsFileName','var')
+    disp('Select .nirs file...');
     [file,path] = uigetfile('*.nirs','Select .nirs file');
     nirsFileName = fullfile(path,file);
 end

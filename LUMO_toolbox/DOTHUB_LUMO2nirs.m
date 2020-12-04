@@ -75,8 +75,10 @@ function [nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirs(lumoDIR,layoutFil
 
 % MANAGE VARIABLES  #######################################################
 if ~exist('lumoDIR','var')
+    disp('Select .LUMO directory...');
     lumoDIR = uigetdir(pwd,'Select .LUMO directory');
 elseif isempty(lumoDIR)
+    disp('Select .LUMO directory...');
     lumoDIR = uigetdir(pwd,'Select .LUMO directory');
 end
 
@@ -93,14 +95,23 @@ end
 if ~exist('layoutFileName','var') %Not parsed so check exists in .LUMO
     jsonTmp = dir([lumoDIR '/layout.json']);
     if isempty(jsonTmp) %Not contained in .LUMO, so load
+        disp('Layout file not parsed or found, please select .json layout file...');
         [filename, pathname, ~] = uigetfile({'*.json';'*.JSON'},'Select .json layout file');
         layoutFileName = [pathname '/' filename];
     else
+        disp('Using layout.json within .LUMO directory');
         layoutFileName = [lumoDIR '/' jsonTmp(1).name];
     end
 elseif isempty(layoutFileName)
-    [filename, pathname, ~] = uigetfile('*.json','Select .json layout file');
-    layoutFileName = [pathname '/' filename];
+ jsonTmp = dir([lumoDIR '/layout.json']);
+    if isempty(jsonTmp) %Not contained in .LUMO, so load
+        disp('Layout file not parsed or found, please select .json layout file...');
+        [filename, pathname, ~] = uigetfile({'*.json';'*.JSON'},'Select .json layout file');
+        layoutFileName = [pathname '/' filename];
+    else
+        disp('Using layout.json within .LUMO directory');
+        layoutFileName = [lumoDIR '/' jsonTmp(1).name];
+    end
 end
 
 polhemusFlag = 0;
