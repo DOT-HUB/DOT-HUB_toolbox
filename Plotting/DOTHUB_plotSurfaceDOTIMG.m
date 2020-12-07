@@ -63,11 +63,13 @@ if ischar(varInputs.colormap)
     varInputs.colormap = greyJet;
 end
 
+conditionFlag = 0;
 % Define image to display and run plotting routines #######################
 if strcmpi(varInputs.imageType,'haem')
-    if ndims(dotimg.hbo) == 3 %Conditions exist
-        img(1,:) = squeeze(mean(dotimg.hbo.gm(frames,:,condition),2));
-        img(2,:) = squeeze(mean(dotimg.hbr.gm(frames,:,condition),2));
+    if ndims(dotimg.hbo.gm) == 3 %Conditions exist
+        conditionFlag = 1;
+        img(1,:) = squeeze(mean(dotimg.hbo.gm(frames,:,condition),1));
+        img(2,:) = squeeze(mean(dotimg.hbr.gm(frames,:,condition),1));
     else
         img(1,:) = squeeze(mean(dotimg.hbo.gm(frames,:),1));
         img(2,:) = squeeze(mean(dotimg.hbr.gm(frames,:),1));
@@ -79,6 +81,7 @@ else strcmpi(varInputs.imageType,'mua')
     nWavs = length(dotimg.mua);
     for i = 1:nWavs
         if ndims(dotimg.mua{i}.gm) == 3 %Conditions exist
+            conditionFlag = 1;
             img(i,:) = squeeze(mean(dotimg.mua{i}.gm(frames,:,condition),2));
         else
             img(i,:) = squeeze(mean(dotimg.mua{i}.gm(frames,:,condition),1));
@@ -101,7 +104,11 @@ for i = 1:nSubplot
     ylabel(hColorbar,subplotLabels{1,i})
 end
 [~,fname,~] = fileparts(dotimg.fileName);
-sgtitle(fname,'FontSize',16,'Interpreter','none');
+if conditionFlag
+    sgtitle([fname ', Condition ' num2str(condition)],'FontSize',16,'Interpreter','none');
+else
+    sgtitle(fname,'FontSize',16,'Interpreter','none');
+end
 
 if hrfExplorer
     dcmObj = datacursormode(hFig);
