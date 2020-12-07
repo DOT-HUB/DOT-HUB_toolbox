@@ -1,4 +1,4 @@
-function [prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,dod,tDOD,SD3D,s,dcAvg,dcAvgStd,tHRF)
+function [prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,dod,tDOD,SD3D,s,dcAvg,dcAvgStd,tHRF,condNames)
 
 % This script creates a .prepro file, containing pre-processed HD-DOT data. 
 % The .pre file is primarily designed to support image reconstruction, 
@@ -63,6 +63,9 @@ function [prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,do
 %                       HRF data or can be different if saving both HRF and
 %                       full time course.
 %
+% condNames         :   (Optional) Cell array of length (nConditions) with
+%                       name of condition (as per Homer2)
+%
 % ####################### OUTPUTS #########################################
 %
 % prepro            :  The prepro structure
@@ -80,6 +83,7 @@ function [prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,do
 %                      prepro.dcAvg     - (optional) as defined above
 %                      prepro.dcAvgStd  - (optional) as defined above
 %                      prepro.tHRF      - (optional) as defined above
+%                      prepro.condNames - (optional) as defined above
 %
 % ####################### Dependencies ####################################
 % #########################################################################
@@ -123,6 +127,12 @@ end
 if exist('tHRF','var')
     if ~isempty(tHRF)
         prepro.tHRF = tHRF;
+    end
+end
+
+if exist('condNames','var')
+    if ~isempty(condNames)
+        prepro.condNames = condNames;
     end
 end
 
