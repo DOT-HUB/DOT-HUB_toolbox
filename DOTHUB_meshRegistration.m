@@ -70,7 +70,6 @@ elseif isempty(vol2gm)
 end
 
 
-
 %% AFFINE METHOD (may add other options in future)
 regMethod = 'Affine';
 % Get affine transformation matrices
