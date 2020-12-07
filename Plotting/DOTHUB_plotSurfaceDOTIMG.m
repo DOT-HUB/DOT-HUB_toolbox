@@ -20,8 +20,8 @@ function [hAxis, hPatch, hColorbar] = DOTHUB_plotSurfaceDOTIMG(dotimg,rmap,frame
 %                 'imageType'   : 'haem', 'mua', default 'haem'
 %                 'colormap'    : preferred colormap array
 %                 'view'        : view angle, defaults to [-37.5 30]
-%                 'hrfExplorer  : true or flase to add subplot showing selected node pseudochannel
-%                                 default false;
+%                 'hrfExplorer'  : 'on' or 'off' to add subplot showing selected node pseudochannel
+%                                 default 'off';
 %
 % OUTPUTS #################################################################
 %
@@ -132,7 +132,8 @@ if ndims(dotimg.hbo.gm) == 3 %Conditions exist
         plot(dotimg.tImg,hrf(:,2),'b');
         plot(dotimg.tImg,hrf(:,3),'g');hold off;
         xlabel('Time (s)');
-        ylabel('uM');
+        ylabel('\muM');
+        legend('\DeltaHbO','\DeltaHbR','\DeltaHbT','location','best')
     else
         hrf(:,1) = dotimg.mua{1}.gm(:,ind,condition);
         hrf(:,2) = dotimg.mua{2}.gm(:,ind,condition);        
@@ -147,7 +148,8 @@ else
         plot(dotimg.tImg,hrf(:,2),'b');
         plot(dotimg.tImg,hrf(:,3),'g');
         xlabel('Time (s)');
-        ylabel('uM');
+        ylabel('\muM');
+        legend('\DeltaHbO','\DeltaHbR','\DeltaHbT','location','best')
     else
         hrf(:,1) = dotimg.mua{1}.gm(:,ind);
         hrf(:,2) = dotimg.mua{2}.gm(:,ind);        
