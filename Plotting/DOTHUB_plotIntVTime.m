@@ -82,16 +82,16 @@ srcLabs = {'A','B','C'};
 tmpD = mod(SD.MeasList(:,2),4); tmpD(tmpD==0) = 4;
 si = SD.SrcPos(SD.MeasList(index,1),:);
 di = SD.DetPos(SD.MeasList(index,2),:);
-n_channels = SD.nSrcs*SD.nDets*length(SD.Lambda);
-if index <= n_channels/2
+if SD.MeasList(index,4)== 1
     lambda = SD.Lambda(1);
-else
+elseif SD.MeasList(index,4)== 2
     lambda = SD.Lambda(2);
 end
 labels = {['Channel ',num2str(index),', dist = ',num2str(sqrt(sum((si-di).^2)),4),' mm'],...
-          ['Source = ' num2str(SD.MeasList(index,1)) ' (Tile ' num2str(ceil(SD.MeasList(index,1)/3)) ', Src = ' srcLabs{tmpS(index)} ')'],...
-          ['Detector = ' num2str(SD.MeasList(index,2)) ' (Tile ' num2str(ceil(SD.MeasList(index,2)/4)) ', Detector = ' num2str(tmpD(index)) ')'],...
-          ['Wavelength = ',num2str(lambda),' nm']};
+          ['Source = ' num2str(SD.MeasList(index,1)) ' (Tile ' num2str(ceil(SD.MeasList(index,1)/3)) ', Src = ' srcLabs{tmpS(index)} ...
+          ', Wavelength = ',num2str(lambda),' nm)'],...
+          ['Detector = ' num2str(SD.MeasList(index,2)) ' (Tile ' num2str(ceil(SD.MeasList(index,2)/4)) ', Detector = ' num2str(tmpD(index)) ')']};
+
 
 
 function labels = DOTHUB_intvtimeplot_tiplabels(~,event_obj,SD,d)
