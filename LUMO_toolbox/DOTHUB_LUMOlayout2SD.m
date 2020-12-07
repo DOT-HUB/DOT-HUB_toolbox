@@ -1,4 +1,4 @@
-function [SD_2D,SD_3D] = DOTHUB_LUMOlayout2SD(layoutFilename,plotFlag,saveFlag)
+function [SD2D,SD3D] = DOTHUB_LUMOlayout2SD(layoutFilename,plotFlag,saveFlag)
 
 %This function converts the LUMO .json layout file to SD. It assumes all
 %docks are populated (as it must), and uses the 3D data to determine the
@@ -54,7 +54,7 @@ wavelength1 = 735;
 wavelength2 = 850;
 
 %distLimit
-distLimit = 60; %mm
+distLimit = 1e6; %mm
 
 %#####
 nNodes = length(layoutData.docks);
@@ -98,21 +98,21 @@ end
 SD.MeasList = [SD.MeasList; SD.MeasList];
 SD.MeasList(end/2 + 1:end,4) = 2;
 
-SD_2D = SD;
+SD2D = SD;
 
 %####################################### Create 3D SD too ####################################
-SD_3D = SD;
+SD3D = SD;
 for n = 1:nNodes
     nid = n;
     for det = 1:4
-        SD_3D.DetPos(det+(n-1)*4,1) = layoutData.docks(nid).optodes(det).coordinates_3d.x;
-        SD_3D.DetPos(det+(n-1)*4,2) = layoutData.docks(nid).optodes(det).coordinates_3d.y;
-        SD_3D.DetPos(det+(n-1)*4,3) = layoutData.docks(nid).optodes(det).coordinates_3d.z;
+        SD3D.DetPos(det+(n-1)*4,1) = layoutData.docks(nid).optodes(det).coordinates_3d.x;
+        SD3D.DetPos(det+(n-1)*4,2) = layoutData.docks(nid).optodes(det).coordinates_3d.y;
+        SD3D.DetPos(det+(n-1)*4,3) = layoutData.docks(nid).optodes(det).coordinates_3d.z;
     end
     for src = 1:3
-        SD_3D.SrcPos(src+(n-1)*3,1) = layoutData.docks(nid).optodes(src+4).coordinates_3d.x;
-        SD_3D.SrcPos(src+(n-1)*3,2) = layoutData.docks(nid).optodes(src+4).coordinates_3d.y;
-        SD_3D.SrcPos(src+(n-1)*3,3) = layoutData.docks(nid).optodes(src+4).coordinates_3d.z;
+        SD3D.SrcPos(src+(n-1)*3,1) = layoutData.docks(nid).optodes(src+4).coordinates_3d.x;
+        SD3D.SrcPos(src+(n-1)*3,2) = layoutData.docks(nid).optodes(src+4).coordinates_3d.y;
+        SD3D.SrcPos(src+(n-1)*3,3) = layoutData.docks(nid).optodes(src+4).coordinates_3d.z;
     end
 end
 
@@ -130,16 +130,16 @@ if plotFlag;
     
     subplot(1,2,2);
     for i = 1:length(SD.MeasList)
-        line([SD_3D.SrcPos(SD_3D.MeasList(i,1),1) SD_3D.DetPos(SD_3D.MeasList(i,2),1)],[SD_3D.SrcPos(SD_3D.MeasList(i,1),2) SD_3D.DetPos(SD_3D.MeasList(i,2),2)],[SD_3D.SrcPos(SD_3D.MeasList(i,1),3) SD_3D.DetPos(SD_3D.MeasList(i,2),3)],'LineWidth',2,'Color','c');
+        line([SD3D.SrcPos(SD3D.MeasList(i,1),1) SD3D.DetPos(SD3D.MeasList(i,2),1)],[SD3D.SrcPos(SD3D.MeasList(i,1),2) SD3D.DetPos(SD3D.MeasList(i,2),2)],[SD3D.SrcPos(SD3D.MeasList(i,1),3) SD3D.DetPos(SD3D.MeasList(i,2),3)],'LineWidth',2,'Color','c');
         hold on;
     end
-    plot3(SD_3D.SrcPos(:,1),SD_3D.SrcPos(:,2),SD_3D.SrcPos(:,3),'r.','MarkerSize',20);hold on;
-    plot3(SD_3D.DetPos(:,1),SD_3D.DetPos(:,2),SD_3D.DetPos(:,3),'b.','MarkerSize',20);
+    plot3(SD3D.SrcPos(:,1),SD3D.SrcPos(:,2),SD3D.SrcPos(:,3),'r.','MarkerSize',20);hold on;
+    plot3(SD3D.DetPos(:,1),SD3D.DetPos(:,2),SD3D.DetPos(:,3),'b.','MarkerSize',20);
     axis equal;
 end
 
 % Save #######################################
 if saveFlag
-    save(outname2D,'SD'); SD = SD_3D;
+    save(outname2D,'SD'); SD = SD3D;
     save(outname3D,'SD');
 end
