@@ -9,3 +9,6 @@
 *.txt
 *.nii
 *.nirs
+*.SD
+*.SD3D
+*.DS_Store
