@@ -275,9 +275,11 @@ elseif length(size(y)) == 3 %DC DATA
         end
 
     elseif flagSSmethod==4 % use local average of many SS around source and detector as regressor (separate by wavelength)
-
+        
+        dists = DOTHUB_getSDdists(SD);
+        dists = [dists dists];
         for iML = 1:nChanPerWav
-            
+
             % SOURCE SIDE------------------------------------------------            
             Src = SD.SrcPos(ml(lst(iML),1),:);
             rho = sum((ones(length(lstSSPerWav),1)*Src - posM(lstSSPerWav,:)).^2,2).^0.5;        
@@ -322,10 +324,14 @@ elseif length(size(y)) == 3 %DC DATA
             %We are saying that lChan = B*ssChan + residual
             %B ~ inv(ssChan)*lChan;
             %So residual = lChan - B*ssChan
-            B = pinv(ssChan)*lChan;
-            tmpReg = lChan - B*ssChan;
-            
-            y_reg(:,j,i) = tmpReg;
+            if ~any(isnan(ssChan))
+                B = pinv(ssChan)*lChan;
+                tmpReg = lChan - B*ssChan;
+                y_reg(:,i) = tmpReg;
+            else
+                disp(['No local short channels found for channel ' num2str(i)]);
+                y_reg(:,i) = lChan;
+            end
         end
         tmpHbT = squeeze(y_reg(:,1,i)) + squeeze(y_reg(:,2,i));
         y_reg(:,3,i) = tmpHbT;
