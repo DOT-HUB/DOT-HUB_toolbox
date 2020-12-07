@@ -99,7 +99,7 @@ if ~exist('layoutFileName','var') %Not parsed so check exists in .LUMO
         [filename, pathname, ~] = uigetfile({'*.json';'*.JSON'},'Select .json layout file');
         layoutFileName = [pathname '/' filename];
     else
-        disp('Using layout.json within .LUMO directory');
+        disp('Using default layout.json within .LUMO directory');
         layoutFileName = [lumoDIR '/' jsonTmp(1).name];
     end
 elseif isempty(layoutFileName)
@@ -191,7 +191,7 @@ SD.nSrcs = recordingdata.variables.n_srcs;
 SD.nDets = recordingdata.variables.n_dets;
 SD.Lambda = recordingdata.variables.wavelength;
 SD.SpatialUnit = 'mm';
-MLAtmp = recordingdata.variables.chans_list_act'; %temporary measlistact
+MLAtmp = recordingdata.variables.chans_list_act'; %temporary saturation list
 
 % Now determine optode positions from 2D information in layout JSON file
 % Also use same loop to extract source power information
@@ -220,16 +220,24 @@ SD.MeasList = ones(size(chansList,1),4);
 SD.MeasList(:,1:2) = chansList(:,1:2);
 SD.MeasList(:,4) = chansList(:,3);
 [SD.MeasList, tmpInd] = sortrows(SD.MeasList,[4,1,2]);
+SD.MeasListAct = ones(size(SD.MeasList,1),1);
 
-% ########## Use sorted ML order to correctly sort data and measlistact
+% ########## Use sorted ML order to correctly sort data and measlistact ##
 d = intDataAll(:,tmpInd);
-SD.MeasListAct = MLAtmp(tmpInd);
-% ######################################################################
+MLAtmp = MLAtmp(tmpInd);
+
+% ########## Consider channels flagged as saturated ######################
+% The default LUMO chan_list_act marks channels that saturate at any point
+% in the recording. This can be unfairly conservative as transient motion
+% can cause a transient saturation flag. For now, the saturation list is
+% saved into SD.MeasListActSat, but the default is set to all active.
+SD.MeasListActSat = MLAtmp;
+% ########################################################################
 
 % Include 3D information for future
 if polhemusFlag %If polhemus information is parsed, calculate S-D positions from that file
     fprintf(['Using ' posCSVFileName ' to define SD3D...\n']);
-    [SD_POL, SD3DFileName] = DOTHUB_LUMOpolhemus2SD3D(posCSVFileName);
+    [SD_POL, SD3DFileName] = DOTHUB_LUMOpolhemus2SD3D(posCSVFileName); %This line saves the .SD3D
     SD_POL.MeasListAct = SD.MeasListAct;
     
     if nNodes<nDocks %Crop SD file accordingly if the number of docks populated in the datafile differs from the number in the SD_3D data
@@ -284,9 +292,14 @@ else %Assume 3D contents of layout file remains and save as SD3D
             SD3D.SrcPos(src+(n-1)*3,3) = layoutData.docks(nid).optodes(src+4).coordinates_3d.z;
         end
     end
-    %NEED TO DEFINE LANDMARKS - MUST BE SAVED IN LAYOUT.JSON
-    [layoutPath,layoutName,~] = fileparts(layoutFileName);
-    SD3DFileName = fullfile(layoutPath, [layoutName '.3DSD']);
+    if isfield(layoutData,'Landmarks') %Nasion, Inion, Ar, Al, Cz
+        for i = 1:size(layoutData.Landmarks,1)
+            SD3D.Landmarks(i,1) = layoutData.Landmarks(i).x;
+            SD3D.Landmarks(i,2) = layoutData.Landmarks(i).y;
+            SD3D.Landmarks(i,3) = layoutData.Landmarks(i).z;
+        end
+    end
+    SD3DFileName = fullfile(lumoPath, [lumoName '_default.SD3D']);
     fprintf(['Saving SD3D to ' SD3DFileName ' ...\n']);
     save(SD3DFileName,'SD3D');
 end
