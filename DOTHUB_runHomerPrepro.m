@@ -72,6 +72,7 @@ end
 % #########################################################################
 % Load .nirs
 hmr = load(nirsFileName,'-mat');
+
 % Overwrite hmr.SD with hmr.SD3D to match downstream Homer2 function calls
 hmr.SD = hmr.SD3D;
 
@@ -221,6 +222,12 @@ else %HRF is to be reconstructed
     DPFs = procInput.procFunc.funcParamVal{funcInd}{:};
     dodRecon = DOTHUB_hmrConc2OD(dcAvg,SD3D,DPFs);
     tRecon = tHRF;
+    
+    if isfield(hmr,'CondNames')
+        condNames = hmr.CondNames;
+    else
+        condNames = {};
+    end
 end
 
 % USE CODE SNIPPET FROM DOTHUB_writePREPRO to define filename and logData
@@ -232,5 +239,5 @@ logData(2,:) = {'Derived from data: ', nirsFileName};
 logData(3,:) = {'Pre-processed using:', cfgFileName};
 
 %(preproFileName,logData,dod,tDOD,SD3D,s,dcAvg,dcAvgStd,tHRF)
-[prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,dodRecon,tRecon,SD3D,hmr.s,dcAvg,dcAvgStd,tHRF);
+[prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,dodRecon,tRecon,SD3D,hmr.s,dcAvg,dcAvgStd,tHRF,condNames);
 
