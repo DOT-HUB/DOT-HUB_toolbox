@@ -349,9 +349,10 @@ dotimgFileName = fullfile(pathstr,[name '.dotimg']);
 logData(1,:) = {'Created on: ', ds};
 logData(2,:) = {'Associated prepro file: ', prepro.fileName};
 logData(3,:) = {'Associated invjac file: ', invjac.fileName};
-logData(4,:) = {'reconMethod: ', varInputs.reconMethod};
-logData(5,:) = {'regMethod: ', varInputs.regMethod};
-logData(6,:) = {'hyperParameter: ', varInputs.hyperParameter};
+logData(4,:) = {'Associated rmap file: ', rmap.fileName};
+logData(5,:) = {'reconMethod: ', varInputs.reconMethod};
+logData(6,:) = {'regMethod: ', varInputs.regMethod};
+logData(7,:) = {'hyperParameter: ', varInputs.hyperParameter};
 
 [dotimg, dotimgFileName] = DOTHUB_writeDOTIMG(dotimgFileName,logData,hbo,hbr,mua,prepro.tDOD,varInputs.saveFlag);
 
