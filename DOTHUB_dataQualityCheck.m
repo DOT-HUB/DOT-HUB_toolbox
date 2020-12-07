@@ -8,13 +8,14 @@ function DOTHUB_dataQualityCheck(nirsFileName,printFigFlag,timeSelectFlag)
 %
 %######################## INPUTS ##########################################
 %
-% nirsFilename: The path of the .nirs data file
+% nirsFilename:     The path of the .nirs data file
 %
-% printFigFlag: (Optional). If true, the figures are printed to the directory
-%               of the nirs file. Default is true.
-% timeSelectFlag: (Optional). If true, user will be prompted to manually
-%               select a time period from the recording for analysis.
-%               Default is false
+% printFigFlag:     (Optional). If true, the figures are printed to the directory
+%                   of the nirs file. Default is true.
+
+% timeSelectFlag:   (Optional). If true, user will be prompted to manually
+%                   select a time period from the recording for analysis.
+%                   Default is false
 %
 %######################## OUTPUTS #########################################
 %
