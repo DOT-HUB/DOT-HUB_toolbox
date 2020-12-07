@@ -4,7 +4,7 @@ software_version = "0.0.0"
 [file_names]
 recordingdata_file = "recordingdata.toml"
 event_file = "events.toml"
-layout_file = "layout.toml"
+hardware_file = "hardware.toml"
 log_file = "lumo.log"
 
 [[intensity_files]]
