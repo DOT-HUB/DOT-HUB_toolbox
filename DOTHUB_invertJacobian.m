@@ -12,7 +12,7 @@ function [invjac, invjacFileName] = DOTHUB_invertJacobian(jac,prepro,varargin)
 % rmap      =  rmap structure or path to .rmap
 %
 % varargin  =  optional input pairs:
-%              'reconMethod' - 'multispec' or 'standard' (default 'standard');
+%              'reconMethod' - 'multispectral' or 'standard' (default 'standard');
 %                   Specifying whether to construct and invert a multispectral
 %                   jacobian or whether to recontruct each wavelength
 %                   separately and then combine them
