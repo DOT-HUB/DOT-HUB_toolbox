@@ -200,7 +200,7 @@ tile(7,:) = [8.88*cosd(30) 8.88*sind(30) 0];
 %Tile loop;
 SrcPos = [];
 DetPos = [];
-f1 = figure;
+figure(f1);
 subplot(1,2,2);
 for i = 1:nTiles
     
