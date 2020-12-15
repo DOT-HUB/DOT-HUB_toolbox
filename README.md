@@ -5,6 +5,6 @@ INSTALLATION:
 Clone the DOT-HUB Toolbox repository to your local drive, and add it to your matlab path.  You will also need: 
 
 Toast++ (http://web4.cs.ucl.ac.uk/research/vis/toast/) downloaded and in your matlab path.
-Homer2 (tested with v2.8: https://www.nitrc.org/projects/homer2/) downloaded and in your matlab path 
+Homer2 (tested with v2.8: https://www.nitrc.org/projects/homer2/) src code (not installation) downloaded and in your matlab path.
 
 
