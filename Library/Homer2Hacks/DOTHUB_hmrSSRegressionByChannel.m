@@ -58,7 +58,7 @@ function y_reg = DOTHUB_hmrSSRegressionByChannel(y, SD, rhoSD_ssThresh, flagSSme
 %########################
 
 ml = SD.MeasList;
-mlAct = SD.MeasListAct;
+mlAct = [SD.MeasListAct(1:end/2); SD.MeasListAct(1:end/2)];
 lstPerWav = find(ml(:,4)==1);
 nChan = length(ml);
 nChanPerWav = length(lstPerWav);
