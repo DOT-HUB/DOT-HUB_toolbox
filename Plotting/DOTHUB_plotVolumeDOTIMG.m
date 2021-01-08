@@ -105,7 +105,7 @@ if isempty(varInputs.slicePos)
         slicePosAll(i,:) = rmap.headVolumeMesh.node(tmp,1:3);
     end
 else
-    slicePosAll = repmat(slicePos,nSubPlot,1);
+    slicePosAll = repmat(slicePos,nSubplot,1);
 end
 
 if isempty(varInputs.imageThresh)
