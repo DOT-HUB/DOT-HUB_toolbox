@@ -41,13 +41,19 @@ end
 
 if ~exist('overSizeRatios','var')
     overSizeRatios = [1 1];
+elseif isempty(overSizeRatios)
+    overSizeRatios = [1 1];
 end
 
 if ~exist('fontSize','var')
     fontSize = 16;
+elseif isempty(fontSize)
+    fontSize = 16;
 end
 
 if ~exist('lineWidth','var')
+    lineWidth = 1;
+elseif isempty(lineWidth)
     lineWidth = 1;
 end
 
@@ -56,7 +62,10 @@ mnVal = min(tmpy(:));
 mxVal = max(tmpy(:));
 fprintf(['Maximum and minimum data values = [' num2str(mnVal,'%3f') ' ' num2str(mxVal,'%3f') ']  µM\n']);
 
-if ~exist('yScale','var') || isempty(ylim)
+if ~exist('yLimits','var')
+    yl(1) = mnVal;
+    yl(2) = mxVal;
+elseif isempty(yLimits)
     yl(1) = mnVal;
     yl(2) = mxVal;
 else
@@ -107,8 +116,8 @@ nPlotsY = length(unique(pos(:,2)));
 %nPlotsX_border = nPlotsX + 4;
 %nPlotsY_border = nPlotsY + 4;
 
-plotWidth = 1*overSizeRatios(1)/nPlotsX; %This approach assumes plot distribution is continuous.
-plotHeight = 1*overSizeRatios(2)/nPlotsY; %Seems a reasonable approximation
+plotWidth = 2*overSizeRatios(1)/nPlotsX; %This approach assumes plot distribution is 0.5*continuous.
+plotHeight = 2*overSizeRatios(2)/nPlotsY; %Seems a reasonable approximation
 
 %Normalise positioning values for plotting
 pos_cent = pos - repmat(centre,size(pos,1),1);
