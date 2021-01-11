@@ -1,0 +1,801 @@
+[Hub]
+hardware_version = "REV2_3_BUS"
+firmware_version = "0.3.0"
+hub_serial_number = 2
+hardware_uid = "[0x43, 0x00, 0x5a, 0x00, 0x10, 0x51, 0x36, 0x31, 0x36, 0x37, 0x37, 0x32]"
+
+[Hub.Group]
+uid = 742390275
+
+[[Hub.Group.Node]]
+node_id = 1
+dockchain_uid = "0x0000000038dd3801"
+bus_index = 1
+tile_uid = "[0x005c005b, 0x30425009, 0x2037364b]"
+hardware_version = "TIA_REV1"
+firmware_version = "0.4.0"
+revision_id = 3
+
+[[Hub.Group.Node.Source]]
+id = 1
+description = "SRCA_735nm"
+group_location_index = 1
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 2
+description = "SRCA_850nm"
+group_location_index = 1
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 4
+description = "SRCB_735nm"
+group_location_index = 2
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 8
+description = "SRCB_850nm"
+group_location_index = 2
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 16
+description = "SRCC_735nm"
+group_location_index = 3
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 32
+description = "SRCC_850nm"
+group_location_index = 3
+Source_power = 100.0
+
+[[Hub.Group.Node.Detector]]
+id = 0
+description = "ADC Detector Channel 0"
+group_location_index = 1
+
+[[Hub.Group.Node.Detector]]
+id = 1
+description = "ADC Detector Channel 1"
+group_location_index = 2
+
+[[Hub.Group.Node.Detector]]
+id = 2
+description = "ADC Detector Channel 2"
+group_location_index = 3
+
+[[Hub.Group.Node.Detector]]
+id = 3
+description = "ADC Detector Channel 3"
+group_location_index = 4
+
+
+[[Hub.Group.Node]]
+node_id = 2
+dockchain_uid = "0x0000000038dd3801"
+bus_index = 1
+tile_uid = "[0x005c0043, 0x30425009, 0x2037364b]"
+hardware_version = "TIA_REV1"
+firmware_version = "0.4.0"
+revision_id = 3
+
+[[Hub.Group.Node.Source]]
+id = 1
+description = "SRCA_735nm"
+group_location_index = 4
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 2
+description = "SRCA_850nm"
+group_location_index = 4
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 4
+description = "SRCB_735nm"
+group_location_index = 5
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 8
+description = "SRCB_850nm"
+group_location_index = 5
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 16
+description = "SRCC_735nm"
+group_location_index = 6
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 32
+description = "SRCC_850nm"
+group_location_index = 6
+Source_power = 100.0
+
+[[Hub.Group.Node.Detector]]
+id = 0
+description = "ADC Detector Channel 0"
+group_location_index = 5
+
+[[Hub.Group.Node.Detector]]
+id = 1
+description = "ADC Detector Channel 1"
+group_location_index = 6
+
+[[Hub.Group.Node.Detector]]
+id = 2
+description = "ADC Detector Channel 2"
+group_location_index = 7
+
+[[Hub.Group.Node.Detector]]
+id = 3
+description = "ADC Detector Channel 3"
+group_location_index = 8
+
+
+[[Hub.Group.Node]]
+node_id = 3
+dockchain_uid = "0x0000000038dd3801"
+bus_index = 1
+tile_uid = "[0x005e006d, 0x30425009, 0x2037364b]"
+hardware_version = "TIA_REV1"
+firmware_version = "0.4.0"
+revision_id = 3
+
+[[Hub.Group.Node.Source]]
+id = 1
+description = "SRCA_735nm"
+group_location_index = 7
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 2
+description = "SRCA_850nm"
+group_location_index = 7
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 4
+description = "SRCB_735nm"
+group_location_index = 8
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 8
+description = "SRCB_850nm"
+group_location_index = 8
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 16
+description = "SRCC_735nm"
+group_location_index = 9
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 32
+description = "SRCC_850nm"
+group_location_index = 9
+Source_power = 100.0
+
+[[Hub.Group.Node.Detector]]
+id = 0
+description = "ADC Detector Channel 0"
+group_location_index = 9
+
+[[Hub.Group.Node.Detector]]
+id = 1
+description = "ADC Detector Channel 1"
+group_location_index = 10
+
+[[Hub.Group.Node.Detector]]
+id = 2
+description = "ADC Detector Channel 2"
+group_location_index = 11
+
+[[Hub.Group.Node.Detector]]
+id = 3
+description = "ADC Detector Channel 3"
+group_location_index = 12
+
+
+[[Hub.Group.Node]]
+node_id = 4
+dockchain_uid = "0x0000000038dd3801"
+bus_index = 1
+tile_uid = "[0x005a0062, 0x30425009, 0x2037364b]"
+hardware_version = "TIA_REV1"
+firmware_version = "0.4.0"
+revision_id = 3
+
+[[Hub.Group.Node.Source]]
+id = 1
+description = "SRCA_735nm"
+group_location_index = 10
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 2
+description = "SRCA_850nm"
+group_location_index = 10
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 4
+description = "SRCB_735nm"
+group_location_index = 11
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 8
+description = "SRCB_850nm"
+group_location_index = 11
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 16
+description = "SRCC_735nm"
+group_location_index = 12
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 32
+description = "SRCC_850nm"
+group_location_index = 12
+Source_power = 100.0
+
+[[Hub.Group.Node.Detector]]
+id = 0
+description = "ADC Detector Channel 0"
+group_location_index = 13
+
+[[Hub.Group.Node.Detector]]
+id = 1
+description = "ADC Detector Channel 1"
+group_location_index = 14
+
+[[Hub.Group.Node.Detector]]
+id = 2
+description = "ADC Detector Channel 2"
+group_location_index = 15
+
+[[Hub.Group.Node.Detector]]
+id = 3
+description = "ADC Detector Channel 3"
+group_location_index = 16
+
+
+[[Hub.Group.Node]]
+node_id = 5
+dockchain_uid = "0x0000000038dd3801"
+bus_index = 1
+tile_uid = "[0x005d0061, 0x30425009, 0x2037364b]"
+hardware_version = "TIA_REV1"
+firmware_version = "0.4.0"
+revision_id = 3
+
+[[Hub.Group.Node.Source]]
+id = 1
+description = "SRCA_735nm"
+group_location_index = 13
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 2
+description = "SRCA_850nm"
+group_location_index = 13
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 4
+description = "SRCB_735nm"
+group_location_index = 14
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 8
+description = "SRCB_850nm"
+group_location_index = 14
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 16
+description = "SRCC_735nm"
+group_location_index = 15
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 32
+description = "SRCC_850nm"
+group_location_index = 15
+Source_power = 100.0
+
+[[Hub.Group.Node.Detector]]
+id = 0
+description = "ADC Detector Channel 0"
+group_location_index = 17
+
+[[Hub.Group.Node.Detector]]
+id = 1
+description = "ADC Detector Channel 1"
+group_location_index = 18
+
+[[Hub.Group.Node.Detector]]
+id = 2
+description = "ADC Detector Channel 2"
+group_location_index = 19
+
+[[Hub.Group.Node.Detector]]
+id = 3
+description = "ADC Detector Channel 3"
+group_location_index = 20
+
+
+[[Hub.Group.Node]]
+node_id = 6
+dockchain_uid = "0x0000000038dd3801"
+bus_index = 1
+tile_uid = "[0x005d002c, 0x30425009, 0x2037364b]"
+hardware_version = "TIA_REV1"
+firmware_version = "0.4.0"
+revision_id = 3
+
+[[Hub.Group.Node.Source]]
+id = 1
+description = "SRCA_735nm"
+group_location_index = 16
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 2
+description = "SRCA_850nm"
+group_location_index = 16
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 4
+description = "SRCB_735nm"
+group_location_index = 17
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 8
+description = "SRCB_850nm"
+group_location_index = 17
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 16
+description = "SRCC_735nm"
+group_location_index = 18
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 32
+description = "SRCC_850nm"
+group_location_index = 18
+Source_power = 100.0
+
+[[Hub.Group.Node.Detector]]
+id = 0
+description = "ADC Detector Channel 0"
+group_location_index = 21
+
+[[Hub.Group.Node.Detector]]
+id = 1
+description = "ADC Detector Channel 1"
+group_location_index = 22
+
+[[Hub.Group.Node.Detector]]
+id = 2
+description = "ADC Detector Channel 2"
+group_location_index = 23
+
+[[Hub.Group.Node.Detector]]
+id = 3
+description = "ADC Detector Channel 3"
+group_location_index = 24
+
+
+[[Hub.Group.Node]]
+node_id = 7
+dockchain_uid = "0x0000000037766a02"
+bus_index = 1
+tile_uid = "[0x005e004e, 0x30425009, 0x2037364b]"
+hardware_version = "TIA_REV1"
+firmware_version = "0.4.0"
+revision_id = 3
+
+[[Hub.Group.Node.Source]]
+id = 1
+description = "SRCA_735nm"
+group_location_index = 19
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 2
+description = "SRCA_850nm"
+group_location_index = 19
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 4
+description = "SRCB_735nm"
+group_location_index = 20
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 8
+description = "SRCB_850nm"
+group_location_index = 20
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 16
+description = "SRCC_735nm"
+group_location_index = 21
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 32
+description = "SRCC_850nm"
+group_location_index = 21
+Source_power = 100.0
+
+[[Hub.Group.Node.Detector]]
+id = 0
+description = "ADC Detector Channel 0"
+group_location_index = 25
+
+[[Hub.Group.Node.Detector]]
+id = 1
+description = "ADC Detector Channel 1"
+group_location_index = 26
+
+[[Hub.Group.Node.Detector]]
+id = 2
+description = "ADC Detector Channel 2"
+group_location_index = 27
+
+[[Hub.Group.Node.Detector]]
+id = 3
+description = "ADC Detector Channel 3"
+group_location_index = 28
+
+
+[[Hub.Group.Node]]
+node_id = 8
+dockchain_uid = "0x0000000037766a02"
+bus_index = 1
+tile_uid = "[0x005b0069, 0x30425009, 0x2037364b]"
+hardware_version = "TIA_REV1"
+firmware_version = "0.4.0"
+revision_id = 3
+
+[[Hub.Group.Node.Source]]
+id = 1
+description = "SRCA_735nm"
+group_location_index = 22
+Source_power = 90.0
+
+[[Hub.Group.Node.Source]]
+id = 2
+description = "SRCA_850nm"
+group_location_index = 22
+Source_power = 90.0
+
+[[Hub.Group.Node.Source]]
+id = 4
+description = "SRCB_735nm"
+group_location_index = 23
+Source_power = 90.0
+
+[[Hub.Group.Node.Source]]
+id = 8
+description = "SRCB_850nm"
+group_location_index = 23
+Source_power = 90.0
+
+[[Hub.Group.Node.Source]]
+id = 16
+description = "SRCC_735nm"
+group_location_index = 24
+Source_power = 90.0
+
+[[Hub.Group.Node.Source]]
+id = 32
+description = "SRCC_850nm"
+group_location_index = 24
+Source_power = 90.0
+
+[[Hub.Group.Node.Detector]]
+id = 0
+description = "ADC Detector Channel 0"
+group_location_index = 29
+
+[[Hub.Group.Node.Detector]]
+id = 1
+description = "ADC Detector Channel 1"
+group_location_index = 30
+
+[[Hub.Group.Node.Detector]]
+id = 2
+description = "ADC Detector Channel 2"
+group_location_index = 31
+
+[[Hub.Group.Node.Detector]]
+id = 3
+description = "ADC Detector Channel 3"
+group_location_index = 32
+
+
+[[Hub.Group.Node]]
+node_id = 9
+dockchain_uid = "0x0000000037766a02"
+bus_index = 1
+tile_uid = "[0x005a0048, 0x30425009, 0x2037364b]"
+hardware_version = "TIA_REV1"
+firmware_version = "0.4.0"
+revision_id = 3
+
+[[Hub.Group.Node.Source]]
+id = 1
+description = "SRCA_735nm"
+group_location_index = 25
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 2
+description = "SRCA_850nm"
+group_location_index = 25
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 4
+description = "SRCB_735nm"
+group_location_index = 26
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 8
+description = "SRCB_850nm"
+group_location_index = 26
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 16
+description = "SRCC_735nm"
+group_location_index = 27
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 32
+description = "SRCC_850nm"
+group_location_index = 27
+Source_power = 100.0
+
+[[Hub.Group.Node.Detector]]
+id = 0
+description = "ADC Detector Channel 0"
+group_location_index = 33
+
+[[Hub.Group.Node.Detector]]
+id = 1
+description = "ADC Detector Channel 1"
+group_location_index = 34
+
+[[Hub.Group.Node.Detector]]
+id = 2
+description = "ADC Detector Channel 2"
+group_location_index = 35
+
+[[Hub.Group.Node.Detector]]
+id = 3
+description = "ADC Detector Channel 3"
+group_location_index = 36
+
+
+[[Hub.Group.Node]]
+node_id = 10
+dockchain_uid = "0x0000000037766a02"
+bus_index = 1
+tile_uid = "[0x005d0041, 0x30425009, 0x2037364b]"
+hardware_version = "TIA_REV1"
+firmware_version = "0.4.0"
+revision_id = 3
+
+[[Hub.Group.Node.Source]]
+id = 1
+description = "SRCA_735nm"
+group_location_index = 28
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 2
+description = "SRCA_850nm"
+group_location_index = 28
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 4
+description = "SRCB_735nm"
+group_location_index = 29
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 8
+description = "SRCB_850nm"
+group_location_index = 29
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 16
+description = "SRCC_735nm"
+group_location_index = 30
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 32
+description = "SRCC_850nm"
+group_location_index = 30
+Source_power = 100.0
+
+[[Hub.Group.Node.Detector]]
+id = 0
+description = "ADC Detector Channel 0"
+group_location_index = 37
+
+[[Hub.Group.Node.Detector]]
+id = 1
+description = "ADC Detector Channel 1"
+group_location_index = 38
+
+[[Hub.Group.Node.Detector]]
+id = 2
+description = "ADC Detector Channel 2"
+group_location_index = 39
+
+[[Hub.Group.Node.Detector]]
+id = 3
+description = "ADC Detector Channel 3"
+group_location_index = 40
+
+
+[[Hub.Group.Node]]
+node_id = 11
+dockchain_uid = "0x0000000037766a02"
+bus_index = 1
+tile_uid = "[0x005d0031, 0x30425009, 0x2037364b]"
+hardware_version = "TIA_REV1"
+firmware_version = "0.4.0"
+revision_id = 3
+
+[[Hub.Group.Node.Source]]
+id = 1
+description = "SRCA_735nm"
+group_location_index = 31
+Source_power = 90.0
+
+[[Hub.Group.Node.Source]]
+id = 2
+description = "SRCA_850nm"
+group_location_index = 31
+Source_power = 90.0
+
+[[Hub.Group.Node.Source]]
+id = 4
+description = "SRCB_735nm"
+group_location_index = 32
+Source_power = 90.0
+
+[[Hub.Group.Node.Source]]
+id = 8
+description = "SRCB_850nm"
+group_location_index = 32
+Source_power = 90.0
+
+[[Hub.Group.Node.Source]]
+id = 16
+description = "SRCC_735nm"
+group_location_index = 33
+Source_power = 90.0
+
+[[Hub.Group.Node.Source]]
+id = 32
+description = "SRCC_850nm"
+group_location_index = 33
+Source_power = 90.0
+
+[[Hub.Group.Node.Detector]]
+id = 0
+description = "ADC Detector Channel 0"
+group_location_index = 41
+
+[[Hub.Group.Node.Detector]]
+id = 1
+description = "ADC Detector Channel 1"
+group_location_index = 42
+
+[[Hub.Group.Node.Detector]]
+id = 2
+description = "ADC Detector Channel 2"
+group_location_index = 43
+
+[[Hub.Group.Node.Detector]]
+id = 3
+description = "ADC Detector Channel 3"
+group_location_index = 44
+
+
+[[Hub.Group.Node]]
+node_id = 12
+dockchain_uid = "0x0000000037766a02"
+bus_index = 1
+tile_uid = "[0x005e0064, 0x30425009, 0x2037364b]"
+hardware_version = "TIA_REV1"
+firmware_version = "0.4.0"
+revision_id = 3
+
+[[Hub.Group.Node.Source]]
+id = 1
+description = "SRCA_735nm"
+group_location_index = 34
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 2
+description = "SRCA_850nm"
+group_location_index = 34
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 4
+description = "SRCB_735nm"
+group_location_index = 35
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 8
+description = "SRCB_850nm"
+group_location_index = 35
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 16
+description = "SRCC_735nm"
+group_location_index = 36
+Source_power = 100.0
+
+[[Hub.Group.Node.Source]]
+id = 32
+description = "SRCC_850nm"
+group_location_index = 36
+Source_power = 100.0
+
+[[Hub.Group.Node.Detector]]
+id = 0
+description = "ADC Detector Channel 0"
+group_location_index = 45
+
+[[Hub.Group.Node.Detector]]
+id = 1
+description = "ADC Detector Channel 1"
+group_location_index = 46
+
+[[Hub.Group.Node.Detector]]
+id = 2
+description = "ADC Detector Channel 2"
+group_location_index = 47
+
+[[Hub.Group.Node.Detector]]
+id = 3
+description = "ADC Detector Channel 3"
+group_location_index = 48
+
+

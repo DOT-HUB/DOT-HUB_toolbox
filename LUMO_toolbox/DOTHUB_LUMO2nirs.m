@@ -155,15 +155,16 @@ nIntFiles = length(metadata.intensity_files);
 for i = 1:nIntFiles
     disp(['Loading intensity data file ' num2str(i) ' of ' num2str(nIntFiles) '...']);
     fname = metadata.intensity_files{1,i}.file_name;
-    time_range = metadata.intensity_files{1,i}.time_range;
+    %time_range = metadata.intensity_files{1,i}.time_range;
     fileID = fopen([lumoDIR '/' fname]);
     int(i).magic = fread(fileID,1);
     int(i).major_version = fread(fileID,1);
     int(i).minor_version = fread(fileID,1);
     int(i).patch = fread(fileID,1,'uint8',4);
     int(i).recordings_per_frame = fread(fileID,1,'uint64');
-    int(i).nframe = fread(fileID,1,'uint64',24);
+    int(i).nframe = fread(fileID,1,'uint64',24); %skip checksum
     int(i).data = fread(fileID,[int(i).recordings_per_frame int(i).nframe],'float32')';
+    fclose(fileID);
 end
 
 % #########################################################################
@@ -370,10 +371,10 @@ if n_zeros > 0
     if max(dists_3D) >= SDS_noise
         noisefloorest = mean(mnD(dists_3D>SDS_noise));
         d(d == 0) = noisefloorest;
-        disp([newline 'Warning - zero intensity values have been converted to noise floor estimate'])
+        disp(['Warning - zero intensity values have been converted to noise floor estimate'])
     else
         d(d == 0) = 1e-6;
-        disp([newline 'Warning - zero intensity values have been converted to 1e-6'])
+        disp(['Warning - zero intensity values have been converted to 1e-6'])
     end
 end
 

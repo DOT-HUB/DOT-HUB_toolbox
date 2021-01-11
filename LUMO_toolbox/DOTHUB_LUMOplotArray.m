@@ -116,8 +116,8 @@ nPlotsY = length(unique(pos(:,2)));
 %nPlotsX_border = nPlotsX + 4;
 %nPlotsY_border = nPlotsY + 4;
 
-plotWidth = 2*overSizeRatios(1)/nPlotsX; %This approach assumes plot distribution is 0.5*continuous.
-plotHeight = 2*overSizeRatios(2)/nPlotsY; %Seems a reasonable approximation
+plotWidth = 8*overSizeRatios(1)/nPlotsX; % There is no correct way of doing this because it is array dependent. 
+plotHeight = 5*overSizeRatios(2)/nPlotsY; % These values provide reasonable proportions for LUMO12 array
 
 %Normalise positioning values for plotting
 pos_cent = pos - repmat(centre,size(pos,1),1);

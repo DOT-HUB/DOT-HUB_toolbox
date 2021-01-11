@@ -1,0 +1,17 @@
+lumo_file_version = "0.1.1"
+software_version = "0.5.0"
+
+[file_names]
+recordingdata_file = "recordingdata.toml"
+event_file = "events.toml"
+hardware_file = "hardware.toml"
+layout_file = "layout.json"
+log_file = "lumo.log"
+
+[[intensity_files]]
+file_name = "intensity_01.bin"
+time_range = [100,758500]
+
+[[intensity_files]]
+file_name = "intensity_02.bin"
+time_range = [758600,1517000]

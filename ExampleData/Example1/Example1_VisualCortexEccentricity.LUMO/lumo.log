@@ -1,0 +1,162 @@
+┌ Info: C:\Users\neolab\Documents\Gowerlabs\Lumo\Hyper24_14_Visual_22-7-2020_10-29.LUMO\metadata.toml
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\fileStream.jl:929
+┌ Info: HiveNSI: ACQ: controller state transition NSIACQ_STREAMING -> NSIACQ_RECORDING
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\hive.jl:211
+┌ Info: state: 3
+│ substate: 0 
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\hive.jl:449
+┌ Info: HiveNSI: event recieved: "$" at 1595413747179
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "R" at 1595413772130
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "r" at 1595414492143
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "C" at 1595414626226
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "A" at 1595414654282
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "B" at 1595414679303
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "D" at 1595414705314
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "C" at 1595414733383
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "A" at 1595414763409
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "B" at 1595414790421
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "D" at 1595414819506
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "A" at 1595414845506
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "C" at 1595414873506
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "B" at 1595414898535
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "D" at 1595414927583
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "D" at 1595414957614
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "A" at 1595414985645
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "C" at 1595415011681
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "B" at 1595415040728
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "B" at 1595415065770
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "C" at 1595415093788
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "A" at 1595415120813
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "D" at 1595415150832
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "B" at 1595415175882
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "A" at 1595415201925
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "C" at 1595415228940
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "D" at 1595415256007
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "C" at 1595415284013
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "D" at 1595415312037
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "A" at 1595415338083
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "B" at 1595415364115
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "D" at 1595415391186
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "B" at 1595415420186
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "C" at 1595415446216
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "A" at 1595415474281
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "D" at 1595415502314
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "C" at 1595415528322
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "A" at 1595415554387
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "B" at 1595415583374
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "B" at 1595415609426
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "D" at 1595415635436
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "A" at 1595415661509
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "C" at 1595415689501
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595415823127
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595415859281
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595415895344
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595415931521
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595415967681
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416003883
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416040114
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416076244
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416112394
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416148625
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416184879
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416220994
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416257126
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416293432
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416329489
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416365704
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416401845
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416438028
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416474138
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416511382
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416547506
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416583724
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416619813
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416655933
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416692230
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416728415
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416764624
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416800721
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416836810
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: event recieved: "1" at 1595416872930
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:261
+┌ Info: HiveNSI: Request stream start.
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:115
+┌ Info: HiveNSI:  Auto Level
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\api\v1.jl:131
+┌ Info: HiveNSI: ACQ: controller command NSI_TO_STREAM
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\hive.jl:38
+┌ Info: state: 3
+│ substate: 2 
+└ @ HiveNSI C:\Users\Samuel Powell\.julia\packages\HiveNSI\8V0Jp\src\hive.jl:449

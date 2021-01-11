@@ -1,5 +1,5 @@
 % DOT-HUB toolbox Pipeline Example 1.
-% !!!! WORK IN PROGRESS !!!!
+
 % What follows is an example of a wrapper script that employs the main 
 % steps of the toolbox. Most steps output variables into the work
 % space and also writes them out as the key file types, so you can comment 
@@ -22,7 +22,7 @@
 
 %% Specify paths of pre-defined elements (.LUMO, atlas .mshs, Homer2 preprocessing .cfg file).
 [filepath,~,~] = fileparts(mfilename('fullpath'));
-LUMODirName = [filepath '/ExampleData/Example1/Example1_VisualEccentricity.LUMO'];
+LUMODirName = [filepath '/ExampleData/Example1/Example1_VisualCortexEccentricity.LUMO'];
 origMeshFileName = [filepath '/ExampleMeshes/AdultMNI152.mshs'];
 cfgFileName = [filepath '/ExampleData/Example1/preproPipelineExample1.cfg'];
 
@@ -36,32 +36,34 @@ DOTHUB_dataQualityCheck(nirsFileName);
 %pause 
 
 %% Run Homer2 pre-processing pipeline line by line, then write .prepro file:
-% dod = hmrIntensity2OD(nirs.d);
-% SD3D = enPruneChannels(nirs.d,nirs.SD3D,ones(size(nirs.t)),[0 1e6],12,[0 100],1); 
-% SD2D = nirs.SD; SD2D.MeasListAct = SD3D.MeasListAct;
-% dod = hmrBandpassFilt(dod,nirs.t,0,0.5);
-% dc = hmrOD2Conc(dod,SD3D,[6 6]);
-% dc = dc*1e6; Homer works in Molar by default, we use uMolar.
-% dc = DOTHUB_hmrSSRegressionByChannel(dc,SD3D,11,4); %This is a custom SS regression script. 
-% [dcAvg,dcAvgStd,tHRF] = hmrBlockAvg(dc,nirs.s,nirs.t,[-5 25]);;
-% Convert back to dod for reconstruction
-% dodRecon = DOTHUB_hmrConc2OD(dcAvg,SD3D,[6 6]);
-% tDOD = tHRF;
-% % Use code snippet from DOTHUB_writePREPRO to define contents of logs:
-% [pathstr, name, ~] = fileparts(nirsFileName);
-% ds = datestr(now,'yyyymmDDHHMMSS');
-% preproFileName = fullfile(pathstr,[name '.prepro']);
-% logData(1,:) = {'Created on: '; ds};
-% logData(2,:) = {'Derived from data: ', nirsFileName};
-% logData(3,:) = {'Pre-processed using:', mfilename('fullpath')};
-% 
-% [prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,dodRecon,tDOD,SD3D,nirs.s,dcAvg,dcAvgStd,tHRF,nirs.CondNames,SD2D)
+dod = hmrIntensity2OD(nirs.d);
+SD3D = enPruneChannels(nirs.d,nirs.SD3D,ones(size(nirs.t)),[0 1e6],12,[0 100],1); 
+SD2D = nirs.SD; SD2D.MeasListAct = SD3D.MeasListAct;
+dod = hmrBandpassFilt(dod,nirs.t,0,0.5);
+dc = hmrOD2Conc(dod,SD3D,[6 6]);
+dc = dc*1e6; %Homer works in Molar by default, we use uMolar.
+%dc = DOTHUB_hmrSSRegressionByChannel(dc,SD3D,11,1); %This is a custom SS regression script. 
+[dcAvg,dcAvgStd,tHRF] = hmrBlockAvg(dc,nirs.s,nirs.t,[-5 25]);
+%Convert back to dod for reconstruction
+dodRecon = DOTHUB_hmrConc2OD(dcAvg,SD3D,[6 6]);
+tDOD = tHRF;
+% Use code snippet from DOTHUB_writePREPRO to define contents of logs:
+[pathstr, name, ~] = fileparts(nirsFileName);
+ds = datestr(now,'yyyymmDDHHMMSS');
+preproFileName = fullfile(pathstr,[name '.prepro']);
+logData(1,:) = {'Created on: '; ds};
+logData(2,:) = {'Derived from data: ', nirsFileName};
+logData(3,:) = {'Pre-processed using:', mfilename('fullpath')};
+[prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,dodRecon,tDOD,SD3D,nirs.s,dcAvg,dcAvgStd,tHRF,nirs.CondNames,SD2D);
+
+
 % Alternatively, you can run a Homer2 pipeline based on a .cfg file and
 % create a .prepro file automatically using:
-[prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileName);
+%[prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileName);
 
 %% Plot prepro HRF results as array map if desired. Make sure you parse the 2D version of the array.
-y = squeeze(prepro.dcAvg(:,:,:,condition)); %Crop out chosen condition to plot
+conditionToPlot = 1;
+y = squeeze(prepro.dcAvg(:,:,:,conditionToPlot)); %Crop out chosen condition to plot
 figure
 DOTHUB_LUMOplotArray(y,prepro.tHRF,prepro.SD2D);
 
