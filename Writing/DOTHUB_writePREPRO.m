@@ -1,4 +1,4 @@
-function [prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,dod,tDOD,SD3D,s,dcAvg,dcAvgStd,tHRF,condNames)
+function [prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,dod,tDOD,SD3D,s,dcAvg,dcAvgStd,tHRF,condNames,SD2D)
 
 % This script creates a .prepro file, containing pre-processed HD-DOT data. 
 % The .pre file is primarily designed to support image reconstruction, 
@@ -65,6 +65,9 @@ function [prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,do
 %
 % condNames         :   (Optional) Cell array of length (nConditions) with
 %                       name of condition (as per Homer2)
+%
+% SD2D              :   (Optional) Two dimensional version of SD (for array
+%                       HRF display purposes this can be useful
 %
 % ####################### OUTPUTS #########################################
 %
@@ -133,6 +136,12 @@ end
 if exist('condNames','var')
     if ~isempty(condNames)
         prepro.condNames = condNames;
+    end
+end
+
+if exist('SD2D','var')
+    if ~isempty(SD2D)
+        prepro.SD2D = SD2D;
     end
 end
 
