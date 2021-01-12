@@ -69,6 +69,7 @@ DOTHUB_LUMOplotArray(y,prepro.tHRF,prepro.SD2D);
 
 %% Register chosen mesh to subject SD3D and create rmap
 [rmap, rmapFileName] = DOTHUB_meshRegistration(nirsFileName,origMeshFileName);
+figure;
 DOTHUB_plotRMAP(rmap)
 
 %% Calculate Jacobian 
