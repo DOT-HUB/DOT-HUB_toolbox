@@ -1,0 +1,12 @@
+*.m~
+*.prepro
+*.rmap
+*.jac
+*.invjac
+*.qm
+*.dotimg
+*.jpg
+*.txt
+*.nii
+*.nirs
+*.SD3D
