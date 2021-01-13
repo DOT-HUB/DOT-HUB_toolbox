@@ -20,22 +20,29 @@
 
 %% Specify paths of pre-defined elements (.LUMO, atlas .mshs, Homer2 preprocessing .cfg file).
 [filepath,~,~] = fileparts(mfilename('fullpath'));
-LUMODirName = [filepath '/ExampleData/Example1/Example1_VisualEccentricity.LUMO'];
+LUMODirName = [filepath '/ExampleData/Example2/Example2_VisualCortexEccentricity.LUMO'];
 origMeshFileName = [filepath '/ExampleMeshes/AdultMNI152.mshs'];
-cfgFileName = [filepath '/ExampleData/Example1/preproPipelineExample1.cfg'];
+cfgFileName = [filepath '/ExampleData/Example2/preproPipelineExample2.cfg'];
 posCSVFileName = [filepath '/ExampleData/Example2/Example2_Polhemus.csv'];
 
-%% Covert .LUMO to .nirs
+%% Covert .LUMO to .nirs - here is the only real difference with example pipeline 1 - we call the polhemus data.
 [nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirs(LUMODirName, [], posCSVFileName);
 
-%% Run data quality checks
-DOTHUB_dataQualityCheck(nirsFileName);
-
+%% Run data quality checks - this produces multiple figures, so comment out for speed.
+%DOTHUB_dataQualityCheck(nirsFileName);
 %disp('Examine data quality figures, press any key to continue');
 %pause 
 
 %% Run Homer2 pre-processing pipeline 
 [prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileName);
+
+
+%% Plot prepro HRF results as array map if desired. Make sure you parse the 2D version of the array.
+conditionToPlot = 1;
+y = squeeze(prepro.dcAvg(:,:,:,conditionToPlot)); %Crop out chosen condition to plot
+figure;
+DOTHUB_LUMOplotArray(y,prepro.tHRF,prepro.SD2D);
+
 
 %% Register chosen mesh to subject SD3D and create rmap
 [rmap, rmapFileName] = DOTHUB_meshRegistration(nirsFileName,origMeshFileName);
