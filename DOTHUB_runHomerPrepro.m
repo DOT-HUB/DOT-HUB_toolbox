@@ -77,7 +77,6 @@ hmr = load(nirsFileName,'-mat');
 SD2D = hmr.SD;
 hmr.SD = hmr.SD3D;
 
-
 % Load .cfg
 fid = fopen(cfgFileName,'r');
 [procInput, ~] = parseProcessOpt(fid);
@@ -203,6 +202,7 @@ nWavs = length(SD.Lambda);
 tmp = reshape(SD.MeasListAct,length(SD.MeasListAct)/nWavs,nWavs);
 tmp2 = ~any(tmp'==0)';
 SD3D.MeasListAct = repmat(tmp2,nWavs,1);
+SD2D.MeasListAct = SD3D.MeasListAct;
 if fullFlag %Full timecourse is to be reconstructed
     dodRecon = dod;
     tRecon = t;
