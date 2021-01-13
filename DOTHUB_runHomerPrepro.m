@@ -201,8 +201,8 @@ delete(wb);
 SD3D = SD;
 nWavs = length(SD.Lambda);
 tmp = reshape(SD.MeasListAct,length(SD.MeasListAct)/nWavs,nWavs);
-tmp2 = any(tmp'==0)';
-SD3D.MeasListAct = repmat(tmp2,2,1);
+tmp2 = ~any(tmp'==0)';
+SD3D.MeasListAct = repmat(tmp2,nWavs,1);
 if fullFlag %Full timecourse is to be reconstructed
     dodRecon = dod;
     tRecon = t;

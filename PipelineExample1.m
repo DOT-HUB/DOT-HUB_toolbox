@@ -30,23 +30,40 @@ cfgFileName = [filepath '/ExampleData/Example1/preproPipelineExample1.cfg'];
 [nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirs(LUMODirName);
 
 %% Run data quality checks
-DOTHUB_dataQualityCheck(nirsFileName);
+%DOTHUB_dataQualityCheck(nirsFileName);
 
 %disp('Examine data quality figures, press any key to continue');
 %pause 
 
-%% Run Homer2 pre-processing pipeline line by line, then write .prepro file:
+%% Run Homer2 pre-processing pipeline line by line, then write .prepro file (alternatively you can call a .cfg file, see below).
 dod = hmrIntensity2OD(nirs.d);
-SD3D = enPruneChannels(nirs.d,nirs.SD3D,ones(size(nirs.t)),[0 1e6],12,[0 100],1); 
-SD2D = nirs.SD; SD2D.MeasListAct = SD3D.MeasListAct;
+SD3D = enPruneChannels(nirs.d,nirs.SD3D,ones(size(nirs.t)),[0 1e11],12,[0 100],0); 
+
+%Force MeasListAct to be the same across wavelengths
+nWavs = length(SD3D.Lambda);
+tmp = reshape(SD3D.MeasListAct,length(SD3D.MeasListAct)/nWavs,nWavs);
+tmp2 = ~any(tmp'==0)';
+SD3D.MeasListAct = repmat(tmp2,nWavs,1);
+
+%Set SD2D
+SD2D = nirs.SD; 
+SD2D.MeasListAct = SD3D.MeasListAct;
+
+%Convert to DOD
 dod = hmrBandpassFilt(dod,nirs.t,0,0.5);
 dc = hmrOD2Conc(dod,SD3D,[6 6]);
 dc = dc*1e6; %Homer works in Molar by default, we use uMolar.
+
+%Regress short channels
 %dc = DOTHUB_hmrSSRegressionByChannel(dc,SD3D,11,1); %This is a custom SS regression script. 
+
+%Block avg
 [dcAvg,dcAvgStd,tHRF] = hmrBlockAvg(dc,nirs.s,nirs.t,[-5 25]);
+
 %Convert back to dod for reconstruction
 dodRecon = DOTHUB_hmrConc2OD(dcAvg,SD3D,[6 6]);
 tDOD = tHRF;
+
 % Use code snippet from DOTHUB_writePREPRO to define contents of logs:
 [pathstr, name, ~] = fileparts(nirsFileName);
 ds = datestr(now,'yyyymmDDHHMMSS');
@@ -56,16 +73,16 @@ logData(2,:) = {'Derived from data: ', nirsFileName};
 logData(3,:) = {'Pre-processed using:', mfilename('fullpath')};
 [prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,dodRecon,tDOD,SD3D,nirs.s,dcAvg,dcAvgStd,tHRF,nirs.CondNames,SD2D);
 
-
-% Alternatively, you can run a Homer2 pipeline based on a .cfg file and
-% create a .prepro file automatically using:
+% Alternatively, you can run all of this as a Homer2 pipeline based on a 
+%.cfg file and create a .prepro file automatically using:
 %[prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileName);
 
 %% Plot prepro HRF results as array map if desired. Make sure you parse the 2D version of the array.
 conditionToPlot = 1;
-y = squeeze(prepro.dcAvg(:,:,:,conditionToPlot)); %Crop out chosen condition to plot
+%y = squeeze(prepro.dcAvg(:,:,:,conditionToPlot)); %Crop out chosen condition to plot
+y = squeeze(dcAvg(:,:,:,conditionToPlot));
 figure
-DOTHUB_LUMOplotArray(y,prepro.tHRF,prepro.SD2D);
+DOTHUB_LUMOplotArray(y,prepro.tHRF,SD2D);
 
 %% Register chosen mesh to subject SD3D and create rmap
 [rmap, rmapFileName] = DOTHUB_meshRegistration(nirsFileName,origMeshFileName);
