@@ -80,6 +80,9 @@ if ~exist('lumoDIR','var')
 elseif isempty(lumoDIR)
     disp('Select .LUMO directory...');
     lumoDIR = uigetdir(pwd,'Select .LUMO directory');
+elseif ~exist(lumoDIR,'dir')
+    disp('Specified directory not found, please select .LUMO directory...');
+    lumoDIR = uigetdir(pwd,'Select .LUMO directory');
 end
 
 %Ensure full path
