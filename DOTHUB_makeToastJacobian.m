@@ -130,7 +130,7 @@ end
 
 % Check for erroneous nodes 
 elem_tmp = headVolumeMesh.elem(:,1:4);
-node_tmp = headVolumeMesh.node(:,1:3);
+node_tmp = headVolumeMesh.node; %leave 4th column in place if exists;
 included_nodes = ismember(1:nNodeVol,elem_tmp(:));
 errnodes_ind = find(~included_nodes);
 if ~isempty(errnodes_ind)
@@ -142,18 +142,21 @@ if ~isempty(errnodes_ind)
         elem_tmp(elem_tmp > (errnodes_ind(wav)-(wav-1))) = elem_tmp(elem_tmp > (errnodes_ind(wav)-(wav-1)))-1;
     end
     
-    included_nodes = ismember(1:length(node_corr),elem_tmp(:));
+    included_nodes = ismember(1:size(node_corr,1),elem_tmp(:));
     errnodes_ind = find(~included_nodes,1);
     if isempty(errnodes_ind)
         fprintf('Erroneous nodes removed...\n');
         headVolumeMesh.node = node_corr;
         headVolumeMesh.elem(:,1:4) = elem_tmp;
+        nNodeVol = size(headVolumeMesh.node,1);
         clear elem_tmp node_tmp node_corr included_nodes errnodes_ind
         rewriteRMAP = 1;
     else
         error('Correction failed: erroneous nodes remain in rmap.headVolumeMesh');
     end
 end
+
+% Update nNodeVol
 
 % Clear MEX
 clear MEX
@@ -196,21 +199,21 @@ refIndVec = zeros(nWavs,nNodeVol);
 
 % Determine tissue optical properties and populate vectors
 nTissues = length(headVolumeMesh.labels);
-for wav = 1:nTissues
-    tmpInd = find(strcmpi({'scalp','skull','ECT','CSF','GM','WM'},headVolumeMesh.labels{wav}), 1);
+for tiss = 1:nTissues
+    tmpInd = find(strcmpi({'scalp','skull','ECT','CSF','GM','WM'},headVolumeMesh.labels{tiss}), 1);
     if isempty(tmpInd)
-        error('Unknown tissue label, please correct rmap.headVolumeMesh.labels abd try again');
+        error('Unknown tissue label, please correct rmap.headVolumeMesh.labels and try again');
     end
-    tissueNodeList = headVolumeMesh.node(:,4)==wav;
-    for j = 1:nWavs
-        [mua, musPrime, refInd] = DOTHUB_getTissueCoeffs(headVolumeMesh.labels{wav},wavelengths(j));%Potentially update this to be age-specific?
-        muaVec(j,tissueNodeList) = mua;
-        musPrimeVec(j,tissueNodeList) = musPrime;
-        refIndVec(j,tissueNodeList) = refInd;
+    tissueNodeList = headVolumeMesh.node(:,4)==tiss;
+    for wav = 1:nWavs
+        [mua, musPrime, refInd] = DOTHUB_getTissueCoeffs(headVolumeMesh.labels{tiss},wavelengths(wav));%Potentially update this to be age-specific?
+        muaVec(wav,tissueNodeList) = mua;
+        musPrimeVec(wav,tissueNodeList) = musPrime;
+        refIndVec(wav,tissueNodeList) = refInd;
         
-        opticalPropertiesByTissue(wav,j,1) = mua;
-        opticalPropertiesByTissue(wav,j,2) = musPrime;
-        opticalPropertiesByTissue(wav,j,3) = refInd;
+        opticalPropertiesByTissue(tiss,wav,1) = mua;
+        opticalPropertiesByTissue(tiss,wav,2) = musPrime;
+        opticalPropertiesByTissue(tiss,wav,3) = refInd;
     end
 end
 
