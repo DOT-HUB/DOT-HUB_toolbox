@@ -146,11 +146,19 @@ if ~isempty(errnodes_ind)
     errnodes_ind = find(~included_nodes,1);
     if isempty(errnodes_ind)
         fprintf('Erroneous nodes removed...\n');
+        %Update headVolumeMesh
         headVolumeMesh.node = node_corr;
         headVolumeMesh.elem(:,1:4) = elem_tmp;
+        rmap.headVolumeMesh = headVolumeMesh;
+        %Upate node count
         nNodeVol = size(headVolumeMesh.node,1);
-        clear elem_tmp node_tmp node_corr included_nodes errnodes_ind
+        %Update vol2GM
+        vol2gm = vol2gm(:,included_nodes);
+        rmap.vol2gm;
+        %Flag to overwrite rmap
         rewriteRMAP = 1;
+        clear elem_tmp node_tmp node_corr included_nodes errnodes_ind
+        
     else
         error('Correction failed: erroneous nodes remain in rmap.headVolumeMesh');
     end
@@ -180,6 +188,9 @@ if any(hMesh.ElementSize()<0)
     else
         fprintf('Reconfiguration successful...\n');
     end
+    %Update headVolumeMesh
+    rmap.headVolumeMesh = headVolumeMesh;
+    %Flag to overwrite rmap
     rewriteRMAP = 1;
 end
 
@@ -187,7 +198,7 @@ end
 if rewriteRMAP
     fprintf('Updating .rmap file with corrected headVolumeMesh \n');
     rmap.logData(end+1,:) = {'File updated by DOTHUB_makeToastJacobian on ',datestr(now,'yyyymmDDHHMMSS')};
-    DOTHUB_writeRMAP(rmapFileName,rmap.logData,rmap.SD3Dmesh,headVolumeMesh,rmap.gmSurfaceMesh,rmap.scalpSurfaceMesh,rmap.vol2gm);
+    DOTHUB_writeRMAP(rmapFileName,rmap.logData,rmap.SD3Dmesh,headVolumeMesh,rmap.gmSurfaceMesh,rmap.scalpSurfaceMesh,vol2gm);
 end
 
 % #########################################################################
