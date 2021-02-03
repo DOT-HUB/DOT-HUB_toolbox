@@ -145,11 +145,11 @@ hexCornersArray(:,2) = hexCornersArray(:,2)*(borderScal);
 
 allpos = [pos_cent;hexCornersArray];
 %Re-center x
-pos_cent(:,1) = pos_cent(:,1) - (range(allpos(:,1))/2) +  min(allpos(:,1)) + 0.5;
-hexCornersArray(:,1) = hexCornersArray(:,1) - (range(allpos(:,1))/2) +  min(allpos(:,1)) + 0.5;
+pos_cent(:,1) = pos_cent(:,1) - (DOTHUB_range(allpos(:,1))/2) +  min(allpos(:,1)) + 0.5;
+hexCornersArray(:,1) = hexCornersArray(:,1) - (DOTHUB_range(allpos(:,1))/2) +  min(allpos(:,1)) + 0.5;
 %Re-center y with offset for gnomons
-pos_cent(:,2) = pos_cent(:,2) - (range(allpos(:,2))/2) +  min(allpos(:,2)) + 0.55;
-hexCornersArray(:,2) = hexCornersArray(:,2) - (range(allpos(:,2))/2) +  min(allpos(:,2)) + 0.55;
+pos_cent(:,2) = pos_cent(:,2) - (DOTHUB_range(allpos(:,2))/2) +  min(allpos(:,2)) + 0.55;
+hexCornersArray(:,2) = hexCornersArray(:,2) - (DOTHUB_range(allpos(:,2))/2) +  min(allpos(:,2)) + 0.55;
 
 %Pos_cent is now the centre position of each axis, need to convert this to
 %the position from left and bottom
@@ -216,7 +216,7 @@ axGnomon = axes;
 ylim(yl);
 xlim([tHRF(1) tHRF(end)]);
 set(axGnomon,'Position',[0.4 0.05 gnomonWidth gnomonHeight],'LineWidth',3,'FontSize',10,'YTick',[],'XTick',[]);
-xlabel([num2str(range(tHRF),'%2.1f') ' s']);
+xlabel([num2str(DOTHUB_range(tHRF),'%2.1f') ' s']);
 ylabel([num2str(sum(abs(yl)),'%2.1f') ' µM']);
 
 %Add Legend
@@ -232,7 +232,7 @@ set(legHand,'Position',[0.6-gnomonWidth 0.05 gnomonWidth gnomonHeight]);
 axis off
 
 %Size figure to ensure hexagon aspect ratio is correct.
-h = range(allposOrig(:,2))/range(allposOrig(:,1));
+h = DOTHUB_range(allposOrig(:,2))/DOTHUB_range(allposOrig(:,1));
 tmp = get(hFig,'Position');
 tmp(4) = tmp(3)*h;
 set(hFig,'Position',tmp);

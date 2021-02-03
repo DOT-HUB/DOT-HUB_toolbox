@@ -33,7 +33,7 @@ end
 dists = DOTHUB_getSDdists(SD);
 dists = [dists dists];
 
-fs = length(t)/range(t);
+fs = length(t)/DOTHUB_range(t);
 [psd,freq] = periodogram(d,rectwin(size(d,1)),size(d,1),fs,'psd');
 psddb = 10*log10(psd);
 plot(freq,psddb(:,SD.MeasListAct==1));

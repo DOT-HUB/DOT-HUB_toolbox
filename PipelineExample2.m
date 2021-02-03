@@ -63,7 +63,7 @@ basis = [30 30 30];
 
 %% Display peak response results on atlas surface and in volume
 timeRange = [10 15]; %seconds post-onset
-fs = length(dotimg.tImg)./range(dotimg.tImg);
+fs = length(dotimg.tImg)./DOTHUB_range(dotimg.tImg);
 frameRange = round((timeRange + abs(min(dotimg.tImg))).*fs);
 frames = frameRange(1):frameRange(2);
 DOTHUB_plotSurfaceDOTIMG(dotimg,rmap,frames,'condition',3,'view',[0 20]);
