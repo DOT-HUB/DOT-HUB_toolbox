@@ -185,7 +185,7 @@ if strcmpi(varInputs.reconMethod,'standard')
                     [~,ind] = min(abs(prepro.tDOD));
                     covData = prepro.dod(1:ind,:);
                 else %take first 30 seconds, or 10% of data, whichever is less.
-                    if range(tDOD)< 30
+                    if DOTHUB_range(tDOD)< 30
                         covData = prepro.dod;
                     else
                         fs = 1/mean(diff(tDOD));
@@ -283,7 +283,7 @@ if strcmpi(varInputs.reconMethod,'multispectral')
                 [~,ind] = min(abs(prepro.tDOD));
                 covData = prepro.dod(1:ind,:);
             else %take first 30 seconds, or 10% of data, whichever is less.
-                if range(tDOD)< 30
+                if DOTHUB_range(tDOD)< 30
                     covData = prepro.dod;
                 else
                     fs = 1/mean(diff(tDOD));

@@ -78,7 +78,7 @@ if (timeSelectFlag==1)
     while my_ans == 'n'
         fig1 = figure; set(fig1, 'units', 'normalized', 'outerposition', [0 0 0.8 0.8], 'color', [1 1 1])
         if size(d,2) >= 500
-            plot(datasample(d,500,2));
+            plot(d(:,randi(size(d, 2),[500, 1])));
         else
             plot(d);
         end
@@ -115,7 +115,7 @@ if (timeSelectFlag==1)
             
             fig1 = figure; set(fig1, 'units', 'normalized', 'outerposition', [0 0 0.8 0.8], 'color', [1 1 1])
             if size(d,2) >= 500
-                plot(datasample(d,500,2));
+                plot(d(:,randi(size(d, 2),[500, 1])));
             else
                 plot(d);
             end
@@ -165,7 +165,7 @@ end
 %an estimate is very useful to allow the other metrics to be evaluated on
 %non-motion-corrupted data. Problem is, this is very system specific, so
 if timeSelectFlag==0
-    fs = length(t)/range(t);
+    fs = length(t)/DOTHUB_range(t);
     SDtmp.MeasListAct = ones(size(SDtmp.MeasList,1),1);
     SDtmp.MeasListAct = ([dists dists] <20)'; %look for motion in short channels only
     tMotionArtifact = hmrMotionArtifact(d,fs,SDtmp,ones(length(t),1),1,1,10,0.5);
@@ -226,7 +226,7 @@ DOTHUB_plotIntMatrix(d,SD)
 diary(fullfile(fpath,[fname '_dataQualityCheck.txt']));
 noisefloorest = mean(mean(dcrop(:,(dists>70))));
 if timeSelectFlag==0
-    fprintf(['Estimated motion burden = ' num2str(100*sum(~tMotionArtifact)*(1/fs)/range(t),'%0.1f') ' %% of recording\n']);
+    fprintf(['Estimated motion burden = ' num2str(100*sum(~tMotionArtifact)*(1/fs)/DOTHUB_range(t),'%0.1f') ' %% of recording\n']);
 end
 fprintf(['Estimated noise floor = ' num2str(noisefloorest,'%0.2e') '\n']);
 rng = [0 20];
