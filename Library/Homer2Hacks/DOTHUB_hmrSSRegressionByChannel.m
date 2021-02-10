@@ -327,10 +327,10 @@ elseif length(size(y)) == 3 %DC DATA
             if ~any(isnan(ssChan))
                 B = pinv(ssChan)*lChan;
                 tmpReg = lChan - B*ssChan;
-                y_reg(:,i) = tmpReg;
+                y_reg(:,j,i) = tmpReg;
             else
                 disp(['No local short channels found for channel ' num2str(i)]);
-                y_reg(:,i) = lChan;
+                y_reg(:,j,i) = lChan;
             end
         end
         tmpHbT = squeeze(y_reg(:,1,i)) + squeeze(y_reg(:,2,i));
