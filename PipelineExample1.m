@@ -36,9 +36,9 @@ cfgFileName = [filepath '/ExampleData/Example1/preproPipelineExample1.cfg'];
 
 %% Run Homer2 pre-processing pipeline using .cfg file. Alternatively you can run line by line (as per commented below).
 
-[prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileName);
+%[prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileName);
 
-%Equivalent line-by-line Homer2 calls and prepro write:
+% %%%%Equivalent line-by-line Homer2 calls and prepro write:
 % dod = hmrIntensity2OD(nirs.d);
 % SD3D = enPruneChannels(nirs.d,nirs.SD3D,ones(size(nirs.t)),[0 1e11],12,[0 100],0); 
 % 
@@ -58,7 +58,7 @@ cfgFileName = [filepath '/ExampleData/Example1/preproPipelineExample1.cfg'];
 % dc = dc*1e6; %Homer works in Molar by default, we use uMolar.
 % 
 % %Regress short channels
-% %dc = DOTHUB_hmrSSRegressionByChannel(dc,SD3D,11,1); %This is a custom SS regression script. 
+% dc = DOTHUB_hmrSSRegressionByChannel(dc,SD3D,12,1); %This is a custom SS regression script. 
 % 
 % %Block avg
 % [dcAvg,dcAvgStd,tHRF] = hmrBlockAvg(dc,nirs.s,nirs.t,[-5 25]);
