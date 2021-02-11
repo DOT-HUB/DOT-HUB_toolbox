@@ -2,21 +2,23 @@
 %
 % What follows is an example of a wrapper script that employs the main 
 % steps of the toolbox. Most steps output variables into the work
-% space and writes them as the key file types, so you can easily comment 
+% space and also writes them out as the key file types, so you can comment 
 % out steps as you work through them and pick up where you left off, rather
-% than re-running every step. 
-
+% than re-running every step. The whole script runs in ~12 minutes on a 2018
+% MacBook Pro with 16Gb RAM.
+%
 % Example 2 shows the application of the toolbox to LUMO data when
 % subject-specific information about the position of the optodes is
-% available but we don't have subject-specific structural MRI;
-% we use an adult atlas.
+% available (in the form of a CSV) but we don't have subject-specific 
+% structural MRI, so we use an adult atlas.
 %
 % The dataset is an adult visual eccentricity experiment equivalent to that
 % described in Vidal-Rosas et. al. 2021(?) Neurophotonics (in review):
 % "Evaluating a new generation of wearable high-density diffuse optical
 % tomography technology via retinotopic mapping of the adult visual cortex"
 %
-% Adapted from RJC, UCL Example 1 by ZK, Gowerlabs, Dec 2020.
+% RJC, UCL, Dec 2020.
+% ZK, Gowerlabs, Dec 2020.
 
 %% Specify paths of pre-defined elements (.LUMO, atlas .mshs, Homer2 preprocessing .cfg file).
 [filepath,~,~] = fileparts(mfilename('fullpath'));
@@ -36,13 +38,11 @@ posCSVFileName = [filepath '/ExampleData/Example2/Example2_Polhemus.csv'];
 %% Run Homer2 pre-processing pipeline 
 [prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileName);
 
-
 %% Plot prepro HRF results as array map if desired. Make sure you parse the 2D version of the array.
 conditionToPlot = 1;
 y = squeeze(prepro.dcAvg(:,:,:,conditionToPlot)); %Crop out chosen condition to plot
 figure;
 DOTHUB_LUMOplotArray(y,prepro.tHRF,prepro.SD2D);
-
 
 %% Register chosen mesh to subject SD3D and create rmap
 [rmap, rmapFileName] = DOTHUB_meshRegistration(nirsFileName,origMeshFileName);

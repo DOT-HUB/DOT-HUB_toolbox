@@ -1,12 +1,12 @@
 % DOT-HUB toolbox Pipeline Example 1.
-
+%
 % What follows is an example of a wrapper script that employs the main 
 % steps of the toolbox. Most steps output variables into the work
 % space and also writes them out as the key file types, so you can comment 
 % out steps as you work through them and pick up where you left off, rather
 % than re-running every step. The whole script runs in ~12 minutes on a 2018
 % MacBook Pro with 16Gb RAM.
-
+%
 % Example 1 is the simplest application of the toolbox to LUMO data. It is
 % assumed that we have no subject-specific information about the position
 % of the optodes (and therefore 3D positioning information is derived from
