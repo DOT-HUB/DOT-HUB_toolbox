@@ -1,3 +1,6 @@
 [submodule "Dependencies/iso2mesh"]
 	path = Dependencies/iso2mesh
 	url = https://github.com/fangq/iso2mesh
+[submodule "Dependencies/matlab-toml"]
+	path = Dependencies/matlab-toml
+	url = https://github.com/DOT-HUB/matlab-toml
