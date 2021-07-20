@@ -21,7 +21,7 @@ function [nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirsHyper(lumoDIRs,lay
 %                       which should contain the .lumo files will be
 %                       requested. Note that the order matlab loads the two
 %                       will depend on file naming, and must match the
-%                       order tiles are listed in the combind .csv file.
+%                       order tiles are listed in the combined .csv file.
 %
 % layoutFileNames    :   A cell array of strings specifying the the path of the .json layout file
 %                       (only required if not present inside .LUMO directories). If layoutFile variable is
