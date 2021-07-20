@@ -15,7 +15,7 @@ function [dotimg, dotimgFileName] = DOTHUB_reconstruction(prepro,jac,invjac,rmap
 % invjac    =  invjac structure or path to .invjac. If parsed empty (i.e. as [])
 %              invjac is calculated but not saved. If you wish to
 %              pre-calculate invjac, please use DOTHUB_invertJacobian.m.
-%              built (and both saved?). Mpte that if invJac is parsed, any
+%              built (and both saved?). Note that if invJac is parsed, any
 %              vaargin inputs related to inversion are superceded by those
 %              saved within the invjac
 %
@@ -93,7 +93,17 @@ if ischar(prepro)
         prepro = rmfield(prepro,'dod');
         prepro.dod(:,:,1) = tmp; %Easier to assign a dummy condition dimension
     end
+else %loaded as structure
+    if ndims(prepro.dod)==3
+        nCond = size(prepro.dod,3);
+    else
+        nCond = 1;
+        tmp = prepro.dod;
+        prepro = rmfield(prepro,'dod');
+        prepro.dod(:,:,1) = tmp; %Easier to assign a dummy condition dimension
+    end
 end
+
 
 if ischar(jac)
     jacFileName = jac;
@@ -198,7 +208,7 @@ if strcmpi(varInputs.reconMethod,'multispectral')
             
             dataTmp = squeeze(datarecon(frame,SD3D.MeasListAct==1,cond));
             img = invjac.invJ{1} * dataTmp'; %invjac.invJ should only have one entry.
-             
+            
             if basisFlag %basis to volume to gm
                 hbo_tmp = img(1:end/2);
                 hbr_tmp = img(end/2+1:end);
@@ -328,7 +338,7 @@ if nCond==1
         end
     end
 end
-    
+
 if ~varInputs.saveVolumeImages || strcmpi(varInputs.reconSpace,'cortex') %If not saving volume, populate empty
     hbo.vol = [];
     hbr.vol = [];
@@ -343,9 +353,22 @@ end
 
 %################ Create dotimg structure and write .dotimg #####################
 %##########################################################################
-[pathstr, name, ~] = fileparts(prepro.fileName);
-ds = datestr(now,'yyyymmDDHHMMSS');
-dotimgFileName = fullfile(pathstr,[name '.dotimg']);
+if ~isfield(prepro,'fileName')
+    dotimgFileName = [];
+    ds = datestr(now,'yyyymmDDHHMMSS');
+    prepro.fileName = [];
+else 
+    if isempty(prepro.fileName)
+        dotimgFileName = [];
+        ds = datestr(now,'yyyymmDDHHMMSS');
+        prepro.fileName = [];
+    else
+        [pathstr, name, ~] = fileparts(prepro.fileName);
+        ds = datestr(now,'yyyymmDDHHMMSS');
+        dotimgFileName = fullfile(pathstr,[name '.dotimg']);
+    end
+end
+
 logData(1,:) = {'Created on: ', ds};
 logData(2,:) = {'Associated prepro file: ', prepro.fileName};
 logData(3,:) = {'Associated invjac file: ', invjac.fileName};
