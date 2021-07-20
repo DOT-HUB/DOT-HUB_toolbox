@@ -7,7 +7,7 @@ function [dotimg, dotimgFileName] = DOTHUB_writeDOTIMG(dotimgFileName,logData,hb
 % dotimgFileName       :  The desired path &/ filename for the .dotimg file.
 %                      This can be anything, but we recommend this variable be defined with the
 %                      following code snippet.
-%                       
+%
 %                       [pathstr, name, ~] = fileparts(prepro.fileName);
 %                       ds = datestr(now,'yyyymmDDHHMMSS');
 %                       dotimgFileName = fullfile(pathstr,[name '.dotimg']);
@@ -20,7 +20,7 @@ function [dotimg, dotimgFileName] = DOTHUB_writeDOTIMG(dotimgFileName,logData,hb
 %
 % logData           :  logData is a cell array of strings containing useful
 %                      info as per snippet above. Parse empty to ignore.
-% 
+%
 % hbo               :  Structure containing hbo images (.vol, .gm), of
 %                      dimensions nFrames x nNodes. Note that both can be
 %                      empty if not requested in DOTHUB_reconstruction
@@ -30,8 +30,8 @@ function [dotimg, dotimgFileName] = DOTHUB_writeDOTIMG(dotimgFileName,logData,hb
 %                      empty if not requested in DOTHUB_reconstruction
 %
 % mua               :  Cell of length nWavs with structures (.vol, .gm) where
-%                      images of dimensions nFrames x nNodes are stored. 
-%                      Note that one or both can beempty if not requested 
+%                      images of dimensions nFrames x nNodes are stored.
+%                      Note that one or both can beempty if not requested
 %                      in DOTHUB_reconstruction
 %
 % tIMG              :  A time vector with the same length as the first
@@ -50,8 +50,8 @@ function [dotimg, dotimgFileName] = DOTHUB_writeDOTIMG(dotimgFileName,logData,hb
 %                       dotimg.logData      - as defined above
 %                       dotimg.hbo          - as defined above
 %                       dotimg.hbr          - as defined above
-%                       dotimg.mua          - as defined above 
-%                       dotimg.tImg         - as defined above      
+%                       dotimg.mua          - as defined above
+%                       dotimg.tImg         - as defined above
 %                       dotimg.fileName  	- the path of the saved dotimg file
 %
 % ####################### Dependencies ####################################
@@ -77,19 +77,18 @@ dotimg.tImg = tImg;
 
 %Save .dotimg file ###########################################################
 %Create filename ##########################################################
-[pathstr, name, ext] = fileparts(dotimgFileName);
-if isempty(ext) || ~strcmpi(ext,'.dotimg')
-    ext = '.dotimg';
-end
-if isempty(pathstr)
-    pathstr = pwd;
-end
-dotimgFileName = fullfile(pathstr,[name ext]);
-dotimg.fileName = dotimgFileName; %including the fileName within the structure 
-%is very useful for tracking and naming things derived further downstream.
-
 %Save .dotimg file ###########################################################
 if saveFlag
+    [pathstr, name, ext] = fileparts(dotimgFileName);
+    if isempty(ext) || ~strcmpi(ext,'.dotimg')
+        ext = '.dotimg';
+    end
+    if isempty(pathstr)
+        pathstr = pwd;
+    end
+    dotimgFileName = fullfile(pathstr,[name ext]);
+    dotimg.fileName = dotimgFileName; %including the fileName within the structure
+    %is very useful for tracking and naming things derived further downstream.
     if exist(dotimgFileName,'file')
         warning([name ext ' will be overwritten...']);
     end
