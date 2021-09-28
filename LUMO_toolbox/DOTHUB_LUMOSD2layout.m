@@ -78,9 +78,9 @@ max_2d = max([SD2D.DetPos; SD2D.SrcPos]);
 buffer = 15; %mm
 SD2D.DetPos = SD2D.DetPos - repmat(min_2d,SD2D.nDets,1) + buffer;
 SD2D.SrcPos = SD2D.SrcPos - repmat(min_2d,SD2D.nSrcs,1) + buffer;
-tmp = max([SD2D.DetPos; SD2D.SrcPos]) + buffer;
 
 %Define dimensions_2d
+tmp = max([SD2D.DetPos; SD2D.SrcPos]) + buffer;
 jsonstruct.dimensions.dimensions_2d.x = tmp(1);
 jsonstruct.dimensions.dimensions_2d.y = tmp(2);
 
@@ -94,19 +94,18 @@ if isfield(SD3D,'Landmarks') %ASSUME Nasion, Inion, Ar, Al, Cz
     end
 end
 
-%Put 3D coords in the positive quadrant?;
-%min_3d = min([SD3D.DetPos; SD3D.SrcPos]);
-%max_3d = max([SD3D.DetPos; SD3D.SrcPos]);
+%Put 3D coords in the positive quadrant;
+min_3d = min([SD3D.DetPos; SD3D.SrcPos]);
 %Subtract minimum, add 15 mm buffer;
-%buffer = 15; %mm
-%SD3D.DetPos = SD3D.DetPos - repmat(min_3d,SD3D.nDets,1) + buffer;
-%SD3D.SrcPos = SD3D.SrcPos - repmat(min_3d,SD3D.nSrcs,1) + buffer;
-%tmp = max([SD3D.DetPos; SD3D.SrcPos]) + buffer;
+buffer = 15; %mm
+SD3D.DetPos = SD3D.DetPos - repmat(min_3d,SD3D.nDets,1) + buffer;
+SD3D.SrcPos = SD3D.SrcPos - repmat(min_3d,SD3D.nSrcs,1) + buffer;
 
 %Define dimensions_3d
-jsonstruct.dimensions.dimensions_3d.x = 1000;%tmp(1);
-jsonstruct.dimensions.dimensions_3d.y = 1000;%tmp(2);
-jsonstruct.dimensions.dimensions_3d.z = 1000;%tmp(3);
+tmp = max([SD3D.DetPos; SD3D.SrcPos]) + buffer;
+jsonstruct.dimensions.dimensions_3d.x = tmp(1);
+jsonstruct.dimensions.dimensions_3d.y = tmp(2);
+jsonstruct.dimensions.dimensions_3d.z = tmp(3);
 
 %Docks structure;
 nDocks = SD2D.nDets/4;
