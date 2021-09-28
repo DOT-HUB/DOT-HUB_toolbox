@@ -165,7 +165,7 @@ datarecon = -prepro.dod;
 % Unpack variables, define useful counts
 nNodeVol = size(rmap.headVolumeMesh.node,1);  %The node count of the volume mesh
 nNodeNat = size(invjac.invJ{1},1);%The spatial size of the native image space (basis or full volume)
-if strcmpi(varInputs.reconMethod,'multispectral'); %In multispectral case, invJ is double the length.
+if strcmpi(varInputs.reconMethod,'multispectral') %In multispectral case, invJ is double the length.
     nNodeNat = size(invjac.invJ{1},1)/2;
 end
 nNodeGM = size(rmap.gmSurfaceMesh.node,1); %The node count of the GM mesh

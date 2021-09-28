@@ -150,11 +150,14 @@ if ~isempty(errnodes_ind)
         headVolumeMesh.node = node_corr;
         headVolumeMesh.elem(:,1:4) = elem_tmp;
         rmap.headVolumeMesh = headVolumeMesh;
+        
         %Upate node count
         nNodeVol = size(headVolumeMesh.node,1);
+        
         %Update vol2GM
         vol2gm = vol2gm(:,included_nodes);
         rmap.vol2gm;
+        
         %Flag to overwrite rmap
         rewriteRMAP = 1;
         clear elem_tmp node_tmp node_corr included_nodes errnodes_ind
@@ -163,8 +166,6 @@ if ~isempty(errnodes_ind)
         error('Correction failed: erroneous nodes remain in rmap.headVolumeMesh');
     end
 end
-
-% Update nNodeVol
 
 % Clear MEX
 clear MEX
@@ -188,8 +189,10 @@ if any(hMesh.ElementSize()<0)
     else
         fprintf('Reconfiguration successful...\n');
     end
+    
     %Update headVolumeMesh
     rmap.headVolumeMesh = headVolumeMesh;
+    
     %Flag to overwrite rmap
     rewriteRMAP = 1;
 end
