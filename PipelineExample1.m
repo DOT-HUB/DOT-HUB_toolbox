@@ -39,23 +39,23 @@ cfgFileName = [filepath '/ExampleData/Example1/preproPipelineExample1.cfg'];
 %[prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileName);
 
 % %%%%Equivalent line-by-line Homer2 calls and prepro write:
-% dod = hmrIntensity2OD(nirs.d);
-% SD3D = enPruneChannels(nirs.d,nirs.SD3D,ones(size(nirs.t)),[0 1e11],12,[0 100],0); 
+ dod = hmrIntensity2OD(nirs.d);
+ SD3D = enPruneChannels(nirs.d,nirs.SD3D,ones(size(nirs.t)),[0 1e11],12,[0 100],0); 
 % 
 % %Force MeasListAct to be the same across wavelengths
-% nWavs = length(SD3D.Lambda);
-% tmp = reshape(SD3D.MeasListAct,length(SD3D.MeasListAct)/nWavs,nWavs);
-% tmp2 = ~any(tmp'==0)';
-% SD3D.MeasListAct = repmat(tmp2,nWavs,1);
+ nWavs = length(SD3D.Lambda);
+ tmp = reshape(SD3D.MeasListAct,length(SD3D.MeasListAct)/nWavs,nWavs);
+ tmp2 = ~any(tmp'==0)';
+ SD3D.MeasListAct = repmat(tmp2,nWavs,1);
 % 
 % %Set SD2D
-% SD2D = nirs.SD; 
-% SD2D.MeasListAct = SD3D.MeasListAct;
+ SD2D = nirs.SD; 
+ SD2D.MeasListAct = SD3D.MeasListAct;
 % 
-% %Convert to DOD
-% dod = hmrBandpassFilt(dod,nirs.t,0,0.5);
-% dc = hmrOD2Conc(dod,SD3D,[6 6]);
-% dc = dc*1e6; %Homer works in Molar by default, we use uMolar.
+% %Bandpass filter and convert to Concentration
+ dod = hmrBandpassFilt(dod,nirs.t,0,0.5);
+ dc = hmrOD2Conc(dod,SD3D,[6 6]);
+ dc = dc*1e6; %Homer works in Molar by default, we use uMolar.
 % 
 % %Regress short channels
 % dc = DOTHUB_hmrSSRegressionByChannel(dc,SD3D,12,1); %This is a custom SS regression script. 
