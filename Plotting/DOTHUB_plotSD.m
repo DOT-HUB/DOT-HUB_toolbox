@@ -44,9 +44,7 @@ end
 
 plotmesh(SD.SrcPos,'r.','MarkerSize',30); hold on;
 plotmesh(SD.DetPos,'b.','MarkerSize',30);
-if isfield(SD,'Landmarks')
-    plotmesh(SD.Landmarks,'c.','MarkerSize',30);
-end
+
 
 dists = DOTHUB_getSDdists(SD);
 dists = [dists dists];
@@ -63,6 +61,10 @@ for i = 1:size(SD.MeasList,1)
             flag = 0;
         end  
     end
+end
+
+if isfield(SD,'Landmarks')
+    plotmesh(SD.Landmarks,'c.','MarkerSize',30);
 end
 
 if labelFlag

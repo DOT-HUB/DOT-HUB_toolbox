@@ -105,7 +105,7 @@ landmarks = allPos(1:5,:);
 PolPoints = allPos(6:end,:);
 
 if mod(size(PolPoints,1),3)~=0
-    error('The selected .csv file does not seem to contain a multiple of 3 points');
+    error('The selected .csv file does not seem to contain a multiple of 3 points as is expected for LUMO');
 else
     nTiles = size(PolPoints,1)/3;
 end
