@@ -43,6 +43,9 @@ if ischar(SDinput3D)
     if exist('SD','var')
         SD3D = SD; clear SD;
     end
+    if exist('SD_3D','var')
+        SD3D = SD_3D; clear SD_3D;
+    end
 elseif isstruct(SDinput3D)
     SD3D = SDinput3D;
 end
@@ -56,7 +59,7 @@ end
 
 % Define Outname
 if ~exist('outname','var')
-    outname = ['layout_' datestr(clock,'ddmmyyyyHHMMSS') '.json'];
+    outname = ['layout_' datestr(clock,'ddmmyyyyHHMM') '.json'];
 end
 
 %Check both SD variables have same number of srcs and dets;
@@ -140,10 +143,13 @@ end
 
 jsonStr = jsonencode(jsonstruct);
 fid = fopen(outname, 'w');
-if fid == -1, error('Cannot create JSON file'); end
-fwrite(fid, jsonStr, 'char');
+if fid == -1
+    error('Cannot create JSON file'); 
+else
+    display(['Saving ' outname]);
+    fwrite(fid, jsonStr, 'char');
+end
 fclose(fid);
-
 
 
 

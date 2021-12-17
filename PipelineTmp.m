@@ -1,4 +1,4 @@
-% DOTHUB Recon Pipeline Example 1.
+% DOTHUB Recon Pipeline Example 3.
 %
 % Individual optode positioning information, subject-specific .mshs file.
 % LUMO DATA

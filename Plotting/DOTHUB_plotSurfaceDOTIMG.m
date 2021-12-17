@@ -20,8 +20,9 @@ function [hAxis, hPatch, hColorbar] = DOTHUB_plotSurfaceDOTIMG(dotimg,rmap,frame
 %                 'imageType'   : 'haem', 'mua', default 'haem'
 %                 'colormap'    : preferred colormap array
 %                 'view'        : view angle, defaults to [-37.5 30]
-%                 'hrfExplorer'  : 'on' or 'off' to add subplot showing selected node pseudochannel
+%                 'hrfExplorer' : 'on' or 'off' to add subplot showing selected node pseudochannel
 %                                 default 'off';
+%                 'title'       : Force title of figure
 %
 % OUTPUTS #################################################################
 %
@@ -37,6 +38,7 @@ addParameter(varInputs,'shading','interp',validateShading);
 addParameter(varInputs,'imageType','haem',validateImageType);
 addParameter(varInputs,'hrfExplorer',false,validatehrfExplorer);
 addParameter(varInputs,'colormap','greyJet');
+addParameter(varInputs,'title',[]);
 addParameter(varInputs,'condition',1,@isnumeric);
 addParameter(varInputs,'view',[-37.5 30],@isnumeric);
 parse(varInputs,varargin{:});
@@ -46,6 +48,7 @@ viewAng = varInputs.view;
 shadingtype = varInputs.shading;
 condition = varInputs.condition;
 hrfExplorer = varInputs.hrfExplorer;
+title = varInputs.title;
 
 if ischar(dotimg)
     dotimgFileName = dotimg;
@@ -104,10 +107,15 @@ for i = 1:nSubplot
     ylabel(hColorbar,subplotLabels{1,i})
 end
 [~,fname,~] = fileparts(dotimg.fileName);
-if conditionFlag
-    sgtitle([fname ', Condition ' num2str(condition)],'FontSize',16,'Interpreter','none');
+
+if isempty(title)
+    if conditionFlag
+        sgtitle([fname ', Condition ' num2str(condition)],'FontSize',16,'Interpreter','none');
+    else
+        sgtitle(fname,'FontSize',16,'Interpreter','none');
+    end
 else
-    sgtitle(fname,'FontSize',16,'Interpreter','none');
+    sgtitle(title)
 end
 
 if hrfExplorer

@@ -47,7 +47,10 @@ axis equal;axis off;
 
 %Set balanced colorbar;
 if exist('cmap','var')
-    colormap(cmap);
+    if ischar(cmap)
+        eval(['cmap = ' cmap ';']); %In case e.g. 'jet' is parsed
+    end
+    hAxis.Colormap = cmap;
 end
 hColorbar = colorbar;
 climits = caxis;

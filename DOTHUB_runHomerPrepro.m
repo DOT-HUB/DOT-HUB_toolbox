@@ -196,13 +196,9 @@ end
 delete(wb);
 
 % Output variables for reconstruction ###################################
-% Force MeasListAct to be the same for all wavelengths
-SD3D = SD;
-nWavs = length(SD.Lambda);
-tmp = reshape(SD.MeasListAct,length(SD.MeasListAct)/nWavs,nWavs);
-tmp2 = ~any(tmp'==0)';
-SD3D.MeasListAct = repmat(tmp2,nWavs,1);
-SD2D.MeasListAct = SD3D.MeasListAct;
+%Force MeasListAct to be the same across wavelengths
+SD3D = DOTHUB_balanceMeasListAct(SD3D);
+
 if fullFlag %Full timecourse is to be reconstructed
     dodRecon = dod;
     tRecon = t;

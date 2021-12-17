@@ -21,8 +21,12 @@ function [mua, musPrime, refInd] = DOTHUB_getTissueCoeffs(tissue_label,wavelengt
 % ####################### Dependencies ####################################
 
 % #########################################################################
-% EVR???, UCL. Adapted by RJC, UCL, April 2020
-% Sources of these properties need to be cited!!
+% EVR, RJC, UCL. Adapted by RJC, UCL, April 2020
+% These optical properties represent a linear fit to data taken from:
+% Strangman et al. 2003, Bevilacqua et al. 1999
+% and Ferradal et al. 2013 ('Culver').  Culver is an amalgam of other sources.
+% Note that the Bevilacqua GM values are the average of the reported frontal
+% and temporal cortex values;
 
 [lambda, mua_model, musPrime_model] = propertiesPull();
 tissues = {'Scalp'  'Skull'  'CSF'  'GM'  'WM'};

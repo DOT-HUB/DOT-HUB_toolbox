@@ -1,4 +1,4 @@
-function DOTHUB_movieSurfaceDOTIMG(dotimg,rmap,varargin)
+function DOTHUB_movieSurfaceDOTIMG(dotimg,rmap,saveName,varargin)
 
 % Takes dotimg and rmap/mshs files or structures and displays node-wise distribution on surface mesh
 %
@@ -10,6 +10,7 @@ function DOTHUB_movieSurfaceDOTIMG(dotimg,rmap,varargin)
 % rmap          : rmap or mshs structure or path. must contain
 %                 gmSurfaceMesh variable
 %
+% saveName      : output movie name, default is 'SurfaceDOTIMGMovie.mp4';
 %
 % varargin      : input argument pairs, with options:
 %
@@ -37,18 +38,26 @@ addParameter(varInputs,'colormap','greyJet');
 addParameter(varInputs,'condition',1,@isnumeric);
 addParameter(varInputs,'view',[-37.5 30],@isnumeric);
 addParameter(varInputs,'cbScaleFactor',1,@isnumeric);
+addParameter(varInputs,'title',[]);
+
 parse(varInputs,varargin{:});
 varInputs = varInputs.Results;
 
 viewAng = varInputs.view;
 shadingtype = varInputs.shading;
 condition = varInputs.condition;
-hrfExplorer = false;
 cbScaleFactor = varInputs.cbScaleFactor;
 
 if ischar(dotimg)
     dotimgFileName = dotimg;
     dotimg = load(dotimgFileName,'-mat');
+end
+
+outname = 'SurfaceDOTIMGMovie.mp4';
+if exist('saveName','var')
+    if ~isempty(saveName)
+        outname = saveName;
+    end
 end
 
 %Work out how many frames we need to videoify, and work out max scale of any frame to fix colorbar (add scale as varargin to
@@ -59,18 +68,21 @@ elseif strcmpi(varInputs.imageType,'mua')
     nFrames = size(dotimg.mua{1}.gm,1); % is this indexing correct?
     scalMax = max(abs([dotimg.mua{1}.gm(:); dotimg.mua{2}.gm(:)]));
 end
-%
+
 %plot call.
 %Run loop around frames
 MovToWrite(nFrames) = struct('cdata',[],'colormap',[]);
 f1 = figure('color','w');
 for frame = 1:nFrames
-    [~, ~, hColorbar] = DOTHUB_plotSurfaceDOTIMG(dotimg,rmap,frame,varargin{:});
+    DOTHUB_plotSurfaceDOTIMG(dotimg,rmap,frame,varargin{:});
+    ax = findall(gcf, 'type', 'axes');
+    for i = 1:length(ax)
+        caxis(ax(i),[-scalMax scalMax]*cbScaleFactor);
+    end
     drawnow;
-    hColorbar.Limits = [-scalMax scalMax]*cbScaleFactor;
     MovToWrite(frame) = getframe(f1);
 end
-v = VideoWriter(tit,'MPEG-4');
+v = VideoWriter(outname,'MPEG-4');
 v.FrameRate = 10;
 open(v);
 writeVideo(v,MovToWrite);

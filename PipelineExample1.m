@@ -38,43 +38,40 @@ cfgFileName = [filepath '/ExampleData/Example1/preproPipelineExample1.cfg'];
 
 %[prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileName);
 
-% %%%%Equivalent line-by-line Homer2 calls and prepro write:
+%%%%%Equivalent line-by-line Homer2 calls and prepro write:
  dod = hmrIntensity2OD(nirs.d);
  SD3D = enPruneChannels(nirs.d,nirs.SD3D,ones(size(nirs.t)),[0 1e11],12,[0 100],0); 
-% 
-% %Force MeasListAct to be the same across wavelengths
- nWavs = length(SD3D.Lambda);
- tmp = reshape(SD3D.MeasListAct,length(SD3D.MeasListAct)/nWavs,nWavs);
- tmp2 = ~any(tmp'==0)';
- SD3D.MeasListAct = repmat(tmp2,nWavs,1);
-% 
-% %Set SD2D
+ 
+%Force MeasListAct to be the same across wavelengths
+SD3D = DOTHUB_balanceMeasListAct(SD3D);
+
+%Set SD2D
  SD2D = nirs.SD; 
  SD2D.MeasListAct = SD3D.MeasListAct;
-% 
-% %Bandpass filter and convert to Concentration
+ 
+%Bandpass filter and convert to Concentration
  dod = hmrBandpassFilt(dod,nirs.t,0,0.5);
  dc = hmrOD2Conc(dod,SD3D,[6 6]);
  dc = dc*1e6; %Homer works in Molar by default, we use uMolar.
-% 
-% %Regress short channels
-% dc = DOTHUB_hmrSSRegressionByChannel(dc,SD3D,12,1); %This is a custom SS regression script. 
-% 
-% %Block avg
-% [dcAvg,dcAvgStd,tHRF] = hmrBlockAvg(dc,nirs.s,nirs.t,[-5 25]);
-% 
-% %Convert back to dod for reconstruction
-% dodRecon = DOTHUB_hmrConc2OD(dcAvg,SD3D,[6 6]);
-% tDOD = tHRF;
-% 
-% % Use code snippet from DOTHUB_writePREPRO to define contents of logs:
-% [pathstr, name, ~] = fileparts(nirsFileName);
-% ds = datestr(now,'yyyymmDDHHMMSS');
-% preproFileName = fullfile(pathstr,[name '.prepro']);
-% logData(1,:) = {'Created on: '; ds};
-% logData(2,:) = {'Derived from data: ', nirsFileName};
-% logData(3,:) = {'Pre-processed using:', mfilename('fullpath')};
-% [prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,dodRecon,tDOD,SD3D,nirs.s,dcAvg,dcAvgStd,tHRF,nirs.CondNames,SD2D);
+
+%Regress short channels
+dc = DOTHUB_hmrSSRegressionByChannel(dc,SD3D,12,1); %This is a custom SS regression script. 
+
+%Block avg
+[dcAvg,dcAvgStd,tHRF] = hmrBlockAvg(dc,nirs.s,nirs.t,[-5 25]);
+
+%Convert back to dod for reconstruction
+dodRecon = DOTHUB_hmrConc2OD(dcAvg/1e6,SD3D,[6 6]); %Note converting back to Molar units here for Homer function
+tDOD = tHRF;
+
+% Use code snippet from DOTHUB_writePREPRO to define contents of logs:
+[pathstr, name, ~] = fileparts(nirsFileName);
+ds = datestr(now,'yyyymmDDHHMMSS');
+preproFileName = fullfile(pathstr,[name '.prepro']);
+logData(1,:) = {'Created on: '; ds};
+logData(2,:) = {'Derived from data: ', nirsFileName};
+logData(3,:) = {'Pre-processed using:', mfilename('fullpath')};
+[prepro, preproFileName] = DOTHUB_writePREPRO(preproFileName,logData,dodRecon,tDOD,SD3D,nirs.s,dcAvg,dcAvgStd,tHRF,nirs.CondNames,SD2D);
 
 %% Plot prepro HRF results as array map if desired. Make sure you parse the 2D version of the array.
 conditionToPlot = 1;

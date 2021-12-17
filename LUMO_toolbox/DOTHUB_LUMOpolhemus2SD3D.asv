@@ -134,23 +134,17 @@ end
 
 %Translate and Rotate so that Iz is at 0 0 0, Nz is at 0 y 0, Ar and Al have same z
 %value and Cz is on top
-
-%First rotate so that <Ar&AL> to Cz is +ve z;
-mnA = mean(landmarks([3 4],:));
-%set mnA to origin
-landmarks = landmarks - repmat(mnA,size(landmarks,1),1);
-PolPoints = PolPoints - repmat(mnA,size(PolPoints,1),1);
-Cz = landmarks(5,:);
-[azimuth,elevation,r] = cart2sph(Cz(1),Cz(2),Cz(3));
-landmarks = rotz(landmarks,-rad2deg(azimuth),[0 0 0]);
-PolPoints = rotz(PolPoints,-rad2deg(azimuth),[0 0 0]);
-landmarks = roty(landmarks,-(90-rad2deg(elevation)),[0 0 0]);
-PolPoints = roty(PolPoints,-(90-rad2deg(elevation)),[0 0 0]);
-
-%Shift so origin is at Iz
 Iz = landmarks(2,:);
 landmarks = landmarks - repmat(Iz,size(landmarks,1),1);
 PolPoints = PolPoints - repmat(Iz,size(PolPoints,1),1);
+Cz = landmarks(5,:);
+%Rotate so that <Ar&AL> to Cz is +ve z;
+m
+[azimuth,elevation,r] = cart2sph(Cz(1),Cz(2),Cz(3));
+landmarks = rotz(landmarks,90-rad2deg(azimuth),[0 0 0]);
+PolPoints = rotz(PolPoints,90-rad2deg(azimuth),[0 0 0]);
+landmarks = rotx(landmarks,-rad2deg(elevation),[0 0 0]);
+PolPoints = rotx(PolPoints,-rad2deg(elevation),[0 0 0]);
 
 %Rotate so Iz-Nz line is y axis
 Nz = landmarks(1,:);

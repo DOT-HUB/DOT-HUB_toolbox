@@ -4,7 +4,7 @@
 % INPUTS:
 % dc:   the Average concentration data (#time points x 3 x #SD pairs)
 %       or (#time points x 3 x #SD pairs x condition) with 3 concentrations 
-%       as (HbO, HbR, HbT)
+%       as (HbO, HbR, HbT). UNITS ARE MOLAR as this is a homer2 function
 % SD:   the SD structure
 % ppf:  partial pathlength factors for each wavelength. If there are 2
 %       wavelengths of data, then this is a vector ot 2 elements.
@@ -32,7 +32,7 @@ end
 nTpts = size(dc,1);
 
 e = GetExtinctions( SD.Lambda );
-e = e(:,1:2) / 10; % convert from /cm to /mm
+e = e(:,1:2) / 10; % convert from /cm to /mm. This requires input to be in MOLAR
 %einv = inv( e'*e )*e';
 
 lst = find( ml(:,4)==1 );

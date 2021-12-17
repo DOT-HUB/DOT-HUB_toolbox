@@ -1,4 +1,4 @@
-%function DOTHUB_adultMRISegmentSPM(T1FileName,T2FileName,savePathName)
+function DOTHUB_adultMRISegmentSPM(T1FileName,T2FileName,savePathName)
 
 % This script uses SPM12 to segment the MRIs in 6 tissue types. Available
 % sequences are T1-w, T2-w and FLAIR. Tissue types are fat, skull, air,
