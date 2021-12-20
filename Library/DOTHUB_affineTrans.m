@@ -1,4 +1,4 @@
-function outputPoints = DOTHUB_AffineTrans(inputPoints,A,B)
+function outputPoints = DOTHUB_affineTrans(inputPoints,A,B)
 
 %Performs 3D transformation of nx3 'input' using affine transformation matrix
 %formed from A (3X3) and B (3x1)

@@ -197,7 +197,7 @@ delete(wb);
 
 % Output variables for reconstruction ###################################
 %Force MeasListAct to be the same across wavelengths
-SD3D = DOTHUB_balanceMeasListAct(SD3D);
+SD3D = DOTHUB_balanceMeasListAct(hmr.SD3D);
 
 if fullFlag %Full timecourse is to be reconstructed
     dodRecon = dod;

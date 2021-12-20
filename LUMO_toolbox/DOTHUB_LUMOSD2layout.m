@@ -59,8 +59,19 @@ end
 
 % Define Outname
 if ~exist('outname','var')
-    outname = ['layout_' datestr(clock,'ddmmyyyyHHMM') '.json'];
+    if ischar(SDinput3D)
+        outname = [SDinput3D(1:end-5) '.json'];
+    else
+        outname = ['layout_' datestr(clock,'ddmmyyyyHHMM') '.json'];
+    end
+else
+    %Force extension
+    [path,name,ext] = fileparts(outname);
+    if ~strcmpi(ext,'.json')
+        outname = fullfile(path,[name '.json']);
+    end
 end
+    
 
 %Check both SD variables have same number of srcs and dets;
 if SD2D.nSrcs ~= SD3D.nSrcs || SD2D.nDets ~= SD3D.nDets

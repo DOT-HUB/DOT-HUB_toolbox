@@ -93,22 +93,31 @@ wavelength2 = 850;
 %#########################################################################
 %#########################################################################
 %Load data
-delimiter = ',';
-startRow = 2;
-formatSpec = '%s%f%f%f%[^\n\r]';
-fileID = fopen(posCSVFileName,'r');
-dataArray = textscan(fileID, formatSpec, 'Delimiter', delimiter, 'HeaderLines' ,startRow-1, 'ReturnOnError', false, 'EndOfLine', '\r\n');
-allPos = [dataArray{2} dataArray{3} dataArray{4}]*10; %Polhemus output in cm, convert to mm.%#################################################%#################################################%#################################################%#################################################
 
-%Crop out landmarks and polhemus measurement points
-landmarks = allPos(1:5,:);
-PolPoints = allPos(6:end,:);
+[~,~,ext] = fileparts(posCSVFileName);
+if strcmpi(ext,'.csv')
+    delimiter = ',';
+    startRow = 2;
+    formatSpec = '%s%f%f%f%[^\n\r]';
+    fileID = fopen(posCSVFileName,'r');
+    dataArray = textscan(fileID, formatSpec, 'Delimiter', delimiter, 'HeaderLines' ,startRow-1, 'ReturnOnError', false, 'EndOfLine', '\r\n');
+    allPos = [dataArray{2} dataArray{3} dataArray{4}]*10; %Polhemus output in cm, convert to mm.%#################################################%#################################################%#################################################%#################################################
+
+    %Crop out landmarks and polhemus measurement points
+    landmarks = allPos(1:5,:);
+    PolPoints = allPos(6:end,:);
+elseif strcmpi(ext,'.txt')
+    tmp = importdata(posCSVFileName);
+    landmarks = tmp.data(1:5,:)*10;%Polhemus output in cm, convert to mm
+    PolPoints = tmp.data(6:end,:)*10;
+end
 
 if mod(size(PolPoints,1),3)~=0
     error('The selected .csv file does not seem to contain a multiple of 3 points as is expected for LUMO');
 else
     nTiles = size(PolPoints,1)/3;
 end
+
 %Define offsets vector
 if mixedFlag
     prompt = 'Enter nTile space-separated values of 1 (Adult) and 0 (Infant)';
