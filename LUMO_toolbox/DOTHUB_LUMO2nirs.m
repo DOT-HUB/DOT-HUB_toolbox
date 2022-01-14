@@ -302,6 +302,12 @@ else %Assume 3D contents of layout file remains and save as SD3D
             SD3D.Landmarks(i,2) = layoutData.Landmarks(i).y;
             SD3D.Landmarks(i,3) = layoutData.Landmarks(i).z;
         end
+    elseif isfield(layoutData,'landmarks')  % for newer layout files
+        for i = 1:size(layoutData.landmarks,1)
+            SD3D.Landmarks(i,1) = layoutData.landmarks(i).x;
+            SD3D.Landmarks(i,2) = layoutData.landmarks(i).y;
+            SD3D.Landmarks(i,3) = layoutData.landmarks(i).z;
+        end
     end
     SD3DFileName = fullfile(lumoPath, [lumoName '_default.SD3D']);
     fprintf(['Saving SD3D to ' SD3DFileName ' ...\n']);
