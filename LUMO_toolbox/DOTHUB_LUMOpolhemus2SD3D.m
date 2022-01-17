@@ -23,12 +23,12 @@
 % saveFlag =            true if resulting SD file should be saved (default true)
 %
 % OUTPUTS: ###############################################################
-% SD_3D = The SD file containing the 3D information associated with polhemus
+% SD3D = The SD file containing the 3D information associated with polhemus
 % data. Also contains the a 'Landmarks' variable that saves the cranial
 % landmarks (Nz Iz Ar Al Cz). Also save out into an .SD file with a name
 % matching the input .csv appended with _3D.
 %
-% SD_3DFileName = Filename of the saved SD_3D variable.
+% SD3DFileName = Filename of the saved SD3D variable.
 %
 % RJC, UCL, December 2019
 %
