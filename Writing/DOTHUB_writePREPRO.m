@@ -146,7 +146,10 @@ if exist('SD2D','var')
 end
 
 % Skip naming and saving if preproFileName parsed empty (streaming?)
-if isempty(preproFileName); return; end
+if isempty(preproFileName) 
+    warning('No proproFileName provided. Exiting');
+    return
+end
 
 %Create filename ##########################################################
 [pathstr, name, ext] = fileparts(preproFileName);

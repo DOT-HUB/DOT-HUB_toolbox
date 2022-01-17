@@ -75,6 +75,12 @@ dotimg.hbr = hbr;
 dotimg.mua = mua;
 dotimg.tImg = tImg;
 
+% Skip naming and saving if filename parsed empty (streaming?)
+if isempty(preproFileName)
+    warning('No dotimgFileName provided. Exiting');
+    return
+end
+
 %Save .dotimg file ###########################################################
 %Create filename ##########################################################
 %Save .dotimg file ###########################################################
