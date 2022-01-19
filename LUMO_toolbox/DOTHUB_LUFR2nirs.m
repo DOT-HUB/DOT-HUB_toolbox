@@ -307,7 +307,7 @@ else %Assume 3D contents of layout file (or lufr) is to be used and save as SD3D
         end
         
     else %use layout file
-        
+        SD3D = SD;
         for n = 1:nNodes
             nid = nodes(n);
             for det = 1:4
@@ -379,7 +379,7 @@ else
         
         for i = 1:length(evtim_filt)
             [~,ind] = min(abs(t - evtim_filt(i)));
-            cond = find(strcmpi(evList,evstr_filt(i)));
+            cond = find(strcmp(evList,evstr_filt(i)));
             s(ind,cond) = 1;
         end
         CondNames = evList; %Check if this is a cell array as is expected.
