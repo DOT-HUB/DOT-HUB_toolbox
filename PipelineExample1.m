@@ -36,7 +36,7 @@ cfgFileName = [filepath '/ExampleData/Example1/preproPipelineExample1.cfg'];
 
 %% Run Homer2 pre-processing pipeline using .cfg file. Alternatively you can run line by line (as per commented below).
 
-[prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileName);
+%[prepro, preproFileName] = DOTHUB_runHomerPrepro(nirsFileName,cfgFileName);
 
 %%%%%Equivalent line-by-line Homer2 calls and prepro write:
  dod = hmrIntensity2OD(nirs.d);
