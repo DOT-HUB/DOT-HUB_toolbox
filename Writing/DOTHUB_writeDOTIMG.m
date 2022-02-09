@@ -76,7 +76,7 @@ dotimg.mua = mua;
 dotimg.tImg = tImg;
 
 % Skip naming and saving if filename parsed empty (streaming?)
-if isempty(preproFileName)
+if isempty(dotimgFileName)
     warning('No dotimgFileName provided. Exiting');
     return
 end
