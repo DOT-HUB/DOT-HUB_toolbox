@@ -1,5 +1,18 @@
 function [nirsResampled,outname] = DOTHUB_resampleNIRS(nirsFileName, fout)
 
+% This function amends the sample rate of a .nirs tile to the frequency
+% fout, then saves a new .nirs file at that new rate.
+%
+% INPUTS
+% nirsFileName  =        The filepath of an existing .nirs file
+% fout          =        The desired sample rate (defaults to 1Hz)
+%
+% OUTPUTS
+% nirsResampled =        A nirs structure containing all components of the
+%                        resampled .nirs file
+% outname       =        The name to which the resampled .nirs file is
+%                        saved.
+
 %############################################################
 if ~exist('nirsFileName','var')
     disp('Select .nirs file...');
