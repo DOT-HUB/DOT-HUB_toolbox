@@ -134,7 +134,7 @@ if (timeSelectFlag==1)
             prompt = {'Selection correct? Yes = y , No = n '};
             dlgtitle = 'Input';
             dims = 1;
-            definput = {'0','hsv'};
+            definput = {'y','hsv'};
             my_ans = inputdlg(prompt,dlgtitle,dims,definput);
             my_ans = my_ans{1};
             
