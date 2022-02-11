@@ -227,9 +227,12 @@ end
 
 % Build MeasList array (3rd column unused)
 for i = 1:size(chdat, 1)
-    SD.MeasList(i, 1) = 3 * enum_temp(i).src_node_id - (3 - enum_temp(i).src_idx - 1);
-    SD.MeasList(i, 2) = 4 * enum.groups.channels(i).det_node_id - (4 - enum.groups.channels(i).det_idx - 1); 
-    SD.MeasList(i, 4) = find(enum.groups.channels(i).src_wl == SD.Lambda);
+    %SD.MeasList(i, 1) = 3 * enum_temp(i).src_node_id - (3 - enum_temp(i).src_idx - 1);
+    %SD.MeasList(i, 2) = 4 * enum.groups.channels(i).det_node_id - (4 - enum.groups.channels(i).det_idx - 1); 
+    %SD.MeasList(i, 4) = find(enum.groups.channels(i).src_wl == SD.Lambda);
+    SD.MeasList(i, 1) = 3*(enum_temp(i).src_node_idx) + (enum_temp(i).src_idx + 1);
+    SD.MeasList(i, 2) = 4*(enum_temp(i).det_node_idx) + (enum_temp(i).det_idx + 1); 
+    SD.MeasList(i, 4) = find((SD.Lambda == enum_temp(i).src_wl));
 end
 
 % Sort MeasList by wavelength, update d accordingly
