@@ -365,7 +365,7 @@ else
     else
         %Check path actually exists (perhaps it has moved)
         [pathstr, name, ~] = fileparts(prepro.fileName);
-        if isfolder('pathstr')
+        if isfolder(pathstr)
             ds = datestr(now,'yyyymmDDHHMMSS');
             dotimgFileName = fullfile(pathstr,[name '.dotimg']);
         else
