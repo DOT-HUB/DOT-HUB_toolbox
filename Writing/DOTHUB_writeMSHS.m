@@ -1,9 +1,9 @@
 function [mshs, mshsFileName] = DOTHUB_writeMSHS(mshsFileName,logData,headVolumeMesh,gmSurfaceMesh,scalpSurfaceMesh,vol2gm,landmarks,tenFive)
 
 % This script creates a mesh file created from a given head model. Could be from an atlas or from an individual 
-
+%
 % ####################### INPUTS ##########################################
-
+%
 % mshsFileName      :  The desired path &/ filename for the .mshs file.
 %                      This can be anything, but we recommend this variable be defined with the
 %                      following code snippet, where: origMeshFullFileName = full path and name
