@@ -37,6 +37,10 @@ for i = 1:size(nirs.s,2)
     stim_tims(1:length(tmp),i) = tmp ;
 end
 
+%Zero mean prior to resample
+dtmp = nirs.d;
+mnD = mean()
+
 [d_res,t_res] = resample(nirs.d,nirs.t',fout);
 %Remove zeros and negatives.
 d_res(d_res<=0) = min(d_res(d_res>0));
