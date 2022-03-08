@@ -1,4 +1,4 @@
-function [GMSensitivity, GMmask] = DOTHUB_makeGMSensitivityMap2(jac,rmap,SD)
+function [GMSensitivity, GMmask] = DOTHUB_makeGMSensitivityMap(jac,rmap,SD)
 
 % Function to create a normalized GM sensitivity map, and a
 % thresholded mask based on the 'covered' definition from Array Designer.
