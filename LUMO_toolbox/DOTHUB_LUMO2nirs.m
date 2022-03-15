@@ -132,25 +132,43 @@ if exist('eventsCSVFileName','var')
 end
 
 % LOAD DATA  ###############################################################
-%Load toml contents
+%Load metadata.toml contents
 disp('Loading .toml contents...');
 metadata = toml.read([lumoDIR '/metadata.toml']);
-recordingdata = toml.read([lumoDIR '/' metadata.file_names.recordingdata_file]); %To be updated to recording.toml
+
+%Load lumo_file_version
+%TODO: needs to be updated in the future, something like:
+%   if(lumoFileVersion.major > 1 OR
+%       (lumoFileVersion.major == 0 AND lumoFileVersion.minor >= 4))
+lumoFileVersion = metadata.lumo_file_version;
+if(strcmp(lumoFileVersion,'0.4.0'))
+    is040OrHigher = true;
+else
+    is040OrHigher = false;
+end
+
+%Call Regex function on recording & hardware files if not version 0.4.0
+if(is040OrHigher)
+    readRecording = @(filename) regexAndReadRecordingDataFile(filename);
+    readHardware = @(filename) regexAndReadHardwareFile(filename);
+else
+    readRecording = @(filename) toml.read(filename);
+    readHardware = @(filename) toml.read(filename);
+end
+
+%Loading other toml file contents
+recordingdata = readRecording([lumoDIR '/' metadata.file_names.recordingdata_file]); %To be updated to recording.toml
 events = toml.read([lumoDIR '/' metadata.file_names.event_file]);
 if isfield(metadata.file_names,'hardware_file') %Updated file naming structure
-    hardware = toml.read([lumoDIR '/' metadata.file_names.hardware_file]);
+    hardware = readHardware([lumoDIR '/' metadata.file_names.hardware_file]);
 elseif ~contains(metadata.file_names.layout_file,'json') %Old file naming structure (layout_file is hardware.toml!)
-    hardware = toml.read([lumoDIR '/' metadata.file_names.layout_file]);
+    hardware = readHardware([lumoDIR '/' metadata.file_names.layout_file]);
 else
     error('No hardware.toml or layout.toml found in LUMO directory');
 end
 
 %Load layout JSON
 layoutData = jsondecode(fileread(layoutFileName));
-
-%Load log file
-logFileID = fopen([lumoDIR '/' metadata.file_names.log_file]);
-logtxt = textscan(logFileID,'%s');
 
 %Load intensity binaries
 disp('Loading intensity data');
@@ -343,13 +361,24 @@ if eventsFileFlag %Read events from simple 2-column CSV file.
     
 else
     
-    %Now check if there are any serial events
+    %Versions before '0.4.0' had a bug were timestamps were printed as
+    %strings instead of numbers, in violation of the specification.
+    %An anonymous function was defined here to allow both old and new
+    %timestamps to be read correctly.
+    
+    if (is040OrHigher)
+        getTimeStamp = @(timeStamp) timeStamp * 1e-3; %to seconds
+    else
+        getTimeStamp = @(timeStamp) str2num(timeStamp)*1e-3; %to seconds
+    end
+    
+    %Now check if there are any events
     if isempty(fieldnames(events))
         s = zeros(size(t,1),1); %return empty s vector
         CondNames = {''};
     else
         for i = 1:size(events.events,2)
-            timeStamp(i) = str2num(events.events{1,i}.Timestamp)*1e-3; %to seconds
+            timeStamp(i) = getTimeStamp(events.events{1,i}.Timestamp);
             eventStr{i} = events.events{1,i}.name;
         end
         [tmp,~,occuranceInd] = unique(eventStr,'stable'); %find unique events, maintain order in which they occured
