@@ -104,7 +104,7 @@ J_GM_wav2 = abs(jac.J{2}.gm)./volSum_wav2;
 
 %% Calculate threshold we define as 'sensitive'
 pthresh = 1; % % change in measured signal to be considered 'measured'
-actVol = 1000; %mm3 volume of a theoretical activation (0.5 cm3)
+actVol = 1000; %mm3 volume of a theoretical activation (1 cm3)
 deltaMua = 0.001; %mm-1 change in mua of theoretical activation (10%)
 tmp = vVol./actVol;
 SenseThresh = log((100+pthresh)/100)*tmp;
