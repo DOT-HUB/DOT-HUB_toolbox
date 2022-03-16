@@ -1,4 +1,4 @@
-function hFig = DOTHUB_LUMOplotArray(y,tHRF,SD,ylimits,distRange,overSizeRatios,titString,fontSize,lineWidth)
+function hFig = DOTHUB_LUMOplotArray(y,tHRF,SD,yLimits,distRange,overSizeRatios,titString,fontSize,lineWidth)
 
 %This function is designed to plot HRFs derived from LUMO data in the 2D 
 %arrangement dictated by the SD variable, with indications of the tile 
