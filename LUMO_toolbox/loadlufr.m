@@ -31,7 +31,7 @@ function [infoblks, enum, tchdat, chdat, satflag, ...  % Primary data
 %
 %   Optional input argument pairs
 %
-%   'chnfilter'  :  When loading the data, keep only those channels for 
+%   'chfilter'  :  When loading the data, keep only those channels for 
 %                   which an entry is provided in the provided matrix. The
 %                   matrix should have rows of the form:
 %
