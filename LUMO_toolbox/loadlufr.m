@@ -482,8 +482,7 @@ fclose(fid);
 
 
 % Build the saturation flag matrix
-det_sat_limit = 9
-5;
+det_sat_limit = 95;
 
 fprintf('Building saturation channel mapping\n');
 
