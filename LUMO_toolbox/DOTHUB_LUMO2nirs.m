@@ -4,7 +4,8 @@ function [nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirs(lumoDIR,layoutFil
 %and (if it is not contained within the .LUMO - which it should be)
 %also loads the associated .JSON layout from a seperate file.
 
-%If subject-specific registration data (from polhemus or other method) is available
+%If subject-specific registration data (from polhemus or other method) is
+%availabledw
 %in .cvs format, this too can be parsd. If it is parsed, the function
 %DOTHUB_LUMOPolhemus2SD is called to determine optode positions from the
 %polhemus data. The resulting 3D optode positions overwrite the default 3D
