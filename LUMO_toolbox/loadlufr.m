@@ -482,7 +482,8 @@ fclose(fid);
 
 
 % Build the saturation flag matrix
-det_sat_limit = 95;
+det_sat_limit = 9
+5;
 
 fprintf('Building saturation channel mapping\n');
 
@@ -496,6 +497,10 @@ for i = 1:length(enum.groups(groupidx_sel + 1).channels)
     i_det_opt_idx = enum.groups(groupidx_sel+1).channels(i).det_optode_idx + 1;
     i_src_node_idx = enum.groups(groupidx_sel+1).channels(i).src_node_idx + 1;
     i_src_opt_idx = enum.groups(groupidx_sel+1).channels(i).src_optode_idx + 1;
+    if(enum.groups(groupidx_sel+1).channels(i).src_wl == 850)
+        i_src_opt_idx = i_src_opt_idx-3;
+    end
+                    
     satmap(i_src_node_idx, i_src_opt_idx, i_det_node_idx, i_row_idx, i_det_opt_idx) = i;
 end
 
