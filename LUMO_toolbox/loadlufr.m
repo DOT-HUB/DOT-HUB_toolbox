@@ -313,33 +313,32 @@ if(apply_filter)
     chperm = zeros(n_filter*n_wl_min, 1);
     n_schans_keep = 0;
     
+    % Build the indexing arrays
+    lin_src_node_id = [enum.groups(groupidx_sel + 1).channels.src_node_id].';
+    lin_det_node_id = [enum.groups(groupidx_sel + 1).channels.det_node_id].';
+    lin_src_opt = [enum.groups(groupidx_sel + 1).channels.src_optode_name].' - 64;    % ASCII 'A' -> 1
+    lin_det_opt = [enum.groups(groupidx_sel + 1).channels.det_optode_name].' - 47;   % ASCII '0' -> 1
+     
     % Inform the user
     wb = waitbar(0, 'Applying distance filter');
     
     % Over every entry in the keep list
+    k = 1;
     for i = 1:size(chfilter,1)
+                
+        src_node_match = lin_src_node_id == chfilter(i,1);
+        det_node_match = lin_det_node_id == chfilter(i,3);
+        src_opt_match = lin_src_opt == chfilter(i,2);
+        det_opt_match = lin_det_opt == chfilter(i,4);
         
-        % Over every channel in the enumeration
-        for j = 1:length(enum.groups(groupidx_sel + 1).channels)
-            
-            src_node_match = enum.groups(groupidx_sel + 1).channels(j).src_node_id == chfilter(i,1);
-            det_node_match = enum.groups(groupidx_sel + 1).channels(j).det_node_id == chfilter(i,3);
-            
-            if src_node_match && det_node_match
-                
-                src_opt_match = enum.groups(groupidx_sel + 1).channels(j).src_optode_name == (chfilter(i, 2) + 64);    % ASCII 'A' -> 1
-                det_opt_match = enum.groups(groupidx_sel + 1).channels(j).det_optode_name == (chfilter(i, 4) + 47);    % ASCII '0' -> 1
-                
-                if src_opt_match && det_opt_match
-                    n_schans_keep = n_schans_keep + 1;
-                    chperm(n_schans_keep) = j;
-                end
-            end
-            
-        end
+        ch_match = find(src_node_match & det_node_match & src_opt_match & det_opt_match);
+        n_ch_match = length(ch_match);
+        
+        chperm(k:(k+n_ch_match-1)) = ch_match;
+        k = k+n_ch_match;
         
         if ~mod(i,100)
-            waitbar(i/length(rclength), wb, sprintf('Applying distance filter %d / %d', i, n_filter));
+            waitbar(i/size(chfilter,1), wb, sprintf('Applying distance filter %d / %d', i, size(chfilter,1)));
         end
         
     end
@@ -350,6 +349,7 @@ if(apply_filter)
         error('Some entries in the channel keep filter could not be matched');
     end
     
+    n_schans_keep = length(chperm);
     fprintf('Channel filtering complete, found %d channels\n', n_schans_keep);
     
 else
