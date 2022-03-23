@@ -534,60 +534,6 @@ end
 
 close(wb);
 
-% Previous saturation flag method
-% 
-% % Loop over the frames and get them data
-% wb = waitbar(0, 'Building saturation flag matrix');
-% 
-% if(apply_filter)
-%     
-%     satflag = false(n_schans_keep, n_frames);
-%     
-%     for i = 1:n_schans_keep
-%         for j = 1:n_frames
-% 
-%             i_row_idx = enum.groups(groupidx_sel+1).channels(chperm(i)).acq_row + 1;
-%             i_det_idx = enum.groups(groupidx_sel+1).channels(chperm(i)).det_optode_idx + 1;
-%             i_node_idx = enum.groups(groupidx_sel+1).channels(chperm(i)).det_node_idx + 1;
-%             
-%             idx = sub2ind(size(detmax), i_node_idx, i_row_idx, i_det_idx, j);
-%             
-%             satflag(i,j) = detmax(idx) > det_sat_limit;
-%            
-%         end
-%         
-%         if ~mod(j,100)
-%             waitbar(j/n_frames, wb, sprintf('Building saturation flag matrix %d / %d', j, n_frames));
-%         end
-%         
-%     end
-%     
-% else
-%     
-%     satflag = false(n_schans, n_frames);
-%     
-%     for j = 1:n_frames
-%         for i = 1:n_schans
-%             
-%             
-%             i_row_idx = enum.groups(groupidx_sel+1).channels(i).acq_row + 1;
-%             i_det_idx = enum.groups(groupidx_sel+1).channels(i).det_optode_idx + 1;
-%             i_node_idx = enum.groups(groupidx_sel+1).channels(i).det_node_idx + 1;
-%             
-%             idx = sub2ind(size(detmax), i_node_idx, i_row_idx, i_det_idx, j);
-%             
-%             satflag(i,j) = detmax(idx) > det_sat_limit;
-%            
-%         end
-%         
-%         if ~mod(j,100)
-%             waitbar(j/n_frames, wb, sprintf('Building saturation flag matrix %d / %d', j, n_frames));
-%         end
-%     end
-%     
-% end
-% 
-% close(wb);
 
 % Reorder MPU data
 dim = size(gyrdat);
