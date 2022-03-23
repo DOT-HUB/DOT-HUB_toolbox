@@ -26,7 +26,7 @@ function [jac, jacFileName] = DOTHUB_makeToastJacobian(rmap,basis)
 %                    % vol2gm                :   The sparse matrix mapping from head volume mesh
 %                    %                           space to GM surface mesh space
 %
-% basis        :   (Optiona) 1x3 vector specifying basis dimensions if desired. 
+% basis        :   (Optional) 1x3 vector specifying basis dimensions if desired. 
 %                  If you don't want to specify a basis don't parse or parse empty
 %                  in which case calculation will be in volume unless
 %                  nnodes>200k, in which case a basis of [50 50 50] is assigned.
