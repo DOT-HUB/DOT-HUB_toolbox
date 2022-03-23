@@ -111,15 +111,16 @@ if exist('distLimit','var')
     end
 end
 
-% Determine Status of Layout Data###############################################################
+% Determine Status of Layout Data ###############################################################
 if ~exist('layoutFileName','var') %Not parsed so check exists in .lufr
     if ~exist('enum.groups.index.layout', 'var') %Not contained in .lufr, so load
         disp('Layout file not parsed or found in lufr, please select .json layout file...');
         [filename, pathname, ~] = uigetfile({'*.json';'*.JSON'},'Select .json layout file');
         layoutFileName = [pathname '/' filename];
     else
-        disp('Using default layout within .lufr directory (WARNING: UNTESTED)');
-        layoutFileName = [];
+        error('Parsing a layout .json is currently required')
+        %disp('Using default layout within .lufr directory (WARNING: UNTESTED)');
+        %layoutFileName = [];
     end
 elseif isempty(layoutFileName)
     if ~exist('enum.groups.index.layout', 'var') %Not contained in .lufr, so load
@@ -128,100 +129,73 @@ elseif isempty(layoutFileName)
         layoutFileName = [pathname '/' filename];
         layoutData = jsondecode(fileread(layoutFileName));
     else
-        disp('Using default layout within .lufr directory (WARNING: UNTESTED)');
-        layoutFileName = [];
+        error('Parsing a layout .json is currently required')
+        %disp('Using default layout within .lufr directory (WARNING: UNTESTED)');
+        %layoutFileName = [];
     end
 end
 
-% Extract Default Layout Data ######################################################################
-if ~isempty(layoutFileName)
+% Extract Default Layout Optode Positions and create chnfilter #############################
+if ~isempty(layoutFileName) && maxDist>0
     layoutData = jsondecode(fileread(layoutFileName));
     nDocks = size(layoutData.docks,1);
-    for n = 1:nNodes
-        nid = nodes(n);
-        for det = 1:4
-            SDdefault.DetPos(det+(n-1)*4,1) = layoutData.docks(nid).optodes(det).coordinates_2d.x;
-            SDdefault.DetPos(det+(n-1)*4,2) = layoutData.docks(nid).optodes(det).coordinates_2d.y;
-            SDdefault.DetPos(det+(n-1)*4,3) = 0;
-        end
+    %Extract 3D optode positions
+    %[ src_node_id src_opt_id det_node_id det_opt_id]
+    chfilter = [];
+    for n = 1:nDocks
         for src = 1:3
-            SDdefault.SrcPos(src+(n-1)*3,1) = layoutData.docks(nid).optodes(src+4).coordinates_2d.x;
-            SDdefault.SrcPos(src+(n-1)*3,2) = layoutData.docks(nid).optodes(src+4).coordinates_2d.y;
-            SDdefault.SrcPos(src+(n-1)*3,3) = 0;
+            SrcPos(n,src,1) = layoutData.docks(n).optodes(src+4).coordinates_3d.x;
+            SrcPos(n,src,2) = layoutData.docks(n).optodes(src+4).coordinates_3d.y;
+            SrcPos(n,src,3) = layoutData.docks(n).optodes(src+4).coordinates_3d.z;
         end
-    end
-    % And 3D
-    for det = 1:4
-        SD3Ddefault.DetPos(det+(n-1)*4,1) = layoutData.docks(nid).optodes(det).coordinates_3d.x;
-        SD3Ddefault.DetPos(det+(n-1)*4,2) = layoutData.docks(nid).optodes(det).coordinates_3d.y;
-        SD3Ddefault.DetPos(det+(n-1)*4,3) = layoutData.docks(nid).optodes(det).coordinates_3d.z;
-    end
-    for src = 1:3
-        SD3Ddefault.SrcPos(src+(n-1)*3,1) = layoutData.docks(nid).optodes(src+4).coordinates_3d.x;
-        SD3Ddefault.SrcPos(src+(n-1)*3,2) = layoutData.docks(nid).optodes(src+4).coordinates_3d.y;
-        SD3Ddefault.SrcPos(src+(n-1)*3,3) = layoutData.docks(nid).optodes(src+4).coordinates_3d.z;
-    end
-    if isfield(layoutData,'Landmarks')
-        for i = 1:size(layoutData.Landmarks,1)
-            SD3Ddefault.Landmarks(i,1) = layoutData.Landmarks(i).x;
-            SD3Ddefault.Landmarks(i,2) = layoutData.Landmarks(i).y;
-            SD3Ddefault.Landmarks(i,3) = layoutData.Landmarks(i).z;
-        end
-    end
-    SDdefault.SpatialUnit = 'mm';
-    SD3Ddefault.SpatialUnit = 'mm';
-
-else %This means no layout file parsed - must use data in lufr (should be there)
-    warning('Layout data from within LUFR is untested')
-    nDocks = size(enum.groups.index.layout.docks,1);
-    for n = 1:nNodes
-        nid = nodes(n);
         for det = 1:4
-            SDdefault.DetPos(det+(n-1)*4,1) = enum.groups.index.layout.docks(nid).optodes(det).coordinates_2d.x;
-            SDdefault.DetPos(det+(n-1)*4,2) = enum.groups.index.layout.docks(nid).optodes(det).coordinates_2d.y;
-            SDdefault.DetPos(det+(n-1)*4,3) = 0;
-        end
-        for src = 1:3
-            SDdefault.SrcPos(src+(n-1)*3,1) = enum.groups.index.layout.docks(nid).optodes(src+4).coordinates_2d.x;
-            SDdefault.SrcPos(src+(n-1)*3,2) = enum.groups.index.layout.docks(nid).optodes(src+4).coordinates_2d.y;
-            SDdefault.SrcPos(src+(n-1)*3,3) = 0;
-        end
-        % And 3D
-        for det = 1:4
-            SD3Ddefault.DetPos(det+(n-1)*4,1) = enum.groups.index.layout.docks(nid).optodes(det).coordinates_3d.x;
-            SD3Ddefault.DetPos(det+(n-1)*4,2) = enum.groups.index.layout.docks(nid).optodes(det).coordinates_3d.y;
-            SD3Ddefault.DetPos(det+(n-1)*4,3) = enum.groups.index.layout.docks(nid).optodes(det).coordinates_3d.z;
-        end
-        for src = 1:3
-            SD3Ddefault.SrcPos(src+(n-1)*3,1) = enum.groups.index.layout.docks(nid).optodes(src+4).coordinates_3d.x;
-            SD3Ddefault.SrcPos(src+(n-1)*3,2) = enum.groups.index.layout.docks(nid).optodes(src+4).coordinates_3d.y;
-            SD3Ddefault.SrcPos(src+(n-1)*3,3) = enum.groups.index.layout.docks(nid).optodes(src+4).coordinates_3d.z;
+            DetPos(n,det,1) = layoutData.docks(n).optodes(det).coordinates_3d.x;
+            DetPos(n,det,2) = layoutData.docks(n).optodes(det).coordinates_3d.y;
+            DetPos(n,det,3) = layoutData.docks(n).optodes(det).coordinates_3d.z;
         end
     end
-
-    SDdefault.SpatialUnit = 'mm';
-    SD3Ddefault.SpatialUnit = 'mm';
+    for sn = 1:nDocks
+        for src = 1:3
+            for dn = 1:nDocks
+                for det = 1:4
+                    %horrific nested loop, but brain can't process better
+                    %solution right now
+                    if vecnorm(SrcPos(sn,src,:) - DetPos(dn,det,:)) <= maxDist
+                        chfilter = [chfilter; sn src dn det];
+                    end
+                end
+            end
+        end
+    end
 end
 
-
-
-
 % LOAD LUFR DATA  ###############################################################
-[infoblks, ... % Free-form information fields
-    enum, ...     % JSON format enumeration from the back end
-    tchdat, ...   % The time increment of a single data frame (1/fps)
-    chdat, ...    % Channel data (channels x frames)
-    satflag, ...  % Saturation flag (channels x frames)
-    tmpdat, ...   % Tile internal temperatures (tiles x frames)
-    vindat, ...   % Tile input voltages (tiles x frames)
-    srcpwr, ...   % Source powers (nodes x wavelengths x frames)
-    evtim, ...    % Time of each event (ms)
-    evstr, ...    % Associated string for each marked event
-    tmpudat, ...  % The time increment of a single MPU frame
-    gyrdat, ...   % Gyroscope data (nodes x dim x meas/frame x frame), units of degrees per second
-    accdat] ...   % Accellerometer data (nodes x dim x meas/frame x frame), units of g
-    = loadlufr(lufrFileName);  % Specify the group index (defaults to zero)
-
+[infoblks, enum, tchdat, chdat, satflag, ...  % Primary data
+          tmpdat, vindat, srcpwr, ...                           % Environmental
+          evtim, evstr, ...                                     % Event markers
+          tmpudat, gyrdat, accdat, ...                          % Motion
+          chperm] ...                                           % Channel permutation
+          = loadlufr(lufrFileName,'chfilter',chfilter);       % Variable options
+%   'chnfilter'  :  When loading the data, keep only those channels for 
+%                   which an entry is provided in the provided matrix. The
+%                   matrix should have rows of the form:
+%
+%                   [ src_node_id src_opt_id det_node_id det_opt_id]
+%                   
+%                   where:
+%
+%                       - src_node_id is the one-indexed dock ID of the
+%                         source node
+%                       - src_opt_id is the source optode, indexed as A=1,
+%                         B=2, C=3
+%                       - det_node_id is the one-indexed dock ID of the
+%                         detector node
+%                       - det_opt_id is the detector optode index, [1, 4].
+%
+%                   When using this option, one must index into the
+%                   enumeration data using the returned chperm array to map
+%                   from the appropriate elements of the output data to the
+%                   global enumeration.
 % Convert to .nirs format #########################################################################
 
 % Intensity data
