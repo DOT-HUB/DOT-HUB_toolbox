@@ -20,6 +20,7 @@
 % infantFlag =          true if light-guides associated with this array are the infant style
 %                       If a vector of length nTiles, take tile-specific value.
 %
+%
 % saveFlag =            true if resulting SD file should be saved (default true)
 %
 % OUTPUTS: ###############################################################
