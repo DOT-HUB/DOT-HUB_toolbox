@@ -158,7 +158,7 @@ if ~isempty(layoutFileName) && maxDist>0
         for src = 1:3
             for dn = 1:nDocks
                 for det = 1:4
-                    %horrific nested loop, but brain can't process better
+                    %horrific nested loop, but my brain can't process a better
                     %solution right now
                     if vecnorm(SrcPos(sn,src,:) - DetPos(dn,det,:)) <= maxDist
                         chfilter = [chfilter; sn src dn det];
@@ -170,53 +170,51 @@ if ~isempty(layoutFileName) && maxDist>0
 end
 
 % LOAD LUFR DATA  ###############################################################
-[infoblks, enum, tchdat, chdat, satflag, ...  % Primary data
+[infoblks, enum, tchdat, chdat, satflag, ...                    % Primary data
           tmpdat, vindat, srcpwr, ...                           % Environmental
           evtim, evstr, ...                                     % Event markers
           tmpudat, gyrdat, accdat, ...                          % Motion
           chperm] ...                                           % Channel permutation
-          = loadlufr(lufrFileName,'chfilter',chfilter);       % Variable options
-%   'chnfilter'  :  When loading the data, keep only those channels for 
-%                   which an entry is provided in the provided matrix. The
-%                   matrix should have rows of the form:
-%
-%                   [ src_node_id src_opt_id det_node_id det_opt_id]
-%                   
-%                   where:
-%
-%                       - src_node_id is the one-indexed dock ID of the
-%                         source node
-%                       - src_opt_id is the source optode, indexed as A=1,
-%                         B=2, C=3
-%                       - det_node_id is the one-indexed dock ID of the
-%                         detector node
-%                       - det_opt_id is the detector optode index, [1, 4].
-%
-%                   When using this option, one must index into the
-%                   enumeration data using the returned chperm array to map
-%                   from the appropriate elements of the output data to the
-%                   global enumeration.
+          = loadlufr(lufrFileName,'chfilter',chfilter);         % Variable options
+
 % Convert to .nirs format #########################################################################
 
 % Intensity data
-d = chdat';
+d = chdat'; clear chdat
 
 % Temporal data
-t = (0:tchdat:(size(chdat, 2)-1)*tchdat)';
+t = (0:tchdat:(size(d, 1)-1)*tchdat)';
 
-% SD info
+% Define SD (2D) ###############################################################
 nNodes = size(enum.groups.nodes, 1);
 nodes = [enum.groups.nodes.id];
 SD.Lambda = unique([enum.groups.channels.src_wl]);
 SD.nSrcs = nNodes * 3;
 SD.nDets = nNodes * 4;
+SD.SpatialUnit = 'mm';
+enumperm = enum.groups(1).channels(chperm);
+for i = 1:size(d,2)
+    SD.MeasList(i,1) = 3*(enumperm(i).src_node_idx) + (enumperm(i).src_optode_idx - 3);
+    SD.MeasList(i,2) = 4*(enumperm(i).det_node_idx) + enumperm(i).det_idx + 1;
+    SD.MeasList(i,3) = 1;
+    SD.MeasList(i,4) = find(SD.Lambda == enumperm(i).src_wl);
+end
 
-% Then need to create SD3D
-% using either this or (if available) polhemus data.
+[~, sortInd] = sort(SD.MeasList(:,4));
+SD.MeasList = SD.MeasList(sortInd,:);
+d = d(:,sortInd);
+satflag = satflag(sortInd,:)';
 
+% Force create MeasListAct - all ones
+SD.MeasListAct = ones(size(SD.MeasList,1),1);
+
+% Define SD (3D) ###############################################################
+% Using either this or (if available) polhemus data.
 if polhemusFlag %If polhemus information is parsed, calculate S-D positions from that file
     fprintf(['Using ' posCSVFileName ' to define SD3D...\n']);
     [SD_POL, SD3DFileName] = DOTHUB_LUMOpolhemus2SD3D(posCSVFileName); %This line saves the .SD3D
+    
+    SD_POL.MeasList = SD.MeasList;
     SD_POL.MeasListAct = SD.MeasListAct;
 
     if nNodes<nDocks %Crop SD file accordingly if the number of docks populated in the datafile differs from the number in the SD_3D data
@@ -259,7 +257,6 @@ else %Assume 3D contents of layout file (or lufr) is to be used and save as SD3D
 
     SD3D = SD;
     if isempty(layoutFileName) %This means no layout file parsed - must use data in lufr (should be there)
-
         for n = 1:nNodes
             nid = nodes(n);
             for det = 1:4
@@ -289,6 +286,7 @@ else %Assume 3D contents of layout file (or lufr) is to be used and save as SD3D
                 SD3D.SrcPos(src+(n-1)*3,3) = layoutData.docks(nid).optodes(src+4).coordinates_3d.z;
             end
         end
+
         if isfield(layoutData,'Landmarks')
             for i = 1:size(layoutData.Landmarks,1)
                 SD3D.Landmarks(i,1) = layoutData.Landmarks(i).x;
@@ -314,38 +312,13 @@ periph.t_mpu = (0:tmpudat:(size(accdat, 3) - 1)*tmpudat)';
 periph.SrcPowers = srcpwr;
 
 % Saturation flag
-periph.SatFlag = satflag';
+periph.SatFlag = satflag;
 
 % Temperature of each node
 periph.NodeTemp = tmpdat;
 
 % Input voltage
 periph.InputVolt = vindat;
-
-% Full Measurement List
-SD.MeasList = ones(SD.nSrcs * SD.nDets * length(SD.Lambda), 4);
-
-% Creating temporary object to change indexing of sources - keep 1:3 instead of 1:6
-enum_temp = enum.groups.channels;
-change_index = find([enum_temp.src_wl] == 850);
-for i = change_index
-    enum_temp(i).src_idx = enum_temp(i).src_idx - 3;
-end
-
-% Build MeasList array (3rd column unused)
-for i = 1:size(chdat, 1)
-    SD.MeasList(i, 1) = 3*(enum_temp(i).src_node_idx) + (enum_temp(i).src_idx + 1);
-    SD.MeasList(i, 2) = 4*(enum_temp(i).det_node_idx) + (enum_temp(i).det_idx + 1);
-    SD.MeasList(i, 4) = find((SD.Lambda == enum_temp(i).src_wl));
-end
-
-% Sort MeasList by wavelength, update d and satflag accordingly
-[SD.MeasList, sort_indx] = sortrows(SD.MeasList, 4);
-d = double(d(:,sort_indx));
-periph.SatFlag = periph.SatFlag(:,sort_indx);
-
-% Force create MeasListAct - all ones
-SD.MeasListAct = ones(size(SD.MeasList,1),1);
 
 % Pad events
 s = zeros(size(t));
@@ -436,6 +409,27 @@ nirs.CondNames = CondNames;
 
 nirsFileName = fullfile(lufrPath, [lufrName '.nirs']);
 fprintf(['Saving file to ' nirsFileName ' ...\n']);
-%save(nirsFileName,'-struct','nirs','-v7.3');
+save(nirsFileName,'-struct','nirs','-v7.3');
 
-end
+
+% % Full Measurement List
+% SD.MeasList = ones(SD.nSrcs * SD.nDets * length(SD.Lambda), 4);
+% 
+% % Creating temporary object to change indexing of sources - keep 1:3 instead of 1:6
+% enum_temp = enum.groups.channels;
+% change_index = find([enum_temp.src_wl] == 850);
+% for i = change_index
+%     enum_temp(i).src_idx = enum_temp(i).src_idx - 3;
+% end
+
+% Build MeasList array (3rd column unused)
+% for i = 1:size(chdat, 1)
+%     SD.MeasList(i, 1) = 3*(enum_temp(i).src_node_idx) + (enum_temp(i).src_idx + 1);
+%     SD.MeasList(i, 2) = 4*(enum_temp(i).det_node_idx) + (enum_temp(i).det_idx + 1);
+%     SD.MeasList(i, 4) = find((SD.Lambda == enum_temp(i).src_wl));
+% end
+
+% % Sort MeasList by wavelength, update d and satflag accordingly
+% [SD.MeasList, sort_indx] = sortrows(SD.MeasList, 4);
+% d = double(d(:,sort_indx));
+% periph.SatFlag = periph.SatFlag(:,sort_indx);
