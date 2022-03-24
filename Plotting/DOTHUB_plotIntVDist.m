@@ -14,6 +14,7 @@ function DOTHUB_plotIntVDist(d,SD,labelFlag,xAxisUpperLim,varargin)
 %
 % varargin  =  optional input pairs:
 %              'hAxes' - optional axis handle
+%              'noiseFloor' - flag to estimate and plot noise floor. Default true.
 %
 % ######################## OUTPUTS #########################################
 %
@@ -34,10 +35,21 @@ end
 
 varInputs = inputParser;
 addParameter(varInputs,'hAxes','',@ishandle);
+validateNFFlag = @(x) assert(any(strcmpi({'on','off'},x)));
+addParameter(varInputs,'noiseFloor',@validateNFFlag);
 parse(varInputs,varargin{:});
 varInputs = varInputs.Results;
 if isempty(varInputs.hAxes)
     varInputs.hAxes = gca;
+end
+if isempty(varInputs.noiseFloor)
+    noiseFloorFlag = true;
+else
+    if strcmpi(varInputs.noiseFloor,'on')
+        noiseFloorFlag = true;
+    elseif strcmpi(varInputs.noiseFloor,'off')
+        noiseFloorFlag = false;
+    end
 end
       
 dists = DOTHUB_getSDdists(SD);
@@ -72,11 +84,16 @@ set(varInputs.hAxes,'YScale','log','XGrid','on','YGrid','on','box','on','FontSiz
 xlabel(varInputs.hAxes,'S-D Distance (mm)');
 ylabel(varInputs.hAxes,'Intensity (arb.)');
 
-if max(dists)>70
-    noisefloorest = mean(mnD(dists>70));
-    line(varInputs.hAxes,[0 xAxisUpperLim],[noisefloorest noisefloorest],'LineWidth',2,'LineStyle','-.','Color','k');
-    text(varInputs.hAxes,1,noisefloorest*0.75,['Noise floor ~ ' num2str(noisefloorest,'%0.2e')]);
+if noiseFloorFlag
+    if max(dists)>70
+        noisefloorest = mean(mnD(dists>70));
+        line(varInputs.hAxes,[0 xAxisUpperLim],[noisefloorest noisefloorest],'LineWidth',2,'LineStyle','-.','Color','k');
+        text(varInputs.hAxes,1,noisefloorest*0.75,['Noise floor ~ ' num2str(noisefloorest,'%0.2e')]);
+    else
+        noisefloorest = min(mnD(:));
+    end
 end
+
 hold(varInputs.hAxes,'off');
 legend(varInputs.hAxes,legText);
 
