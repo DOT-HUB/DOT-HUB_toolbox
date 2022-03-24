@@ -36,7 +36,7 @@ end
 varInputs = inputParser;
 addParameter(varInputs,'hAxes','',@ishandle);
 validateNFFlag = @(x) assert(any(strcmpi({'on','off'},x)));
-addParameter(varInputs,'noiseFloor',@validateNFFlag);
+addParameter(varInputs,'noiseFloor','on',validateNFFlag);
 parse(varInputs,varargin{:});
 varInputs = varInputs.Results;
 if isempty(varInputs.hAxes)
@@ -87,11 +87,11 @@ ylabel(varInputs.hAxes,'Intensity (arb.)');
 if noiseFloorFlag
     if max(dists)>70
         noisefloorest = mean(mnD(dists>70));
-        line(varInputs.hAxes,[0 xAxisUpperLim],[noisefloorest noisefloorest],'LineWidth',2,'LineStyle','-.','Color','k');
-        text(varInputs.hAxes,1,noisefloorest*0.75,['Noise floor ~ ' num2str(noisefloorest,'%0.2e')]);
     else
         noisefloorest = min(mnD(:));
     end
+    line(varInputs.hAxes,[0 xAxisUpperLim],[noisefloorest noisefloorest],'LineWidth',2,'LineStyle','-.','Color','k');
+    text(varInputs.hAxes,1,noisefloorest*0.75,['Noise floor ~ ' num2str(noisefloorest,'%0.2e')]);
 end
 
 hold(varInputs.hAxes,'off');

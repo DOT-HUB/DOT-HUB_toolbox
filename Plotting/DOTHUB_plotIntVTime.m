@@ -1,4 +1,4 @@
-function DOTHUB_plotIntVTime(t,d,SD,labelFlag)
+function DOTHUB_plotIntVTime(t,d,SD,labelFlag,varargin)
 
 % This function creates an intensity versus time figure with active labels
 % for LUMO
@@ -13,6 +13,10 @@ function DOTHUB_plotIntVTime(t,d,SD,labelFlag)
 %                 clearn SD.MeasListAct
 % labelFlag     : If true, the datacursor is activated to allow point
 %                 labelling (optional, default off);
+%
+% varargin  =  optional input pairs:
+%              'hAxes' - optional axis handle
+%              'noiseFloor' - flag to estimate and plot noise floor. Default true.
 %
 %######################## OUTPUTS #########################################
 %
@@ -31,18 +35,42 @@ if ~exist('labelFlag','var')
     labelFlag = 0;
 end
 
+varInputs = inputParser;
+addParameter(varInputs,'hAxes','',@ishandle);
+validateNFFlag = @(x) assert(any(strcmpi({'on','off'},x)));
+addParameter(varInputs,'noiseFloor','on',validateNFFlag);
+parse(varInputs,varargin{:});
+varInputs = varInputs.Results;
+if isempty(varInputs.hAxes)
+    varInputs.hAxes = gca;
+end
+if isempty(varInputs.noiseFloor)
+    noiseFloorFlag = true;
+else
+    if strcmpi(varInputs.noiseFloor,'on')
+        noiseFloorFlag = true;
+    elseif strcmpi(varInputs.noiseFloor,'off')
+        noiseFloorFlag = false;
+    end
+end
+
 dists = DOTHUB_getSDdists(SD);
 dists = [dists dists];
 
-plot(t,d(:,SD.MeasListAct==1));
+plot(varInputs.hAxes,t,d(:,SD.MeasListAct==1));
 xlim([min(t) max(t)]);
-set(gca,'YScale','log','XGrid','on','YGrid','on','FontSize',16);
+set(varInputs.hAxes,'YScale','log','XGrid','on','YGrid','on','FontSize',16);
 xlabel('Time (s)');
 ylabel('Intensity (arb.)');
 box on
 
-if max(dists)>70
-    noisefloorest = mean(mean(d(:,dists>70)));
+if noiseFloorFlag
+    if max(dists)>70
+        mnD = mean(d);
+        noisefloorest = mean(mean(d(:,dists>70)));
+    else
+        noisefloorest = min(mnD(:));
+    end
     line([min(t) max(t)],[noisefloorest noisefloorest],'LineWidth',2,'LineStyle','-.','Color','k');
     text(1,noisefloorest*0.75,['Noise floor ~ ' num2str(noisefloorest,'%0.2e')]);
 end
