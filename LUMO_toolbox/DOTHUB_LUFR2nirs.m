@@ -212,12 +212,14 @@ SD.MeasListAct = ones(size(SD.MeasList,1),1);
 % Using either this or (if available) polhemus data.
 if polhemusFlag %If polhemus information is parsed, calculate S-D positions from that file
     fprintf(['Using ' posCSVFileName ' to define SD3D...\n']);
-    [SD_POL, SD3DFileName] = DOTHUB_LUMOpolhemus2SD3D(posCSVFileName); %This line saves the .SD3D
+    %Turn off saveFlag as polhemus2SD3D must save ALL CHANNELS, whereas we
+    %want cropped SD3D.
+    [SD_POL, SD3DFileName] = DOTHUB_LUMOpolhemus2SD3D(posCSVFileName,0,0); 
     
-    SD_POL.MeasList = SD.MeasList;
-    SD_POL.MeasListAct = SD.MeasListAct;
-
-    if nNodes<nDocks %Crop SD file accordingly if the number of docks populated in the datafile differs from the number in the SD_3D data
+    %Crop SD file accordingly if the number of docks populated in the datafile differs from the number in the SD_3D data
+    %Or if channels have been reduced due to distLimit
+    if nNodes<nDocks || size(SD.MeasList,1)<size(SD_POL.MeasList,1)
+    
         SD3D = SD; %Define based on SD which contains correct measlist
         for n = 1:nNodes
             nid = nodes(n);
@@ -231,26 +233,31 @@ if polhemusFlag %If polhemus information is parsed, calculate S-D positions from
         SD3D.Landmarks = SD_POL.Landmarks;
 
         %Plot cropped array
-        f2 = figure;
-        set(f2,'Name','Final (SUBSET) 3D Array Layout');
-        for i = 1:size(SD3D.SrcPos,1)
-            plot3(SD3D.SrcPos(i,1),SD3D.SrcPos(i,2),SD3D.SrcPos(i,3),'r.','MarkerSize',30);hold on;
-            text(SD3D.SrcPos(i,1),SD3D.SrcPos(i,2)+3,SD3D.SrcPos(i,3),['S' num2str(i)],'Color','r');
-        end
-        for i = 1:size(SD3D.DetPos,1)
-            plot3(SD3D.DetPos(i,1),SD3D.DetPos(i,2),SD3D.DetPos(i,3),'b.','MarkerSize',30);hold on;
-            text(SD3D.DetPos(i,1),SD3D.DetPos(i,2)+3,SD3D.DetPos(i,3),['D' num2str(i)],'Color','b');
-        end
-        plotmesh(SD3D.Landmarks,'g.','MarkerSize', 30);hold on;
-        landmarkLabels = {'Nz','Iz','Ar','Al','Cz'};
-        for i = 1:size(SD3D.Landmarks,1)
-            text(SD3D.Landmarks(i,1),SD3D.Landmarks(i,2)+3,SD3D.Landmarks(i,3)+3,landmarkLabels{i});
-        end
-        axis equal
-        xlabel('X (mm)');ylabel('Y (mm)');zlabel('Z (mm)');
-        title('Final Subset Array')
+        %f2 = figure;
+        %set(f2,'Name','Final (SUBSET) 3D Array Layout');
+        %for i = 1:size(SD3D.SrcPos,1)
+        %    plot3(SD3D.SrcPos(i,1),SD3D.SrcPos(i,2),SD3D.SrcPos(i,3),'r.','MarkerSize',30);hold on;
+        %    text(SD3D.SrcPos(i,1),SD3D.SrcPos(i,2)+3,SD3D.SrcPos(i,3),['S' num2str(i)],'Color','r');
+        %end
+        %for i = 1:size(SD3D.DetPos,1)
+        %    plot3(SD3D.DetPos(i,1),SD3D.DetPos(i,2),SD3D.DetPos(i,3),'b.','MarkerSize',30);hold on;
+        %    text(SD3D.DetPos(i,1),SD3D.DetPos(i,2)+3,SD3D.DetPos(i,3),['D' num2str(i)],'Color','b');
+        %end
+        %plotmesh(SD3D.Landmarks,'g.','MarkerSize', 30);hold on;
+        %landmarkLabels = {'Nz','Iz','Ar','Al','Cz'};
+        %for i = 1:size(SD3D.Landmarks,1)
+        %    text(SD3D.Landmarks(i,1),SD3D.Landmarks(i,2)+3,SD3D.Landmarks(i,3)+3,landmarkLabels{i});
+        %end
+        %axis equal
+        %xlabel('X (mm)');ylabel('Y (mm)');zlabel('Z (mm)');
+        %title('Final Subset Array')
+
+        disp(['Saving posCSV derived SD3D (with cropping) to ' SD3DFileName ' ...\n']);
+        save(SD3DFileName,'SD3D');
     else
+        disp(['Saving posCSV derived SD3D (full channel) to ' SD3DFileName ' ...\n']);
         SD3D = SD_POL;
+        save(SD3DFileName,'SD3D');
     end
 
 else %Assume 3D contents of layout file (or lufr) is to be used and save as SD3D
