@@ -241,6 +241,11 @@ linklist = DOTHUB_SD2linklist(SD3Dmesh);
 qmfilename = 'tmpfull.qm';
 DOTHUB_writeToastQM(qmfilename,SD3Dmesh.SrcPos,SD3Dmesh.DetPos,linklist)
 
+disp('ARRAY CONTAINS:');
+disp(['Source Locations: ' num2str(size(linklist,1))]);
+disp(['Detector Locations: ' num2str(length(unique(linklist(linklist>=0))))]);
+disp(['Channels: ' num2str(sum(linklist(:)>=0))]);
+
 % Generate Jacobian #######################################################
 % #########################################################################
 
