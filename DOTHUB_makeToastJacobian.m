@@ -308,13 +308,16 @@ for wav = 1:nWavs
     
     if basisFlag %Multiply by c, then map to volume to GM, delete volume
         J{wav}.basis = Jtmp.*repmat(hBasis.Map('M->S',c_medium),1,size(Jtmp,1))';
+        wb = waitbar(0,'Mapping channels basis->volume to yield J.gm');
         for chan = 1:nChansPerWav
-            J{wav}.vol(chan,:) = hBasis.Map('S->M',J{wav}.basis(chan,:)');
+            waitbar(chan/nChansPerWav,wb);
+            tmpVolJchan = hBasis.Map('S->M',J{wav}.basis(chan,:)');
+            J{wav}.gm(chan,:) = (vol2gm*tmpVolJchan)'; 
         end
-        J{wav}.gm = (vol2gm*J{wav}.vol')'; 
-        
+        close(wb);
+
         %Clear things, empty J.vol as we are in basis
-        clear Jtmp
+        clear Jtmp tmpVolJchan
         J{wav}.vol = [];
         
     else %In volume nodes
