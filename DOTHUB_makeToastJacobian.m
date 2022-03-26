@@ -310,6 +310,8 @@ for wav = 1:nWavs
     
     tic
     Jtmp = toastJacobianCW(hMesh, hBasis, qvec, mvec, muaVec(wav,:)', musPrimeVec(wav,:)', refIndVec(wav,:)', jtype, bicgstabtol);
+    duration = toc;
+    fprintf(['CtoastJacobian completed at wavelength ', num2str(wav), ' in ' num2str(duration/60) ' minutes\n']);
     
     if basisFlag %Multiply by c, then map to volume to GM, delete volume
         J{wav}.basis = Jtmp.*repmat(hBasis.Map('M->S',c_medium),1,size(Jtmp,1))';
