@@ -167,16 +167,22 @@ if ~isempty(layoutFileName) && maxDist>0
             end
         end
     end
+    % LOAD LUFR DATA WITH CHFILTER  ###############################################
+    [infoblks, enum, tchdat, chdat, satflag, ...              % Primary data
+        tmpdat, vindat, srcpwr, ...                           % Environmental
+        evtim, evstr, ...                                     % Event markers
+        tmpudat, gyrdat, accdat, ...                          % Motion
+        chperm] ...                                           % Channel permutation
+        = loadlufr(lufrFileName,'chfilter',chfilter);         % Variable options
+else
+    % LOAD LUFR DATA WITH ALL CHANNELS  ############################################
+    [infoblks, enum, tchdat, chdat, satflag, ...                    % Primary data
+        tmpdat, vindat, srcpwr, ...                           % Environmental
+        evtim, evstr, ...                                     % Event markers
+        tmpudat, gyrdat, accdat, ...                          % Motion
+        chperm] ...                                           % Channel permutation
+        = loadlufr(lufrFileName);
 end
-
-% LOAD LUFR DATA  ###############################################################
-[infoblks, enum, tchdat, chdat, satflag, ...                    % Primary data
-          tmpdat, vindat, srcpwr, ...                           % Environmental
-          evtim, evstr, ...                                     % Event markers
-          tmpudat, gyrdat, accdat, ...                          % Motion
-          chperm] ...                                           % Channel permutation
-          = loadlufr(lufrFileName,'chfilter',chfilter);         % Variable options
-
 % Convert to .nirs format #########################################################################
 
 % Intensity data
@@ -214,12 +220,12 @@ if polhemusFlag %If polhemus information is parsed, calculate S-D positions from
     fprintf(['Using ' posCSVFileName ' to define SD3D...\n']);
     %Turn off saveFlag as polhemus2SD3D must save ALL CHANNELS, whereas we
     %want cropped SD3D.
-    [SD_POL, SD3DFileName] = DOTHUB_LUMOpolhemus2SD3D(posCSVFileName,0,0); 
-    
+    [SD_POL, SD3DFileName] = DOTHUB_LUMOpolhemus2SD3D(posCSVFileName,0,0);
+
     %Crop SD file accordingly if the number of docks populated in the datafile differs from the number in the SD_3D data
     %Or if channels have been reduced due to distLimit
     if nNodes<nDocks || size(SD.MeasList,1)<size(SD_POL.MeasList,1)
-    
+
         SD3D = SD; %Define based on SD which contains correct measlist
         for n = 1:nNodes
             nid = nodes(n);
@@ -421,7 +427,7 @@ save(nirsFileName,'-struct','nirs','-v7.3');
 
 % % Full Measurement List
 % SD.MeasList = ones(SD.nSrcs * SD.nDets * length(SD.Lambda), 4);
-% 
+%
 % % Creating temporary object to change indexing of sources - keep 1:3 instead of 1:6
 % enum_temp = enum.groups.channels;
 % change_index = find([enum_temp.src_wl] == 850);
