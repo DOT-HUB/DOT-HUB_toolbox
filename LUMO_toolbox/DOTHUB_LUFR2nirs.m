@@ -18,9 +18,9 @@ function [nirs, nirsFileName, SD3DFileName] = DOTHUB_LUFR2nirs(lufrFileName,layo
 % lufrFileName      :   The filename of the .LUMO data directory (if not parsed, requested)
 %
 % layoutFileName    :   (Optional) The path of the .json layout file (only required if not
-%                       present inside .LUMO directory). If layoutFile variable is
+%                       present inside the LUFR directory). If layoutFile variable is
 %                       parsed it is assued to take precedence over any .json within
-%                       the .LUMO directory. If layoutFile is not parsed (or parsed empty)
+%                       the .lurf. If layoutFile is not parsed (or parsed empty)
 %                       and it is not present in the .LUMO direcroty, it will be requested.
 %
 % posCSVFileName    :   (Optional) The path of a .csv file containing the 3D positioning data associated
@@ -135,8 +135,9 @@ elseif isempty(layoutFileName)
     end
 end
 
-% Extract Default Layout Optode Positions and create chnfilter #############################
-if ~isempty(layoutFileName) && maxDist>0
+% If we want a chfilter, we need to load defaul json 3d position first.
+% Extract Default Layout Optode Positions, Create chnfilter is maxDist > 0, Load Lufr
+if maxDist>0
     layoutData = jsondecode(fileread(layoutFileName));
     nDocks = size(layoutData.docks,1);
     %Extract 3D optode positions
@@ -174,15 +175,23 @@ if ~isempty(layoutFileName) && maxDist>0
         tmpudat, gyrdat, accdat, ...                          % Motion
         chperm] ...                                           % Channel permutation
         = loadlufr(lufrFileName,'chfilter',chfilter);         % Variable options
-else
+end
+
+% If we DO NOT want to use chfilter ################################################
+% Load layout, load lufr without chfilt ############################################
+if maxDist==0
+    layoutData = jsondecode(fileread(layoutFileName));
+    nDocks = size(layoutData.docks,1);
+
     % LOAD LUFR DATA WITH ALL CHANNELS  ############################################
-    [infoblks, enum, tchdat, chdat, satflag, ...                    % Primary data
+    [infoblks, enum, tchdat, chdat, satflag, ...              % Primary data
         tmpdat, vindat, srcpwr, ...                           % Environmental
         evtim, evstr, ...                                     % Event markers
         tmpudat, gyrdat, accdat, ...                          % Motion
         chperm] ...                                           % Channel permutation
         = loadlufr(lufrFileName);
 end
+
 % Convert to .nirs format #########################################################################
 
 % Intensity data
@@ -205,13 +214,27 @@ for i = 1:size(d,2)
     SD.MeasList(i,3) = 1;
     SD.MeasList(i,4) = find(SD.Lambda == enumperm(i).src_wl);
 end
+%Extract positions in 2D from layout.json
+for n = 1:nNodes
+    nid = nodes(n);
+    for det = 1:4
+        SD.DetPos(det+(n-1)*4,1) = layoutData.docks(nid).optodes(det).coordinates_2d.x;
+        SD.DetPos(det+(n-1)*4,2) = layoutData.docks(nid).optodes(det).coordinates_2d.y;
+        SD.DetPos(det+(n-1)*4,3) = 0;
+    end
+    for src = 1:3
+        SD.SrcPos(src+(n-1)*3,1) = layoutData.docks(nid).optodes(src+4).coordinates_2d.x;
+        SD.SrcPos(src+(n-1)*3,2) = layoutData.docks(nid).optodes(src+4).coordinates_2d.y;
+        SD.SrcPos(src+(n-1)*3,3) = 0;
+    end
+end
 
 [~, sortInd] = sort(SD.MeasList(:,4));
 SD.MeasList = SD.MeasList(sortInd,:);
 d = d(:,sortInd);
 satflag = satflag(sortInd,:)';
 
-% Force create MeasListAct - all ones
+% Force create MeasListAct - all ones for now
 SD.MeasListAct = ones(size(SD.MeasList,1),1);
 
 % Define SD (3D) ###############################################################
@@ -269,22 +292,8 @@ if polhemusFlag %If polhemus information is parsed, calculate S-D positions from
 else %Assume 3D contents of layout file (or lufr) is to be used and save as SD3D
 
     SD3D = SD;
-    if isempty(layoutFileName) %This means no layout file parsed - must use data in lufr (should be there)
-        for n = 1:nNodes
-            nid = nodes(n);
-            for det = 1:4
-                SD3D.DetPos(det+(n-1)*4,1) = enum.groups.index.layout.docks(nid).optodes(det).coordinates_3d.x;
-                SD3D.DetPos(det+(n-1)*4,2) = enum.groups.index.layout.docks(nid).optodes(det).coordinates_3d.y;
-                SD3D.DetPos(det+(n-1)*4,3) = enum.groups.index.layout.docks(nid).optodes(det).coordinates_3d.z;
-            end
-            for src = 1:3
-                SD3D.SrcPos(src+(n-1)*3,1) = enum.groups.index.layout.docks(nid).optodes(src+4).coordinates_3d.x;
-                SD3D.SrcPos(src+(n-1)*3,2) = enum.groups.index.layout.docks(nid).optodes(src+4).coordinates_3d.y;
-                SD3D.SrcPos(src+(n-1)*3,3) = enum.groups.index.layout.docks(nid).optodes(src+4).coordinates_3d.z;
-            end
-        end
-
-    else %use layout file
+    if ~isempty(layoutFileName) %Layout file parsed (currently required)
+        %use layout file
         SD3D = SD;
         for n = 1:nNodes
             nid = nodes(n);
@@ -307,6 +316,22 @@ else %Assume 3D contents of layout file (or lufr) is to be used and save as SD3D
                 SD3D.Landmarks(i,3) = layoutData.Landmarks(i).z;
             end
         end
+    
+    else
+        %No layout file - use contents of lufr? Not currently enabled.
+        %for n = 1:nNodes
+        %    nid = nodes(n);
+        %    for det = 1:4
+        %        SD3D.DetPos(det+(n-1)*4,1) = enum.groups.index.layout.docks(nid).optodes(det).coordinates_3d.x;
+        %        SD3D.DetPos(det+(n-1)*4,2) = enum.groups.index.layout.docks(nid).optodes(det).coordinates_3d.y;
+        %        SD3D.DetPos(det+(n-1)*4,3) = enum.groups.index.layout.docks(nid).optodes(det).coordinates_3d.z;
+        %    end
+        %    for src = 1:3
+        %        SD3D.SrcPos(src+(n-1)*3,1) = enum.groups.index.layout.docks(nid).optodes(src+4).coordinates_3d.x;
+        %        SD3D.SrcPos(src+(n-1)*3,2) = enum.groups.index.layout.docks(nid).optodes(src+4).coordinates_3d.y;
+        %        SD3D.SrcPos(src+(n-1)*3,3) = enum.groups.index.layout.docks(nid).optodes(src+4).coordinates_3d.z;
+        %    end
+        %end
     end
 
     SD3DFileName = fullfile(lufrPath, [lufrName '_default.SD3D']);
