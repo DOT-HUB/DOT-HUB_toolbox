@@ -354,7 +354,7 @@ if(apply_filter)
     
 else
     
-    chperm = [];
+   chperm = 1:length(enum.groups(groupidx_sel + 1).channels);
     
 end
 
