@@ -311,7 +311,10 @@ for wav = 1:nWavs
     tic
     Jtmp = toastJacobianCW(hMesh, hBasis, qvec, mvec, muaVec(wav,:)', musPrimeVec(wav,:)', refIndVec(wav,:)', jtype, bicgstabtol);
     duration = toc;
-    fprintf(['CtoastJacobian completed at wavelength ', num2str(wav), ' in ' num2str(duration/60) ' minutes\n']);
+    fprintf(['toastJacobian completed at wavelength ', num2str(wav), ' in ' num2str(duration/60) ' minutes\n']);
+    jac = Jtmp;
+    jacFileName = [];
+    return
     
     if basisFlag %Multiply by c, then map to volume to GM, delete volume
         J{wav}.basis = Jtmp.*repmat(hBasis.Map('M->S',c_medium),1,size(Jtmp,1))';
@@ -333,7 +336,7 @@ for wav = 1:nWavs
         J{wav}.basis = [];
     end
     duration = toc;
-    fprintf(['Completed Jacobian at wavelength ', num2str(wav), ' in ' num2str(duration/60) ' minutes\n']);
+    fprintf(['Completed Jacobian build at wavelength ', num2str(wav), ' in ' num2str(duration/60) ' minutes\n']);
 end
 delete(qmfilename);
 
