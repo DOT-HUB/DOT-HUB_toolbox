@@ -1,5 +1,6 @@
 function [nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirsHyper(lumoDIRs,layoutFileNames,posCSVFileName,eventsCSVFileName)
 
+warning('This function is legacy')
 % This script is designed to combine multiple LUMO files in to one .nirs
 % file. The assumed use case is when two or more independent LUMO arrays are
 % applied to a single individual. Therefore, if a .csv polhemus file is
