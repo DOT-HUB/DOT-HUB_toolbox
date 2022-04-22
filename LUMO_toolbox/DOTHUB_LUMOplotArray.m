@@ -4,6 +4,10 @@ function hFig = DOTHUB_LUMOplotArray(y,tHRF,SD,yLimits,distRange,overSizeRatios,
 %arrangement dictated by the SD variable, with indications of the tile 
 %positions. Heavily inspired by HOMER2 plotProbe.
 %
+%Note that the 2D SD, while never a perfect representation of a real world
+%array, should be scalled approximately correctly (tiles sizes correct,
+%etc). Otherwise this routine will likely fail
+%
 %Note that this plotting routine will resize the current figure window (or
 %create a new one) such that the aspect ratio of array is correct.
 %Manually re-sizing the window will likely create an incorrect aspect
@@ -52,9 +56,9 @@ elseif isempty(fontSize)
 end
 
 if ~exist('lineWidth','var')
-    lineWidth = 1;
+    lineWidth = 1.5;
 elseif isempty(lineWidth)
-    lineWidth = 1;
+    lineWidth = 1.5;
 end
 
 tmpy = y(:,:,SD.MeasListAct(1:end/2)==1);
@@ -82,6 +86,7 @@ nchan = size(SD.MeasList,1)/2;
 for i = 1:nchan
     pos(i,:) = mean([SD.SrcPos(SD.MeasList(i,1),1:2);SD.DetPos(SD.MeasList(i,2),1:2)]);
 end
+dists = DOTHUB_getSDdists(SD);
 centre = mean(pos);
 
 %Determine hex corner positions
@@ -97,6 +102,7 @@ for i = 1:nTiles
     v = [0 1 0];
     CosTheta = dot(u,v)/(norm(u)*norm(v));
     theta = acosd(CosTheta);
+
     for j = 1:6
         tmp(j,:) = rotz(hexCorners(j,:),theta,[0 0 0]) + SD.DetPos((i-1)*4+3,:);
     end
@@ -111,55 +117,113 @@ Xlower = min(pos(:,1));
 Yupper = max(pos(:,2));
 Ylower = min(pos(:,2));
 
-nPlotsX = length(unique(pos(:,1)));
-nPlotsY = length(unique(pos(:,2)));
+%nPlotsX = length(unique(xPosSort));
+%nPlotsY = length(unique(yPosSort));
 %nPlotsX_border = nPlotsX + 4;
 %nPlotsY_border = nPlotsY + 4;
 
-plotWidth = 8*overSizeRatios(1)/nPlotsX; % There is no correct way of doing this because it is array dependent. 
-plotHeight = 5*overSizeRatios(2)/nPlotsY; % These values provide reasonable proportions for LUMO12 array
-
-%Normalise positioning values for plotting
-pos_cent = pos - repmat(centre,size(pos,1),1);
+% First Centre around (0,0)
+pos_cent = pos - repmat(centre,size(pos,1),1); 
 hexCornersArray = hexCornersArray - repmat(centre,size(hexCornersArray,1),1);
 
+%Put all in positive quadrant
 allpos = [pos_cent;hexCornersArray];
 pos_cent(:,1) = pos_cent(:,1) + abs(min(allpos(:,1)));
 pos_cent(:,2) = pos_cent(:,2) + abs(min(allpos(:,2)));
 hexCornersArray(:,1) = hexCornersArray(:,1) + abs(min(allpos(:,1)));
 hexCornersArray(:,2) = hexCornersArray(:,2) + abs(min(allpos(:,2)));
 
-allpos = [pos_cent;hexCornersArray];
-pos_cent(:,1) = pos_cent(:,1)./max(allpos(:,1));
-pos_cent(:,2) = pos_cent(:,2)./max(allpos(:,2));
-hexCornersArray(:,1) = hexCornersArray(:,1)./max(allpos(:,1));
-hexCornersArray(:,2) = hexCornersArray(:,2)./max(allpos(:,2));
+%Estimate the required width and height of the plots on the basis of
+% a) define occupied space in x and y as total range of x and y channel position values minus
+% any gaps larger than 60 mm
+% b) finding the number of unique channel positions (rounded to nearest 5
+% mm) in both x and y
+% c) number of plots in X and Y = occupued length/nPlots.
+gapThresh = 60;
+posCropRound = (round(pos(dists<gapThresh,:)./5))*5;
 
-borderWidth = 0.1; %Screen ratio of border width each edge
+xPosSort = sort(unique(posCropRound(:,1)));
+dfX = diff(xPosSort);
+xOccupied = range(xPosSort) - dfX(dfX>gapThresh);
+
+yPosSort = sort(unique(posCropRound(:,1)));
+dfY = diff(yPosSort);
+yOccupied = range(yPosSort) - dfY(dfY>gapThresh);
+
+%find maximum number of channels at any given y or x
+uniY = unique(yPosSort);
+nPlotsX = 0;
+for i = 1:length(uniY)
+    tmp = length(unique(posCropRound(posCropRound(:,2)==uniY(i),1)));
+    if tmp>nPlotsX
+        nPlotsX = tmp;
+    end
+end
+
+uniX = unique(xPosSort);
+nPlotsY = 0;
+for i = 1:length(uniX)
+    tmp = length(unique(posCropRound(posCropRound(:,1)==uniX(i),2)));
+    if tmp>nPlotsY
+        nPlotsY = tmp;
+    end
+end
+
+%Normalize units
+allpos = [pos_cent;hexCornersArray];
+pos_cent(:,1) = pos_cent(:,1)./max(allpos(:,1)); %In positive quadrant so max = range
+pos_cent(:,2) = pos_cent(:,2)./max(allpos(:,2));
+hexCornersArray(:,1) = hexCornersArray(:,1)./max(allpos(:,1)); %This is where things get tricky.
+hexCornersArray(:,2) = hexCornersArray(:,2)./max(allpos(:,2));
+aspRot = max(allpos(:,1))/max(allpos(:,2)); %width/height
+
+plotWidthNative = (xOccupied/max(allpos(:,1)))/nPlotsX; %Normalized units
+plotHeightNative = (yOccupied/max(allpos(:,2)))/nPlotsY;
+plotWidth = overSizeRatios(1)*plotWidthNative; 
+plotHeight = overSizeRatios(2)*plotHeightNative;  
+
+%Add border
+borderWidth = 0.1; %Screen ratio of border width at each edge
 borderScal = 1 - 2*borderWidth;
+
 %Scale
 pos_cent(:,1) = pos_cent(:,1)*(borderScal);
 pos_cent(:,2) = pos_cent(:,2)*(borderScal);
 hexCornersArray(:,1) = hexCornersArray(:,1)*(borderScal);
 hexCornersArray(:,2) = hexCornersArray(:,2)*(borderScal);
 
-allpos = [pos_cent;hexCornersArray];
 %Re-center x
-pos_cent(:,1) = pos_cent(:,1) - (DOTHUB_range(allpos(:,1))/2) +  min(allpos(:,1)) + 0.5;
-hexCornersArray(:,1) = hexCornersArray(:,1) - (DOTHUB_range(allpos(:,1))/2) +  min(allpos(:,1)) + 0.5;
-%Re-center y with offset for gnomons
-pos_cent(:,2) = pos_cent(:,2) - (DOTHUB_range(allpos(:,2))/2) +  min(allpos(:,2)) + 0.55;
-hexCornersArray(:,2) = hexCornersArray(:,2) - (DOTHUB_range(allpos(:,2))/2) +  min(allpos(:,2)) + 0.55;
+pos_cent(:,1) = pos_cent(:,1) + borderWidth;
+hexCornersArray(:,1) = hexCornersArray(:,1) + borderWidth;
 
-%Pos_cent is now the centre position of each axis, need to convert this to
-%the position from left and bottom
+%Re-center y with offset of borderWidth/2 for gnomon
+pos_cent(:,2) = pos_cent(:,2) + borderWidth + borderWidth/2;
+hexCornersArray(:,2) = hexCornersArray(:,2) + borderWidth + borderWidth/2;
+allpos = [pos_cent;hexCornersArray];
+
+%Pos_cent is now the centre position of each channel in axis units. Need to convert this to
+%the position from left and bottom corner to set axis position?
+%Perhaps make the display such that the mid point of the x axis (y=0)
+%aligns with the channel location, in which case we need to consider yl
 pos_cent(:,1) = pos_cent(:,1) - (plotWidth/2);
-pos_cent(:,2) = pos_cent(:,2) - (plotHeight/2);
+pos_cent(:,2) = pos_cent(:,2) - (abs(yl(1))/(yl(2)-yl(1)))*plotHeight;
 
+%Sort out figure and aspect ratio
 hFig = gcf;
-clf;
+clf(hFig);
+set(hFig,'Color','w');
+%Need to figure out aspect ratio
+set(hFig,'Units','Normalized','Position',[0 0 1 1]);
+set(hFig,'Units','Pixels');
+screenWidth = hFig.Position(3);
+screenHeight = hFig.Position(4);
+if aspRot > 1 %target width>height. Make width the smaller of screenHeight or screenwidth, and set height accordingly
+    set(hFig,'Position',[hFig.Position(1) hFig.Position(2) min([screenWidth screenHeight]) min([screenWidth screenHeight])/aspRot]);
+else %target width < height. Make height the smaller of screenHeight or screenwidth , and set width accordingly
+    set(hFig,'Position',[hFig.Position(1) hFig.Position(2) min([screenWidth screenHeight])*aspRot min([screenWidth screenHeight])]);
+end
+set(hFig,'Units','Normalized');
 
-set(gcf,'Color','w');
 %First draw hexagons;
 axes('Position',[0 0 1 1]);
 for i = 1:nTiles
@@ -181,7 +245,7 @@ end
 dists = DOTHUB_getSDdists(SD);
 for i = 1:nchan
     
-    if SD.MeasListAct(i)==1 & dists(i)>= distRange(1) & dists(i)<=distRange(2)
+    if SD.MeasListAct(i)==1 && dists(i)>= distRange(1) && dists(i)<=distRange(2)
         
         axHand(i) = axes;
         plot(tHRF, squeeze(y(:,1,i)), 'r','LineWidth',lineWidth);hold on;
@@ -231,8 +295,11 @@ legHand = legend({'HbO','HbR','HbT'});
 set(legHand,'Position',[0.6-gnomonWidth 0.05 gnomonWidth gnomonHeight]);
 axis off
 
-%Size figure to ensure hexagon aspect ratio is correct.
-h = DOTHUB_range(allposOrig(:,2))/DOTHUB_range(allposOrig(:,1));
-tmp = get(hFig,'Position');
-tmp(4) = tmp(3)*h;
-set(hFig,'Position',tmp);
+set(hFig,'Units','Normalized');
+%Resize figure to ensure hexagon aspect ratio is correct? 
+% Haven't figured this out yet
+% h = DOTHUB_range(allposOrig(:,2))/DOTHUB_range(allposOrig(:,1));
+% tmp = get(hFig,'Position');
+% tmp(4) = tmp(3)*h;
+% set(hFig,'Position',tmp);
+
