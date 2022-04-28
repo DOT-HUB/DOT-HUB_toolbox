@@ -20,7 +20,7 @@ function [nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirs(lumoDIR,layoutFil
 
 % lumoDIR :     The path of the .LUMO data directory (if not parsed, requested)
 
-% layoutFileName	:   (Optional) The path of the .json layout file (only required if not
+% layoutFileName    :   (Optional) The path of the .json layout file (only required if not
 %                       present inside .LUMO directory). If layoutFile variable is
 %                       parsed it is assued to take precedence over any .json within
 %                       the .LUMO directory. If layoutFile is not parsed (or parsed empty)
