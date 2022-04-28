@@ -141,8 +141,8 @@ metadata = toml.read([lumoDIR '/metadata.toml']);
 %TODO: needs to be updated in the future, something like:
 %   if(lumoFileVersion.major > 1 OR
 %       (lumoFileVersion.major == 0 AND lumoFileVersion.minor >= 4))
-lumoFileVersion = metadata.lumo_file_version;
-if(strcmp(lumoFileVersion,'0.4.0'))
+lumoFileVersion = split(metadata.lumo_file_version,'.');
+if(str2num(lumoFileVersion{2}) >= 4)
     is040OrHigher = true;
 else
     is040OrHigher = false;
