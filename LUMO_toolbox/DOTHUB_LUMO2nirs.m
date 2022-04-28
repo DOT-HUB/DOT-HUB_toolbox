@@ -142,7 +142,6 @@ metadata = toml.read([lumoDIR '/metadata.toml']);
 %   if(lumoFileVersion.major > 1 OR
 %       (lumoFileVersion.major == 0 AND lumoFileVersion.minor >= 4))
 lumoFileVersion = split(metadata.lumo_file_version,'.');
-
 if(str2num(lumoFileVersion{2}) >= 4)
     is040OrHigher = true;
 else
