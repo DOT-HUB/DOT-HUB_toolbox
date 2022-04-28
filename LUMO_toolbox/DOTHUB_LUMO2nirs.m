@@ -20,7 +20,7 @@ function [nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirs(lumoDIR,layoutFil
 
 % lumoDIR :     The path of the .LUMO data directory (if not parsed, requested)
 
-% layoutFileName    :   (Optional) The path of the .json layout file (only required if not
+% layoutFileName	:   (Optional) The path of the .json layout file (only required if not
 %                       present inside .LUMO directory). If layoutFile variable is
 %                       parsed it is assued to take precedence over any .json within
 %                       the .LUMO directory. If layoutFile is not parsed (or parsed empty)
@@ -141,8 +141,9 @@ metadata = toml.read([lumoDIR '/metadata.toml']);
 %TODO: needs to be updated in the future, something like:
 %   if(lumoFileVersion.major > 1 OR
 %       (lumoFileVersion.major == 0 AND lumoFileVersion.minor >= 4))
-lumoFileVersion = metadata.lumo_file_version;
-if(strcmp(lumoFileVersion,'0.4.0'))
+lumoFileVersion = split(metadata.lumo_file_version,'.');
+
+if(str2num(lumoFileVersion{2}) >= 4)
     is040OrHigher = true;
 else
     is040OrHigher = false;
