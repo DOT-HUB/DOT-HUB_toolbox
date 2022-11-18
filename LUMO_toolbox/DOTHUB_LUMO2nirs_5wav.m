@@ -1,5 +1,5 @@
 %HELLO GINA
-
+% Hi Rob
 % LUMO2NIRS 5 wavelengths
 function [nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirs_5wav(lumoDIR,layoutFileName,posCSVFileName,eventsCSVFileName)
 
