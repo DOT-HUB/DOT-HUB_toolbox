@@ -26,7 +26,7 @@ function [jac, jacFileName] = DOTHUB_makeToastJacobian(rmap,basis)
 %                    % vol2gm                :   The sparse matrix mapping from head volume mesh
 %                    %                           space to GM surface mesh space
 %
-% basis        :   (Optional) 1x3 vector specifying basis dimensions if desired. 
+% basis        :   (Optiona) 1x3 vector specifying basis dimensions if desired. 
 %                  If you don't want to specify a basis don't parse or parse empty
 %                  in which case calculation will be in volume unless
 %                  nnodes>200k, in which case a basis of [50 50 50] is assigned.
@@ -241,11 +241,6 @@ linklist = DOTHUB_SD2linklist(SD3Dmesh);
 qmfilename = 'tmpfull.qm';
 DOTHUB_writeToastQM(qmfilename,SD3Dmesh.SrcPos,SD3Dmesh.DetPos,linklist)
 
-disp('ARRAY CONTAINS:');
-disp(['Source Locations: ' num2str(size(linklist,1))]);
-disp(['Detector Locations: ' num2str(length(unique(linklist(linklist>=0))))]);
-disp(['Channels: ' num2str(sum(linklist(:)>=0))]);
-
 % Generate Jacobian #######################################################
 % #########################################################################
 
@@ -310,21 +305,16 @@ for wav = 1:nWavs
     
     tic
     Jtmp = toastJacobianCW(hMesh, hBasis, qvec, mvec, muaVec(wav,:)', musPrimeVec(wav,:)', refIndVec(wav,:)', jtype, bicgstabtol);
-    duration = toc;
-    fprintf(['toastJacobian completed at wavelength ', num2str(wav), ' in ' num2str(duration/60) ' minutes\n']);
     
     if basisFlag %Multiply by c, then map to volume to GM, delete volume
         J{wav}.basis = Jtmp.*repmat(hBasis.Map('M->S',c_medium),1,size(Jtmp,1))';
-        wb = waitbar(0,'Mapping channels basis->volume to yield J.gm');
         for chan = 1:nChansPerWav
-            waitbar(chan/nChansPerWav,wb);
-            tmpVolJchan = hBasis.Map('S->M',J{wav}.basis(chan,:)');
-            J{wav}.gm(chan,:) = (vol2gm*tmpVolJchan)'; 
+            J{wav}.vol(chan,:) = hBasis.Map('S->M',J{wav}.basis(chan,:)');
         end
-        close(wb);
-
+        J{wav}.gm = (vol2gm*J{wav}.vol')'; 
+        
         %Clear things, empty J.vol as we are in basis
-        clear Jtmp tmpVolJchan
+        clear Jtmp
         J{wav}.vol = [];
         
     else %In volume nodes
@@ -333,7 +323,7 @@ for wav = 1:nWavs
         J{wav}.basis = [];
     end
     duration = toc;
-    fprintf(['Completed Jacobian build at wavelength ', num2str(wav), ' in ' num2str(duration/60) ' minutes\n']);
+    fprintf(['Completed Jacobian at wavelength ', num2str(wav), ' in ' num2str(duration/60) ' minutes\n']);
 end
 delete(qmfilename);
 
