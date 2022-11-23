@@ -39,20 +39,30 @@ varInputs = varInputs.Results;
 if isempty(varInputs.hAxes)
     varInputs.hAxes = gca;
 end
-      
+
+% seperate function, uses pythagoras
 dists = DOTHUB_getSDdists(SD);
-dists = [dists dists];
+
 nWavs = length(SD.Lambda);
+% doubles the variable to get distances for all channels - THIS IS PROBLEM
+% this doubling assumes only 2 wavelengths - will change it to handle any
+% number of wavelengths
+%dists = [dists dists];
+dists = repmat(dists,nWavs);
 
 if ~exist('xAxisUpperLim','var')
     xAxisUpperLim = max(dists)+1;
 end
 
+% mnD is the mean optical density of each channel
 if size(d,1)==1 %if only one sample
     mnD = d;
 else
     mnD = mean(d);
 end
+% Received error: The logical indices contain a true value outside of the array bounds.
+% Try fixing by flipping the rows and columns in mnD
+% mnD = mnD.';
 
 markersize = 40;
 Markers = {'o','s','*','x','d'};
