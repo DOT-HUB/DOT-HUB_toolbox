@@ -44,11 +44,12 @@ end
 dists = DOTHUB_getSDdists(SD);
 
 nWavs = length(SD.Lambda);
-% doubles the variable to get distances for all channels - THIS IS PROBLEM
+% following line doubles the variable dsit to get distances for all channels - THIS IS PROBLEM
 % this doubling assumes only 2 wavelengths - will change it to handle any
 % number of wavelengths
-%dists = [dists dists];
-dists = repmat(dists,nWavs);
+
+%dists = [dists dists]; % Original line
+dists = repmat(dists,1,nWavs); % New line
 
 if ~exist('xAxisUpperLim','var')
     xAxisUpperLim = max(dists)+1;
@@ -60,9 +61,9 @@ if size(d,1)==1 %if only one sample
 else
     mnD = mean(d);
 end
-% Received error: The logical indices contain a true value outside of the array bounds.
-% Try fixing by flipping the rows and columns in mnD
-% mnD = mnD.';
+
+% Received error here: The logical indices contain a true value outside of the array bounds.
+% Resolved by changing the variable 'dists' above
 
 markersize = 40;
 Markers = {'o','s','*','x','d'};

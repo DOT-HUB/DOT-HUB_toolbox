@@ -21,28 +21,105 @@ function DOTHUB_plotIntMatrix(d,SD)
 % #########################################################################
 
 dMat = log10(mean(d,1));
-dMat1 = reshape(dMat(1:end/2),SD.nDets,SD.nSrcs)';
-dMat2 = reshape(dMat(end/2+1:end),SD.nDets,SD.nSrcs)';
 
-ax1 = subplot(1,2,1);
-set(gcf,'color','w');
-imagesc(ax1,dMat1);axis square
-caxis(ax1,[-6 0]);
-cb1 = colorbar(ax1,'northoutside');
-ylabel(cb1,'-log10(intensity) 735nm','FontSize',12)
-colormap(ax1,'gray')
-set(ax1,'Box','on','FontSize',12,'XTick',1:SD.nDets,'YTick',1:SD.nSrcs);
-axis(ax1, 'tight');
-xlabel(ax1,'Detector','FontSize',12);
-ylabel(ax1,'Source','FontSize',12);
+if length(SD.Lambda) == 2
+    dMat1 = reshape(dMat(1:end/2),SD.nDets,SD.nSrcs)';
+    dMat2 = reshape(dMat(end/2+1:end),SD.nDets,SD.nSrcs)';
 
-ax2 = subplot(1,2,2);
-imagesc(ax2,dMat2);axis square
-caxis(ax2,[-6 0]);
-cb2 = colorbar(ax2,'northoutside');
-ylabel(cb2,'-log10(intensity) 850nm','FontSize',12)
-colormap(ax2,'gray')
-set(ax2,'Box','on','FontSize',12,'XTick',1:SD.nDets,'YTick',1:SD.nSrcs);
-axis(ax2, 'tight');
-xlabel(ax2,'Detector','FontSize',12);
-ylabel(ax2,'Source','FontSize',12);
+    ax1 = subplot(1,2,1);
+    set(gcf,'color','w');
+    imagesc(ax1,dMat1);axis square
+    caxis(ax1,[-6 0]);
+    cb1 = colorbar(ax1,'northoutside');
+    ylabel(cb1,'-log10(intensity) 735nm','FontSize',12)
+    colormap(ax1,'gray')
+    set(ax1,'Box','on','FontSize',12,'XTick',1:SD.nDets,'YTick',1:SD.nSrcs);
+    axis(ax1, 'tight');
+    xlabel(ax1,'Detector','FontSize',12);
+    ylabel(ax1,'Source','FontSize',12);
+    
+    ax2 = subplot(1,2,2);
+    imagesc(ax2,dMat2);axis square
+    caxis(ax2,[-6 0]);
+    cb2 = colorbar(ax2,'northoutside');
+    ylabel(cb2,'-log10(intensity) 850nm','FontSize',12)
+    colormap(ax2,'gray')
+    set(ax2,'Box','on','FontSize',12,'XTick',1:SD.nDets,'YTick',1:SD.nSrcs);
+    axis(ax2, 'tight');
+    xlabel(ax2,'Detector','FontSize',12);
+    ylabel(ax2,'Source','FontSize',12);
+
+else
+    % Assume dMats are being split by wavelength
+    % Do some messy splitting work to get five wavelengths (according to order
+    % in spreadsheet)
+    n_sourcetiles = SD.nSrcs;
+    n_detectortiles = SD.nSrcs;
+    n_detectorspertile = 4;
+    
+    n_channels = n_detectorspertile * n_detectortiles * n_sourcetiles;
+    n_wavs = length(SD.Lambda);
+    n_dataptstotal = n_wavs * n_channels;
+    
+    
+    r = n_sourcetiles*n_detectorspertile;
+    
+    % Sorting order: column = wavelength, row = channel number
+    
+    for p = 1:n_wavs
+        data(:,p) = [((p-1)*r)+1:((p-1)*r)+r ((p-1)*r)+(n_dataptstotal/2)+1:((p-1)*r)+(n_dataptstotal/2)+r];
+    end
+    
+    
+    % Plotting
+    for h = 1:n_wavs
+        ax1 = subplot(2,3,h);
+        set(gcf,'color','w');
+        imagesc(ax1,data(:,h));axis square
+        caxis(ax1,[-6 0]);
+        cb1 = colorbar(ax1,'northoutside');
+        ylabel(cb1,'-log10(intensity)','FontSize',12)
+        colormap(ax1,'gray')
+        set(ax1,'Box','on','FontSize',12,'XTick',1:SD.nDets,'YTick',1:SD.nSrcs);
+        axis(ax1, 'tight');
+        xlabel(ax1,'Detector','FontSize',12);
+        ylabel(ax1,'Source','FontSize',12);
+        title(['Source ',num2str(SD.Lambda(h)) 'nm'])
+        hold on
+    end
+    hold off
+end
+    
+%     ax2 = subplot(1,2,2);
+%     imagesc(ax2,dMat2);axis square
+%     caxis(ax2,[-6 0]);
+%     cb2 = colorbar(ax2,'northoutside');
+%     ylabel(cb2,'-log10(intensity) 850nm','FontSize',12)
+%     colormap(ax2,'gray')
+%     set(ax2,'Box','on','FontSize',12,'XTick',1:SD.nDets,'YTick',1:SD.nSrcs);
+%     axis(ax2, 'tight');
+%     xlabel(ax2,'Detector','FontSize',12);
+%     ylabel(ax2,'Source','FontSize',12);
+%     
+%     ax1 = subplot(1,2,1);
+%     set(gcf,'color','w');
+%     imagesc(ax1,dMat1);axis square
+%     caxis(ax1,[-6 0]);
+%     cb1 = colorbar(ax1,'northoutside');
+%     ylabel(cb1,'-log10(intensity) 735nm','FontSize',12)
+%     colormap(ax1,'gray')
+%     set(ax1,'Box','on','FontSize',12,'XTick',1:SD.nDets,'YTick',1:SD.nSrcs);
+%     axis(ax1, 'tight');
+%     xlabel(ax1,'Detector','FontSize',12);
+%     ylabel(ax1,'Source','FontSize',12);
+%     
+%     ax2 = subplot(1,2,2);
+%     imagesc(ax2,dMat2);axis square
+%     caxis(ax2,[-6 0]);
+%     cb2 = colorbar(ax2,'northoutside');
+%     ylabel(cb2,'-log10(intensity) 850nm','FontSize',12)
+%     colormap(ax2,'gray')
+%     set(ax2,'Box','on','FontSize',12,'XTick',1:SD.nDets,'YTick',1:SD.nSrcs);
+%     axis(ax2, 'tight');
+%     xlabel(ax2,'Detector','FontSize',12);
+%     ylabel(ax2,'Source','FontSize',12);

@@ -22,6 +22,11 @@ function DOTHUB_plotChanHist(SD,xAxisUpperLim)
 % #########################################################################
 
 dists = DOTHUB_getSDdists(SD);
+
+% Have same problem as DOTHUB_plotIntVDist where assumes 2 wavelengths
+% therefore variable dists is too short - next two lines added
+nWavs = length(SD.Lambda); % New line
+dists = repmat(dists,1,nWavs); % New line
 SD.MeasListAct(end/2+1:end) = SD.MeasListAct(1:end/2);
 goodChan = SD.MeasListAct(1:end/2)==1;
 

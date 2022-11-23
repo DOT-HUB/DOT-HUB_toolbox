@@ -1,0 +1,12 @@
+Estimated motion burden = 1.6 % of recording
+Estimated noise floor = NaN
+{Arrays have incompatible sizes for this operation.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('DOTHUB_dataQualityCheck', '\\ifs.eng.cam.ac.uk\users\gcl33\Documents\GitHub\DOT-HUB_toolbox\DOTHUB_dataQualityCheck.m', 233)" style="font-weight:bold">DOTHUB_dataQualityCheck</a> (<a href="matlab: opentoline('\\ifs.eng.cam.ac.uk\users\gcl33\Documents\GitHub\DOT-HUB_toolbox\DOTHUB_dataQualityCheck.m',233,0)">line 233</a>)
+tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('five_wav_pipeline', '\\ifs.eng.cam.ac.uk\users\gcl33\Documents\GitHub\DOT-HUB_toolbox\five_wav_pipeline.m', 28)" style="font-weight:bold">five_wav_pipeline</a> (<a href="matlab: opentoline('\\ifs.eng.cam.ac.uk\users\gcl33\Documents\GitHub\DOT-HUB_toolbox\five_wav_pipeline.m',28,0)">line 28</a>)
+DOTHUB_dataQualityCheck(nirsFileName);
+
+<a href="matlab:helpview('matlab','error_sizeDimensionsMustMatch')" style="font-weight:bold">Related documentation</a>
+} 

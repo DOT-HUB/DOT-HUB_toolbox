@@ -230,6 +230,7 @@ if timeSelectFlag==0
 end
 fprintf(['Estimated noise floor = ' num2str(noisefloorest,'%0.2e') '\n']);
 rng = [0 20];
+% Got up to here on 23/11/22
 tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
 fprintf(['Percentage of good channels in range [' num2str(rng(1)) '  ' num2str(rng(2)) '] = ' num2str(tmp*100,'%0.1f') '%% \n']);
 rng = [20 27.5];
