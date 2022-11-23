@@ -235,63 +235,63 @@ intDataplot = [intDataAll(:,1) intDataAll(:,5) intDataAll(:,9) intDataAll(:,13) 
 %intDataplot = [intDataAll(:,1) intDataAll(:,9) intDataAll(:,17) intDataAll(:,25) intDataAll(:,33)];
 %intDataplot = [intDataAll(:,1) intDataAll(:,5) intDataAll(:,9) intDataAll(:,13) intDataAll(:,17)];
 
-figure(1)
-FigH = figure('Position', get(0, 'Screensize'));
-F    = getframe(FigH);
-imwrite(F.cdata, 'Intensity_det1.png', 'png')
-plot(t,intDataplot,'LineWidth',5)
-xlabel('Time (s)')
-ylabel('Intensity (arb)')
-title('Graph showing intensity data against time for 5-wavelengths: detector 1')
-%legend({'720nm','760nm','800nm','850nm','890nm','blank'})
-legend({'720nm','760nm','800nm','850nm','890nm'},'Location','Best')
-ax = gca;
-ax.FontSize = 25;
-saveas(gcf,'Intensity_det1.png')
-
-intDataplot2 = [intDataAll(:,2) intDataAll(:,6) intDataAll(:,10) intDataAll(:,14) intDataAll(:,18) intDataAll(:,22)];
-figure(2)
-FigH = figure('Position', get(0, 'Screensize'));
-F    = getframe(FigH);
-imwrite(F.cdata, 'Intensity_det2.png', 'png')
-plot(t,intDataplot2,'LineWidth',5)
-xlabel('Time (s)')
-ylabel('Intensity (arb)')
-title('Graph showing intensity data against time for 5-wav detector 2')
-legend({'720nm','760nm','800nm','850nm','890nm','blank'},'Location','Best')
-ax = gca;
-ax.FontSize = 25;
-saveas(gcf,'Intensity_det2.png')
-
-
-intDataplot3 = [intDataAll(:,3) intDataAll(:,7) intDataAll(:,11) intDataAll(:,15) intDataAll(:,19) intDataAll(:,23)];
-figure(3)
-FigH = figure('Position', get(0, 'Screensize'));
-F    = getframe(FigH);
-imwrite(F.cdata, 'Intensity_det3.png', 'png')
-plot(t,intDataplot3,'LineWidth',5)
-xlabel('Time (s)')
-ylabel('Intensity (arb)')
-title('Graph showing intensity data against time for 5-wav detector 3')
-legend({'720nm','760nm','800nm','850nm','890nm','blank'},'Location','Best')
-ax = gca;
-ax.FontSize = 25;
-saveas(gcf,'Intensity_det3.png')
-
-
-intDataplot4 = [intDataAll(:,4) intDataAll(:,8) intDataAll(:,12) intDataAll(:,16) intDataAll(:,20) intDataAll(:,24)];
-figure(4)
-FigH = figure('Position', get(0, 'Screensize'));
-F    = getframe(FigH);
-imwrite(F.cdata, 'Intensity_det4.png', 'png')
-plot(t,intDataplot4,'LineWidth',5)
-xlabel('Time (s)')
-ylabel('Intensity (arb)')
-title('Graph showing intensity data against time for 5-wav detector 4')
-legend({'720nm','760nm','800nm','850nm','890nm','blank'},'Location','Best')
-ax = gca;
-ax.FontSize = 25;
-saveas(gcf,'Intensity_det4.png')
+% figure(1)
+% FigH = figure('Position', get(0, 'Screensize'));
+% F    = getframe(FigH);
+% imwrite(F.cdata, 'Intensity_det1.png', 'png')
+% plot(t,intDataplot,'LineWidth',5)
+% xlabel('Time (s)')
+% ylabel('Intensity (arb)')
+% title('Graph showing intensity data against time for 5-wavelengths: detector 1')
+% %legend({'720nm','760nm','800nm','850nm','890nm','blank'})
+% legend({'720nm','760nm','800nm','850nm','890nm'},'Location','Best')
+% ax = gca;
+% ax.FontSize = 25;
+% saveas(gcf,'Intensity_det1.png')
+% 
+% intDataplot2 = [intDataAll(:,2) intDataAll(:,6) intDataAll(:,10) intDataAll(:,14) intDataAll(:,18) intDataAll(:,22)];
+% figure(2)
+% FigH = figure('Position', get(0, 'Screensize'));
+% F    = getframe(FigH);
+% imwrite(F.cdata, 'Intensity_det2.png', 'png')
+% plot(t,intDataplot2,'LineWidth',5)
+% xlabel('Time (s)')
+% ylabel('Intensity (arb)')
+% title('Graph showing intensity data against time for 5-wav detector 2')
+% legend({'720nm','760nm','800nm','850nm','890nm','blank'},'Location','Best')
+% ax = gca;
+% ax.FontSize = 25;
+% saveas(gcf,'Intensity_det2.png')
+% 
+% 
+% intDataplot3 = [intDataAll(:,3) intDataAll(:,7) intDataAll(:,11) intDataAll(:,15) intDataAll(:,19) intDataAll(:,23)];
+% figure(3)
+% FigH = figure('Position', get(0, 'Screensize'));
+% F    = getframe(FigH);
+% imwrite(F.cdata, 'Intensity_det3.png', 'png')
+% plot(t,intDataplot3,'LineWidth',5)
+% xlabel('Time (s)')
+% ylabel('Intensity (arb)')
+% title('Graph showing intensity data against time for 5-wav detector 3')
+% legend({'720nm','760nm','800nm','850nm','890nm','blank'},'Location','Best')
+% ax = gca;
+% ax.FontSize = 25;
+% saveas(gcf,'Intensity_det3.png')
+% 
+% 
+% intDataplot4 = [intDataAll(:,4) intDataAll(:,8) intDataAll(:,12) intDataAll(:,16) intDataAll(:,20) intDataAll(:,24)];
+% figure(4)
+% FigH = figure('Position', get(0, 'Screensize'));
+% F    = getframe(FigH);
+% imwrite(F.cdata, 'Intensity_det4.png', 'png')
+% plot(t,intDataplot4,'LineWidth',5)
+% xlabel('Time (s)')
+% ylabel('Intensity (arb)')
+% title('Graph showing intensity data against time for 5-wav detector 4')
+% legend({'720nm','760nm','800nm','850nm','890nm','blank'},'Location','Best')
+% ax = gca;
+% ax.FontSize = 25;
+% saveas(gcf,'Intensity_det4.png')
 
 
 % Now determine optode positions from 2D information in layout JSON file

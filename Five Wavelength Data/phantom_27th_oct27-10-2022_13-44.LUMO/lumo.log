@@ -1,0 +1,30 @@
+┌ Info: C:\Users\LUMO-5\Documents\Gowerlabs\Lumo\phantom_27th_oct27-10-2022_13-44.LUMO\metadata.toml
+└ @ HiveNSI\fileStream.jl:929 [2022-10-27T14:44:36.239]
+┌ Info: HiveNSI: ACQ: controller state transition NSIACQ_STREAMING -> NSIACQ_RECORDING
+└ @ HiveNSI\hive.jl:211 [2022-10-27T14:44:36.241]
+┌ Info: state: 3
+│ substate: 0 
+└ @ HiveNSI\hive.jl:449 [2022-10-27T14:44:36.338]
+┌ Info: HiveNSI: event recieved: "$" at 1666878276273
+└ @ HiveNSI\v1.jl:261 [2022-10-27T14:44:36.338]
+┌ Info: HiveNSI: event recieved: "Event_" at 1666878524987
+└ @ HiveNSI\v1.jl:261 [2022-10-27T14:48:45.388]
+┌ Info: HiveNSI: event recieved: "Event_" at 1666878718643
+└ @ HiveNSI\v1.jl:261 [2022-10-27T14:51:59.089]
+┌ Info: HiveNSI: event recieved: "Event_" at 1666879006789
+└ @ HiveNSI\v1.jl:261 [2022-10-27T14:56:47.121]
+┌ Info: HiveNSI: event recieved: "Event_" at 1666879901411
+└ @ HiveNSI\v1.jl:261 [2022-10-27T15:11:41.773]
+┌ Info: HiveNSI: event recieved: "Event_" at 1666880503414
+└ @ HiveNSI\v1.jl:261 [2022-10-27T15:21:43.839]
+┌ Info: HiveNSI: Request stream start.
+└ @ HiveNSI\v1.jl:115 [2022-10-27T15:36:51.423]
+┌ Info: HiveNSI:  Auto Level
+└ @ HiveNSI\v1.jl:131 [2022-10-27T15:36:51.423]
+┌ Info: HiveNSI: ACQ: controller command NSI_TO_STREAM
+└ @ HiveNSI\hive.jl:38 [2022-10-27T15:36:51.526]
+┌ Info: state: 3
+│ substate: 2 
+└ @ HiveNSI\hive.jl:449 [2022-10-27T15:36:51.526]
+┌ Info: HiveNSI: event recieved: "$" at 1666881411554
+└ @ HiveNSI\v1.jl:261 [2022-10-27T15:36:51.561]
