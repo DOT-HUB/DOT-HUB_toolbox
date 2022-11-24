@@ -20,29 +20,23 @@ function DOTHUB_plotIntMatrix(d,SD)
 % ############################# Updates ###################################
 % #########################################################################
 
-dMat = log10(mean(d,1));
-dMat1 = reshape(dMat(1:end/2),SD.nDets,SD.nSrcs)';
-dMat2 = reshape(dMat(end/2+1:end),SD.nDets,SD.nSrcs)';
+dMatOrig = log10(mean(d,1));
 
-ax1 = subplot(1,2,1);
-set(gcf,'color','w');
-imagesc(ax1,dMat1);axis square
-caxis(ax1,[-6 0]);
-cb1 = colorbar(ax1,'northoutside');
-ylabel(cb1,'-log10(intensity) 735nm','FontSize',12)
-colormap(ax1,'gray')
-set(ax1,'Box','on','FontSize',12,'XTick',1:SD.nDets,'YTick',1:SD.nSrcs);
-axis(ax1, 'tight');
-xlabel(ax1,'Detector','FontSize',12);
-ylabel(ax1,'Source','FontSize',12);
+nWav = max(SD.MeasList(:,4));
+nRowsPerWav = size(d,2)/nWav;
+for i = 1:nWav
+    dMat = reshape(dMatOrig((i-1)*nRowsPerWav+1:i*nRowsPerWav),SD.nDets,SD.nSrcs)';
 
-ax2 = subplot(1,2,2);
-imagesc(ax2,dMat2);axis square
-caxis(ax2,[-6 0]);
-cb2 = colorbar(ax2,'northoutside');
-ylabel(cb2,'-log10(intensity) 850nm','FontSize',12)
-colormap(ax2,'gray')
-set(ax2,'Box','on','FontSize',12,'XTick',1:SD.nDets,'YTick',1:SD.nSrcs);
-axis(ax2, 'tight');
-xlabel(ax2,'Detector','FontSize',12);
-ylabel(ax2,'Source','FontSize',12);
+    ax(i) = subplot(1,nWav,i);
+    set(gcf,'color','w');
+    imagesc(ax(i),dMat);axis square
+    caxis(ax(i),[-6 0]);
+    cb1 = colorbar(ax(i),'northoutside');
+    ylabel(cb1,['-log10(intensity)' num2str(SD.Lambda(i)) 'nm'],'FontSize',12)
+    colormap(ax(i),'gray')
+    set(ax(i),'Box','on','FontSize',12,'XTick',1:SD.nDets,'YTick',1:SD.nSrcs);
+    axis(ax(i), 'tight');
+    xlabel(ax(i),'Detector','FontSize',12);
+    ylabel(ax(i),'Source','FontSize',12);
+
+end
