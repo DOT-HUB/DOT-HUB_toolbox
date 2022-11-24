@@ -47,7 +47,7 @@ plotmesh(SD.DetPos,'b.','MarkerSize',30);
 
 
 dists = DOTHUB_getSDdists(SD);
-dists = [dists dists];
+dists = repmat(dists,1,length(SD.Lambda));
 
 flag = 1;
 for i = 1:size(SD.MeasList,1)
