@@ -18,6 +18,7 @@ function DOTHUB_plotIntMatrix(d,SD)
 % RJC, UCL, Nov 2020
 %
 % ############################# Updates ###################################
+% Updated by GCVL 2022 Cambridge to handle n wavelengths
 % #########################################################################
 
 dMat = log10(mean(d,1));
@@ -65,25 +66,43 @@ else
     r = n_sourcetiles*n_detectorspertile;
     
     % Sorting order: column = wavelength, row = channel number
-    
+    % (mathematical proof for this covering n wavelengths available)
     for p = 1:n_wavs
         data(:,p) = [((p-1)*r)+1:((p-1)*r)+r ((p-1)*r)+(n_dataptstotal/2)+1:((p-1)*r)+(n_dataptstotal/2)+r];
     end
-    
+    % Assign the indexing to the actual data points
+    for j = 1:n_wavs
+        for k = 1:length(data)
+            d_new(k,j) = dMat(data(k,j));
+        end
+    end
+    % Split into cells where each cell is one wavelength and contains an
+    % array of Y x X where Y is the number of sources and X the number of
+    % detectors
+    for l = 1:n_wavs
+        dMat_multi{l} = d_new(:,l);
+        dMat_multi{l} = reshape(dMat_multi{l},[r,n_sourcetiles]);
+    end
     
     % Plotting
     for h = 1:n_wavs
         ax1 = subplot(2,3,h);
         set(gcf,'color','w');
-        imagesc(ax1,data(:,h));axis square
+        imagesc(ax1,dMat_multi{h});%axis square
         caxis(ax1,[-6 0]);
         cb1 = colorbar(ax1,'northoutside');
         ylabel(cb1,'-log10(intensity)','FontSize',12)
         colormap(ax1,'gray')
-        set(ax1,'Box','on','FontSize',12,'XTick',1:SD.nDets,'YTick',1:SD.nSrcs);
+        %set(ax1,'Box','on','FontSize',12,'XTick',1:SD.nDets,'YTick',1:SD.nSrcs);
+        
+        % I think potentially this has been the wrong way around? And x
+        % axis is sources while y axis is detectors? Certainly works when
+        % I change round the xtick and ytick - will tentatively change this
+        % going forwards
+        set(ax1,'Box','on','FontSize',12,'XTick',1:SD.nSrcs,'YTick',1:SD.nDets);
         axis(ax1, 'tight');
-        xlabel(ax1,'Detector','FontSize',12);
-        ylabel(ax1,'Source','FontSize',12);
+        xlabel(ax1,'Source','FontSize',12);
+        ylabel(ax1,'Detector','FontSize',12);
         title(['Source ',num2str(SD.Lambda(h)) 'nm'])
         hold on
     end

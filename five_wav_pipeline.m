@@ -22,7 +22,9 @@ origMeshFileName = [filepath '/ExampleMeshes/AdultMNI152.mshs'];
 %%
 addpath('LUMO_toolbox');
 %% Covert .LUMO to .nirs
-[nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirs_5wav(LUMODirName);
+%[nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirs_5wav(LUMODirName);
+[nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirs (LUMODirName);
+
 %SD3D.DetPos(9:16) = [];
 %% Run data quality checks - this produces multiple figures, so comment out for speed.
 DOTHUB_dataQualityCheck(nirsFileName);
