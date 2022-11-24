@@ -1784,3 +1784,174 @@ Saving SD3D to /Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/ExampleDa
 [> In <a href="matlab:matlab.internal.language.introspective.errorDocCallback('DOTHUB_LUMO2nirs', '/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/LUMO_toolbox/DOTHUB_LUMO2nirs.m', 413)" style="font-weight:bold">DOTHUB_LUMO2nirs</a> (<a href="matlab: opentoline('/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/LUMO_toolbox/DOTHUB_LUMO2nirs.m',413,0)">line 413</a>)
 In <a href="matlab:matlab.internal.language.introspective.errorDocCallback('five_wav_pipeline', '/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/five_wav_pipeline.m', 26)" style="font-weight:bold">five_wav_pipeline</a> (<a href="matlab: opentoline('/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/five_wav_pipeline.m',26,0)">line 26</a>)] 
 Saving file to /Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/ExampleData/Example1/Example1_VisualCortexEccentricity.nirs ...
+Estimated motion burden = 1.6 % of recording
+Estimated noise floor = NaN
+Percentage of good channels in range [0  20] = 61.5% 
+Percentage of good channels in range [20 27.5] = 0.0% 
+Percentage of good channels in range [27.5 32.5] = 0.0% 
+Percentage of good channels in range [32.5 37.5] = 0.0% 
+Percentage of good channels in range [37.5 42.5] = 25.0% 
+Percentage of good channels in range [42.5 Inf] = 25.0% 
+Total number of good fNIRS channels = 19/48
+Estimated motion burden = 1.6 % of recording
+Estimated noise floor = NaN
+{Matrix dimensions must agree.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('DOTHUB_dataQualityCheck', '/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m', 234)" style="font-weight:bold">DOTHUB_dataQualityCheck</a> (<a href="matlab: opentoline('/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m',234,0)">line 234</a>)
+tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) &
+dists'<rng(2)));
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('five_wav_pipeline', '/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/five_wav_pipeline.m', 30)" style="font-weight:bold">five_wav_pipeline</a> (<a href="matlab: opentoline('/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/five_wav_pipeline.m',30,0)">line 30</a>)
+DOTHUB_dataQualityCheck(nirsFileName);
+} 
+clear all
+clc
+five_wav_pipeline
+Select .LUMO directory...
+Using default layout.json within .LUMO directory
+Loading .toml contents...
+Loading intensity data
+Loading intensity data file 1 of 1...
+Saving SD3D to /Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/Five Wavelength Data/phantom_27th_oct27-10-2022_13-44_default.SD3D ...
+Saving file to /Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/Five Wavelength Data/phantom_27th_oct27-10-2022_13-44.nirs ...
+Estimated motion burden = 1.6 % of recording
+<a href="matlab: opentoline('/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m',231,1)">231 </a>fprintf(['Estimated noise floor = ' num2str(noisefloorest,'%0.2e') '\n']);
+length(find(SDtmp.MeasListAct(1:end/2)==1
+ length(find(SDtmp.MeasListAct(1:end/2)==1
+                                          ↑
+{Error: Invalid expression. When calling a function or indexing a variable, use parentheses. Otherwise, check for
+mismatched delimiters.
+} 
+find(SDtmp.MeasListAct(1:end/2)==1
+ find(SDtmp.MeasListAct(1:end/2)==1
+                                   ↑
+{Error: Invalid expression. When calling a function or indexing a variable, use parentheses. Otherwise, check for
+mismatched delimiters.
+} 
+find(SDtmp.MeasListAct(1:end/2)==1)
+
+ans =
+
+     1
+     2
+     3
+     4
+    17
+    18
+    19
+    20
+    21
+    22
+    23
+    24
+    25
+    26
+    27
+    28
+    29
+    30
+    31
+    32
+    33
+    34
+    35
+    36
+    37
+    38
+    39
+    40
+
+rng = [0 20]
+
+rng =
+
+     0    20
+
+clear all
+clc
+if system_dependent('IsDebugMode')==1, dbquit; end
+five_wav_pipeline
+Using default layout.json within .LUMO directory
+Loading .toml contents...
+Loading intensity data
+Loading intensity data file 1 of 1...
+Saving SD3D to /Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/Five Wavelength Data/phantom_27th_oct27-10-2022_13-44_default.SD3D ...
+Saving file to /Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/Five Wavelength Data/phantom_27th_oct27-10-2022_13-44.nirs ...
+<a href="matlab: opentoline('/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m',226,1)">226 </a>diary(fullfile(fpath,[fname '_dataQualityCheck.txt']));
+if system_dependent('IsDebugMode')==1, dbquit all; end
+clear all
+cc
+{'cc' requires <a href="matlab:matlab.internal.language.introspective.showAddon('RK', 'cc');">Risk Management Toolbox</a>.
+} 
+clc
+five_wav_pipeline
+Select .LUMO directory...
+Using default layout.json within .LUMO directory
+Loading .toml contents...
+Loading intensity data
+Loading intensity data file 1 of 1...
+Saving SD3D to /Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/Five Wavelength Data/phantom_27th_oct27-10-2022_13-44_default.SD3D ...
+Saving file to /Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/Five Wavelength Data/phantom_27th_oct27-10-2022_13-44.nirs ...
+Estimated motion burden = 1.6 % of recording
+Estimated noise floor = NaN
+{Matrix dimensions must agree.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('DOTHUB_dataQualityCheck', '/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m', 237)" style="font-weight:bold">DOTHUB_dataQualityCheck</a> (<a href="matlab: opentoline('/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m',237,0)">line 237</a>)
+tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) &
+dists'<rng(2)));
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('five_wav_pipeline', '/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/five_wav_pipeline.m', 30)" style="font-weight:bold">five_wav_pipeline</a> (<a href="matlab: opentoline('/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/five_wav_pipeline.m',30,0)">line 30</a>)
+DOTHUB_dataQualityCheck(nirsFileName);
+} 
+clear all
+clc
+five_wav_pipeline
+Select .LUMO directory...
+Using default layout.json within .LUMO directory
+Loading .toml contents...
+Loading intensity data
+Loading intensity data file 1 of 1...
+Saving SD3D to /Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/Five Wavelength Data/phantom_27th_oct27-10-2022_13-44_default.SD3D ...
+Saving file to /Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/Five Wavelength Data/phantom_27th_oct27-10-2022_13-44.nirs ...
+Estimated motion burden = 1.6 % of recording
+Estimated noise floor = NaN
+<a href="matlab: opentoline('/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m',237,1)">237 </a>tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+if system_dependent('IsDebugMode')==1, dbquit; end
+clear all
+clc
+five_wav_pipeline
+Select .LUMO directory...
+Using default layout.json within .LUMO directory
+Loading .toml contents...
+Loading intensity data
+Loading intensity data file 1 of 1...
+Saving SD3D to /Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/Five Wavelength Data/phantom_27th_oct27-10-2022_13-44_default.SD3D ...
+Saving file to /Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/Five Wavelength Data/phantom_27th_oct27-10-2022_13-44.nirs ...
+Estimated motion burden = 1.6 % of recording
+Estimated noise floor = NaN
+Percentage of good channels in range [0  20] = 70.0% 
+<a href="matlab: opentoline('/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m',241,1)">241 </a>rng = [20 27.5];
+if system_dependent('IsDebugMode')==1, dbquit; end
+clear all
+clc
+five_wav_pipeline
+Select .LUMO directory...
+Using default layout.json within .LUMO directory
+Loading .toml contents...
+Loading intensity data
+Loading intensity data file 1 of 2...
+Loading intensity data file 2 of 2...
+Saving SD3D to /Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/ExampleData/Example1/Example1_VisualCortexEccentricity_default.SD3D ...
+[Warning: Zero intensity values found: converted to noise floor estimate] 
+[> In <a href="matlab:matlab.internal.language.introspective.errorDocCallback('DOTHUB_LUMO2nirs', '/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/LUMO_toolbox/DOTHUB_LUMO2nirs.m', 413)" style="font-weight:bold">DOTHUB_LUMO2nirs</a> (<a href="matlab: opentoline('/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/LUMO_toolbox/DOTHUB_LUMO2nirs.m',413,0)">line 413</a>)
+In <a href="matlab:matlab.internal.language.introspective.errorDocCallback('five_wav_pipeline', '/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/five_wav_pipeline.m', 26)" style="font-weight:bold">five_wav_pipeline</a> (<a href="matlab: opentoline('/Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/five_wav_pipeline.m',26,0)">line 26</a>)] 
+Saving file to /Users/georginaleadley/Documents/GitHub/DOT-HUB_toolbox/ExampleData/Example1/Example1_VisualCortexEccentricity.nirs ...
+Estimated motion burden = 1.6 % of recording
+Estimated noise floor = NaN
+Percentage of good channels in range [0  20] = 70.0% 
+Percentage of good channels in range [20 27.5] = NaN% 
+Percentage of good channels in range [27.5 32.5] = 60.0% 
+Percentage of good channels in range [32.5 37.5] = 60.0% 
+Percentage of good channels in range [37.5 42.5] = 70.0% 
+Percentage of good channels in range [42.5 Inf] = 75.0% 
+Total number of good fNIRS channels = 28/40

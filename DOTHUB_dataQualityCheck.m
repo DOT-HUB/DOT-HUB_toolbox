@@ -27,6 +27,8 @@ function DOTHUB_dataQualityCheck(nirsFileName,printFigFlag,timeSelectFlag)
 % #########################################################################
 % RJC, UCL, April 2020
 %
+% Updated by GCVL 2022 Cambridge to handle n wavelengths
+%
 % ############################# Updates ###################################
 % #########################################################################
 % nirsFileName = '/Users/RCooper/Dropbox/Projects/LUMO/Lumo_AdultVisual_Pilot_150419/Rob_150419/Rob_150419_Visual2.nirs';
@@ -230,23 +232,36 @@ if timeSelectFlag==0
 end
 fprintf(['Estimated noise floor = ' num2str(noisefloorest,'%0.2e') '\n']);
 rng = [0 20];
+
 % Got up to here on 23/11/22
-tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+% Received error: matrix dimensions inconsistent - try to fix by changing
+% SDtmp.MeasListAct(1:end/2) to (1:end) (not sure why end/2 in first place?)
+
+% Update - fix above worked! Will tentatively change end/2 to end
+nWavs = length(SD.Lambda); % New line
+dists = repmat(dists,1,nWavs); % New line
+%tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+tmp = length(find(SDtmp.MeasListAct(1:end)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
 fprintf(['Percentage of good channels in range [' num2str(rng(1)) '  ' num2str(rng(2)) '] = ' num2str(tmp*100,'%0.1f') '%% \n']);
 rng = [20 27.5];
-tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+% tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+tmp = length(find(SDtmp.MeasListAct(1:end)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
 fprintf(['Percentage of good channels in range [' num2str(rng(1)) ' ' num2str(rng(2)) '] = ' num2str(tmp*100,'%0.1f') '%% \n']);
 rng = [27.5 32.5];
-tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+% tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+tmp = length(find(SDtmp.MeasListAct(1:end)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
 fprintf(['Percentage of good channels in range [' num2str(rng(1)) ' ' num2str(rng(2)) '] = ' num2str(tmp*100,'%0.1f') '%% \n']);
 rng = [32.5 37.5];
-tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+% tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+tmp = length(find(SDtmp.MeasListAct(1:end)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
 fprintf(['Percentage of good channels in range [' num2str(rng(1)) ' ' num2str(rng(2)) '] = ' num2str(tmp*100,'%0.1f') '%% \n']);
 rng = [37.5 42.5];
-tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+% tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+tmp = length(find(SDtmp.MeasListAct(1:end)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
 fprintf(['Percentage of good channels in range [' num2str(rng(1)) ' ' num2str(rng(2)) '] = ' num2str(tmp*100,'%0.1f') '%% \n']);
 rng = [42.5 inf];
-tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+% tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+tmp = length(find(SDtmp.MeasListAct(1:end)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
 fprintf(['Percentage of good channels in range [' num2str(rng(1)) ' ' num2str(rng(2)) '] = ' num2str(tmp*100,'%0.1f') '%% \n']);
 fprintf(['Total number of good fNIRS channels = ' num2str(sum(SDtmp.MeasListAct(1:end/2))) '/' num2str(length(SDtmp.MeasListAct(1:end/2))) '\n']);
 diary off;
