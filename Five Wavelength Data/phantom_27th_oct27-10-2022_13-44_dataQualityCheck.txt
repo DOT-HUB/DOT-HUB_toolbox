@@ -1955,3 +1955,250 @@ Percentage of good channels in range [32.5 37.5] = 60.0%
 Percentage of good channels in range [37.5 42.5] = 70.0% 
 Percentage of good channels in range [42.5 Inf] = 75.0% 
 Total number of good fNIRS channels = 28/40
+Estimated motion burden = 1.6 % of recording
+Estimated noise floor = NaN
+Percentage of good channels in range [0  20] = 80.0% 
+Percentage of good channels in range [20 27.5] = NaN% 
+Percentage of good channels in range [27.5 32.5] = 80.0% 
+Percentage of good channels in range [32.5 37.5] = 80.0% 
+Percentage of good channels in range [37.5 42.5] = 80.0% 
+Percentage of good channels in range [42.5 Inf] = 80.0% 
+Total number of good fNIRS channels = 32/40
+Estimated motion burden = 1.6 % of recording
+Estimated noise floor = NaN
+Percentage of good channels in range [0  20] = 80.0% 
+Percentage of good channels in range [20 27.5] = NaN% 
+Percentage of good channels in range [27.5 32.5] = 80.0% 
+Percentage of good channels in range [32.5 37.5] = 80.0% 
+Percentage of good channels in range [37.5 42.5] = 80.0% 
+Percentage of good channels in range [42.5 Inf] = 80.0% 
+Total number of good fNIRS channels = 32/40
+Estimated motion burden = 1.6 % of recording
+Estimated noise floor = NaN
+{Arrays have incompatible sizes for this operation.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('DOTHUB_dataQualityCheck', '/Users/RCooper/Dropbox/Repositories/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m', 243)" style="font-weight:bold">DOTHUB_dataQualityCheck</a> (<a href="matlab: opentoline('/Users/RCooper/Dropbox/Repositories/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m',243,0)">line 243</a>)
+tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+
+<a href="matlab:helpview('matlab','error_sizeDimensionsMustMatch')" style="font-weight:bold">Related documentation</a>
+} 
+close all
+opentoline('/Users/RCooper/Dropbox/Repositories/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m',243,0)
+clc
+DOTHUB_dataQualityCheck(nirsFileName);
+Estimated motion burden = 1.6 % of recording
+Estimated noise floor = NaN
+<a href="matlab: opentoline('/Users/RCooper/Dropbox/Repositories/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m',243,1)">243 </a>tmp = length(find(SDtmp.MeasListAct(1:end/2)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+if system_dependent('IsDebugMode')==1, dbquit all; end
+DOTHUB_dataQualityCheck(nirsFileName);
+Estimated motion burden = 1.6 % of recording
+Estimated noise floor = NaN
+{Arrays have incompatible sizes for this operation.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('DOTHUB_dataQualityCheck', '/Users/RCooper/Dropbox/Repositories/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m', 243)" style="font-weight:bold">DOTHUB_dataQualityCheck</a> (<a href="matlab: opentoline('/Users/RCooper/Dropbox/Repositories/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m',243,0)">line 243</a>)
+tmp = length(find(SDtmp.MeasListAct(1:end/nWavs)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+
+<a href="matlab:helpview('matlab','error_sizeDimensionsMustMatch')" style="font-weight:bold">Related documentation</a>
+} 
+clc
+DOTHUB_dataQualityCheck(nirsFileName);
+Estimated motion burden = 1.6 % of recording
+Estimated noise floor = NaN
+<a href="matlab: opentoline('/Users/RCooper/Dropbox/Repositories/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m',243,1)">243 </a>tmp = length(find(SDtmp.MeasListAct(1:end/nWavs)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+close all
+tmp = length(find((SDtmp.MeasListAct(1:end/nWavs)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+ tmp = length(find((SDtmp.MeasListAct(1:end/nWavs)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2)));
+                                                                                                                                     ↑
+{Invalid expression. When calling a function or indexing a variable, use parentheses. Otherwise, check for mismatched delimiters.
+} 
+tmp = length(find((SDtmp.MeasListAct(1:end/nWavs)==1 & dists'>rng(1) & dists'<rng(2))) / length(find(dists'>rng(1) & dists'<rng(2))));clc
+{Arrays have incompatible sizes for this operation.
+
+<a href="matlab:helpview('matlab','error_sizeDimensionsMustMatch')" style="font-weight:bold">Related documentation</a>
+} 
+clc
+x = SDtmp.MeasListAct(1:end/nWavs)==1;
+size(x)
+
+ans =
+
+    16     1
+
+clc
+dbquit
+DOTHUB_dataQualityCheck(nirsFileName);
+{<a href="matlab: opentoline('/Users/RCooper/Dropbox/Repositories/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m',243,133)">File: DOTHUB_dataQualityCheck.m Line: 243 Column: 133</a>
+Invalid expression. When calling a function or indexing a variable, use parentheses. Otherwise, check for mismatched delimiters.
+} 
+opentoline('/Users/RCooper/Dropbox/Repositories/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m',243,133)
+DOTHUB_dataQualityCheck(nirsFileName);
+Estimated motion burden = 1.6 % of recording
+Estimated noise floor = NaN
+<a href="matlab: opentoline('/Users/RCooper/Dropbox/Repositories/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m',242,1)">242 </a>dists = repmat(dists,1,nWavs); % New line
+close all
+clc
+size(dists)
+
+ans =
+
+     1    16
+
+dists
+
+dists =
+
+  Columns 1 through 13
+
+   19.6900    9.9859   10.8100    9.9859   32.2061   36.1086   37.6426   46.3291   47.6122   53.1178   45.7392   37.7408   19.6900
+
+  Columns 14 through 16
+
+    9.9859   10.8100    9.9859
+
+clc
+dists = repmat(dists,1,nWavs)
+
+dists =
+
+  Columns 1 through 13
+
+   19.6900    9.9859   10.8100    9.9859   32.2061   36.1086   37.6426   46.3291   47.6122   53.1178   45.7392   37.7408   19.6900
+
+  Columns 14 through 26
+
+    9.9859   10.8100    9.9859   19.6900    9.9859   10.8100    9.9859   32.2061   36.1086   37.6426   46.3291   47.6122   53.1178
+
+  Columns 27 through 39
+
+   45.7392   37.7408   19.6900    9.9859   10.8100    9.9859   19.6900    9.9859   10.8100    9.9859   32.2061   36.1086   37.6426
+
+  Columns 40 through 52
+
+   46.3291   47.6122   53.1178   45.7392   37.7408   19.6900    9.9859   10.8100    9.9859   19.6900    9.9859   10.8100    9.9859
+
+  Columns 53 through 65
+
+   32.2061   36.1086   37.6426   46.3291   47.6122   53.1178   45.7392   37.7408   19.6900    9.9859   10.8100    9.9859   19.6900
+
+  Columns 66 through 78
+
+    9.9859   10.8100    9.9859   32.2061   36.1086   37.6426   46.3291   47.6122   53.1178   45.7392   37.7408   19.6900    9.9859
+
+  Columns 79 through 80
+
+   10.8100    9.9859
+
+clc
+size(dists)
+
+ans =
+
+     1    80
+
+nWavs = length(SD.Lambda);
+tmp = length(find((SDtmp.MeasListAct(1:end/nWavs)==1 & dists'>rng(1) & dists'<rng(2)))) / length(find(dists'>rng(1) & dists'<rng(2)));
+{Arrays have incompatible sizes for this operation.
+
+<a href="matlab:helpview('matlab','error_sizeDimensionsMustMatch')" style="font-weight:bold">Related documentation</a>
+} 
+tmp = length(find((SDtmp.MeasListAct(1:end/nWavs)==1 & dists'>rng(1) & dists'<rng(2)))) / length(find(dists'>rng(1) & dists'<rng(2)));
+{Arrays have incompatible sizes for this operation.
+
+<a href="matlab:helpview('matlab','error_sizeDimensionsMustMatch')" style="font-weight:bold">Related documentation</a>
+} 
+clc
+length(find((SDtmp.MeasListAct(1:end/nWavs)==1 & dists'>rng(1) & dists'<rng(2))))
+{Arrays have incompatible sizes for this operation.
+
+<a href="matlab:helpview('matlab','error_sizeDimensionsMustMatch')" style="font-weight:bold">Related documentation</a>
+} 
+dists
+
+dists =
+
+  Columns 1 through 13
+
+   19.6900    9.9859   10.8100    9.9859   32.2061   36.1086   37.6426   46.3291   47.6122   53.1178   45.7392   37.7408   19.6900
+
+  Columns 14 through 26
+
+    9.9859   10.8100    9.9859   19.6900    9.9859   10.8100    9.9859   32.2061   36.1086   37.6426   46.3291   47.6122   53.1178
+
+  Columns 27 through 39
+
+   45.7392   37.7408   19.6900    9.9859   10.8100    9.9859   19.6900    9.9859   10.8100    9.9859   32.2061   36.1086   37.6426
+
+  Columns 40 through 52
+
+   46.3291   47.6122   53.1178   45.7392   37.7408   19.6900    9.9859   10.8100    9.9859   19.6900    9.9859   10.8100    9.9859
+
+  Columns 53 through 65
+
+   32.2061   36.1086   37.6426   46.3291   47.6122   53.1178   45.7392   37.7408   19.6900    9.9859   10.8100    9.9859   19.6900
+
+  Columns 66 through 78
+
+    9.9859   10.8100    9.9859   32.2061   36.1086   37.6426   46.3291   47.6122   53.1178   45.7392   37.7408   19.6900    9.9859
+
+  Columns 79 through 80
+
+   10.8100    9.9859
+
+dists = dists(1:16)
+
+dists =
+
+  Columns 1 through 13
+
+   19.6900    9.9859   10.8100    9.9859   32.2061   36.1086   37.6426   46.3291   47.6122   53.1178   45.7392   37.7408   19.6900
+
+  Columns 14 through 16
+
+    9.9859   10.8100    9.9859
+
+clc
+tmp = length(find((SDtmp.MeasListAct(1:end/nWavs)==1 & dists'>rng(1) & dists'<rng(2)))) / length(find(dists'>rng(1) & dists'<rng(2)));
+tmp
+
+tmp =
+
+     1
+
+length(find((SDtmp.MeasListAct(1:end/nWavs)==1 & dists'>rng(1) & dists'<rng(2))))
+
+ans =
+
+     8
+
+length(find(dists'>rng(1) & dists'<rng(2)));
+length(find(dists'>rng(1) & dists'<rng(2)))
+
+ans =
+
+     8
+
+clc
+if system_dependent('IsDebugMode')==1, dbquit all; end
+DOTHUB_dataQualityCheck(nirsFileName);
+Estimated motion burden = 1.6 % of recording
+Estimated noise floor = NaN
+<a href="matlab: opentoline('/Users/RCooper/Dropbox/Repositories/DOT-HUB_toolbox/DOTHUB_dataQualityCheck.m',237,1)">237 </a>nWavs = length(SD.Lambda);
+
+clc
+dbcont
+Percentage of good channels in range [0  20] = 100.0% 
+Percentage of good channels in range [20 27.5] = NaN% 
+Percentage of good channels in range [27.5 32.5] = 0.0% 
+Percentage of good channels in range [32.5 37.5] = 0.0% 
+Percentage of good channels in range [37.5 42.5] = 0.0% 
+Percentage of good channels in range [42.5 Inf] = 0.0% 
+Total number of good fNIRS channels = 32/40
+Estimated motion burden = 1.6 % of recording
+Estimated noise floor = NaN
+Percentage of good channels in range [0  20] = 100.0% 
+Percentage of good channels in range [20 27.5] = NaN% 
+Percentage of good channels in range [27.5 32.5] = 0.0% 
+Percentage of good channels in range [32.5 37.5] = 0.0% 
+Percentage of good channels in range [37.5 42.5] = 0.0% 
+Percentage of good channels in range [42.5 Inf] = 0.0% 
+Total number of good fNIRS channels = 8/16

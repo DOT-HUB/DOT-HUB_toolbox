@@ -21,6 +21,7 @@ origMeshFileName = [filepath '/ExampleMeshes/AdultMNI152.mshs'];
 
 %%
 addpath('LUMO_toolbox');
+
 %% Covert .LUMO to .nirs
 [nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirs_5wav(LUMODirName);
 %s[nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirs (LUMODirName);

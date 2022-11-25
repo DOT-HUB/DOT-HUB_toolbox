@@ -180,10 +180,11 @@ intDataAll = [];
 for i = 1:length(int)
     intDataAll = [intDataAll; int(i).data];
 end
+
 % #########################################################################
 % Extract useful things for conversion ####################################
 nChan = recordingdata.variables.n_chans;
-% chansList = reshape(recordingdata.variables.chans_list,3,nChan)';
+chansListOrig = reshape(recordingdata.variables.chans_list,3,nChan)';
 fs = recordingdata.variables.framerate;
 nFrames = recordingdata.variables.number_of_frames;
 nDocks = size(layoutData.docks,1);
@@ -192,30 +193,48 @@ nNodes = length(nodes);
 nSources = length(recordingdata.variables.nodes);
 nDets = recordingdata.variables.n_dets;
 
-% Light measurements (1st-5th wavelengths)- chansList -> MeasList
-% n Sources and n Detectors
-chansList = [];
-for i = 1:nSources % Sources
-    for j = 1:5 % Wavelengths
-        for k = 1:nDets % Detectors
-            chansList = [chansList,[i;k;j]];
+% Map from LUMO 2-wav chansListOrig to 5-wav version
+% DO NOT EDIT ##########################################
+% LUMO                          Actual (5 wav)
+% Source 1, Wav 1 (735nm)       Source 1, Wav 1 (720nm)
+% Source 1, Wav 2 (850nm)       Source 1, Wav 2 (760nm)
+% Source 2, Wav 1 (735nm)       Source 1, Wav 3 (800nm)
+% Source 2, Wav 2 (850nm)       Source 1, Wav 4 (850nm)
+% Source 3, Wav 1 (735nm)       Source 1, Wav 5 (890nm)
+% Source 3, Wav 2 (850nm)       Source 1, Wav 6 (NULL)
+% etc....
+% ######################################################
+
+% Create mapping matrix from LUMO source to 5wav source
+%(1,1) = (1,1)
+%(1,2) = (1,2)
+%(2,1) = (1,3)
+%(2,2) = (1,4)
+%(3,1) = (1,5)
+%(3,2) = (1,6)
+
+for node = 1:nNodes
+    for src = 1:3
+        for wav = 1:2
+            mappingMat{src+3*(node-1),wav} = [node, 2*src + (wav-2)];
         end
     end
 end
 
-chansList = chansList';
-
-% Dark measurements (6th wavelength)- chansList6 -> MeasList6
-% n Sources and n Detectors
-chansList6 = [];
-for i = 1:nSources % Sources
-    j = 6; % Wavelength
-    for k = 1:nDets % Detectors
-        chansList6 = [chansList6,[i;k;j]];
-    end
-
+%Use mapping matrix to create chansList from chansListOrig
+chansList = chansListOrig; %preallocate to Orig version
+for i = 1:size(chansListOrig,1)
+    tmp = chansListOrig(i,[1 3]);
+    chansList(i,1) = mappingMat{tmp(1),tmp(2)}(1);
+    chansList(i,3) = mappingMat{tmp(1),tmp(2)}(2);
 end
-chansList6 = chansList6';
+
+% Remove dark measurements and save (6th wavelength)
+darkInd = chansList(:,3)==6;
+d_dark = intDataAll(:,darkInd);
+intDataAll = intDataAll(:,~darkInd);
+% Update chansList
+chansList = chansList(~darkInd,:);
 
 % Define t ################################################################
 t = (0:1/fs:nFrames/fs - 1/fs)';
@@ -229,70 +248,6 @@ SD.nDets = recordingdata.variables.n_dets;
 SD.Lambda = [720,760,800,850,890];
 SD.SpatialUnit = 'mm';
 MLAtmp = recordingdata.variables.chans_list_act'; %temporary saturation list
-
-%intDataplot = [intDataAll(:,1) intDataAll(:,3) intDataAll(:,4) intDataAll(:,5) intDataAll(:,7)];
-intDataplot = [intDataAll(:,1) intDataAll(:,5) intDataAll(:,9) intDataAll(:,13) intDataAll(:,17) intDataAll(:,21)];
-%intDataplot = [intDataAll(:,1) intDataAll(:,9) intDataAll(:,17) intDataAll(:,25) intDataAll(:,33)];
-%intDataplot = [intDataAll(:,1) intDataAll(:,5) intDataAll(:,9) intDataAll(:,13) intDataAll(:,17)];
-
-% figure(1)
-% FigH = figure('Position', get(0, 'Screensize'));
-% F    = getframe(FigH);
-% imwrite(F.cdata, 'Intensity_det1.png', 'png')
-% plot(t,intDataplot,'LineWidth',5)
-% xlabel('Time (s)')
-% ylabel('Intensity (arb)')
-% title('Graph showing intensity data against time for 5-wavelengths: detector 1')
-% %legend({'720nm','760nm','800nm','850nm','890nm','blank'})
-% legend({'720nm','760nm','800nm','850nm','890nm'},'Location','Best')
-% ax = gca;
-% ax.FontSize = 25;
-% saveas(gcf,'Intensity_det1.png')
-% 
-% intDataplot2 = [intDataAll(:,2) intDataAll(:,6) intDataAll(:,10) intDataAll(:,14) intDataAll(:,18) intDataAll(:,22)];
-% figure(2)
-% FigH = figure('Position', get(0, 'Screensize'));
-% F    = getframe(FigH);
-% imwrite(F.cdata, 'Intensity_det2.png', 'png')
-% plot(t,intDataplot2,'LineWidth',5)
-% xlabel('Time (s)')
-% ylabel('Intensity (arb)')
-% title('Graph showing intensity data against time for 5-wav detector 2')
-% legend({'720nm','760nm','800nm','850nm','890nm','blank'},'Location','Best')
-% ax = gca;
-% ax.FontSize = 25;
-% saveas(gcf,'Intensity_det2.png')
-% 
-% 
-% intDataplot3 = [intDataAll(:,3) intDataAll(:,7) intDataAll(:,11) intDataAll(:,15) intDataAll(:,19) intDataAll(:,23)];
-% figure(3)
-% FigH = figure('Position', get(0, 'Screensize'));
-% F    = getframe(FigH);
-% imwrite(F.cdata, 'Intensity_det3.png', 'png')
-% plot(t,intDataplot3,'LineWidth',5)
-% xlabel('Time (s)')
-% ylabel('Intensity (arb)')
-% title('Graph showing intensity data against time for 5-wav detector 3')
-% legend({'720nm','760nm','800nm','850nm','890nm','blank'},'Location','Best')
-% ax = gca;
-% ax.FontSize = 25;
-% saveas(gcf,'Intensity_det3.png')
-% 
-% 
-% intDataplot4 = [intDataAll(:,4) intDataAll(:,8) intDataAll(:,12) intDataAll(:,16) intDataAll(:,20) intDataAll(:,24)];
-% figure(4)
-% FigH = figure('Position', get(0, 'Screensize'));
-% F    = getframe(FigH);
-% imwrite(F.cdata, 'Intensity_det4.png', 'png')
-% plot(t,intDataplot4,'LineWidth',5)
-% xlabel('Time (s)')
-% ylabel('Intensity (arb)')
-% title('Graph showing intensity data against time for 5-wav detector 4')
-% legend({'720nm','760nm','800nm','850nm','890nm','blank'},'Location','Best')
-% ax = gca;
-% ax.FontSize = 25;
-% saveas(gcf,'Intensity_det4.png')
-
 
 % Now determine optode positions from 2D information in layout JSON file
 % Also use same loop to extract source power information
@@ -309,13 +264,11 @@ for n = 1:nNodes
         SD.DetPos(det+(n-1)*4,2) = layoutData.docks(nid).optodes(det).coordinates_2d.y;
     end
     src = 1; %Single source in AV3
-    % Unsure to change the *3 to *1 -> changed
     SD.SrcPos(src+(n-1),1) = layoutData.docks(nid).optodes(src+4).coordinates_2d.x;
     SD.SrcPos(src+(n-1),2) = layoutData.docks(nid).optodes(src+4).coordinates_2d.y;
 
     SD.SrcPowers(src+(n-1),1) = hardware.Hub.Group.Node{1,n}.Source{1,src*2-1}.Source_power;
     SD.SrcPowers(src+(n-1) + SD.nSrcs,1) = hardware.Hub.Group.Node{1,n}.Source{1,src*2}.Source_power;
-
 end
 
 %Make SD.MeasList for the light measurements
@@ -324,14 +277,6 @@ SD.MeasList(:,1:2) = chansList(:,1:2);
 SD.MeasList(:,4) = chansList(:,3);
 [SD.MeasList, tmpInd] = sortrows(SD.MeasList,[4,1,2]);
 SD.MeasListAct = ones(size(SD.MeasList,1),1);
-
-
-%Make SD.MeasList for the dark measurements
-SD.MeasListDark = ones(size(chansList6,1),4);
-SD.MeasListDark(:,1:2) = chansList6(:,1:2);
-SD.MeasListDark(:,4) = chansList6(:,3);
-[SD.MeasListDark, tmpInd6] = sortrows(SD.MeasListDark,[4,1,2]);
-
 
 % ########## Use sorted ML order to correctly sort data and measlistact ##
 d = intDataAll(:,tmpInd);
@@ -500,10 +445,8 @@ end
 nirs.SD = SD;
 nirs.SD3D = SD3D;
 nirs.aux = aux; 
-% nirs.d_total = d;
-int_light = size(chansList,1); %size of light intensity measures
-nirs.d = d(:,1:int_light);
-nirs.d_dark = intDataAll(:,int_light+1:end);
+nirs.d = d;
+nirs.d_dark = d_dark;
 nirs.s = s;
 nirs.t = t;
 nirs.CondNames = CondNames;
