@@ -181,6 +181,13 @@ for i = 1:length(int)
     intDataAll = [intDataAll; int(i).data];
 end
 
+% %%%%..GCVL..#### ************************************************
+	% show raw data
+	printRawData(intDataAll);
+% %%%%..GCVL..#### ************************************************
+
+
+
 % #########################################################################
 % Extract useful things for conversion ####################################
 nChan = recordingdata.variables.n_chans;
@@ -230,9 +237,15 @@ for i = 1:size(chansListOrig,1)
 end
 
 % Remove dark measurements and save (6th wavelength)
-darkInd = chansList(:,3)==6;
+% %%%%..GCVL..#### ************************************************
+darkInd = chansList(:,3)==6;    % chansList has 96 rows and 3 cols    Col-1 rows 1-48=1 49-96=2   Col-2 sequential repeat 1,2,3,4,5,6,7,8   Col-3 8x1, 8x2, 8x3, 8x4, 8x5, 8x6, then repeats
 d_dark = intDataAll(:,darkInd);
-intDataAll = intDataAll(:,~darkInd);
+intDataAll = intDataAll(:,~darkInd);  %select only LED channels  (80 in total)   % %%%%..GCVL..#### ************************************************
+
+	%show dark data
+	printdarkchans(chansList, darkInd, d_dark);
+% %%%%..GCVL..#### ************************************************
+	
 % Update chansList
 chansList = chansList(~darkInd,:);
 
@@ -279,7 +292,28 @@ SD.MeasList(:,4) = chansList(:,3);
 SD.MeasListAct = ones(size(SD.MeasList,1),1);
 
 % ########## Use sorted ML order to correctly sort data and measlistact ##
-d = intDataAll(:,tmpInd);
+d = intDataAll(:,tmpInd);   %re-order channels per tmpInd   % %%%%..GCVL..#### ************************************************
+
+% %%%%..GCVL..#### ************************************************
+	%show nirs array "d"
+	printnirsd(d, intDataAll);
+% %%%%..GCVL..#### ************************************************
+
+%% flag zero or negative values of d
+fprintf('\n Flag zero or negative values of d ');
+for rowtest = 1:size(d,1)
+	for coltest = 1:size(d,2)
+		if d(rowtest, coltest) <= 0
+			fprintf('\n  row  col  d    %d %d %f ', rowtest, coltest, d(rowtest,coltest));
+			d(rowtest, coltest) = 0.000001;
+		end
+	end
+end	
+	
+% %%%%..GCVL..#### ************************************************
+
+
+
 MLAtmp = MLAtmp(tmpInd);
 
 % ########## Consider channels flagged as saturated ######################
@@ -364,8 +398,8 @@ else %Assume 3D contents of layout file remains and save as SD3D
         end
     end
     SD3DFileName = fullfile(lumoPath, [lumoName '_default.SD3D']);
-    fprintf(['Saving SD3D to ' SD3DFileName ' ...\n']);
-    save(SD3DFileName,'SD3D');
+                                                                                %fprintf(['Saving SD3D to ' SD3DFileName ' ...\n']);   %%%%..GCVL..####
+    fprintf('\n Saving SD3D to %s   >>> continuing >>> \n', SD3DFileName);
 end
 
 % Define stim vector, s ###################################################
@@ -452,8 +486,449 @@ nirs.t = t;
 nirs.CondNames = CondNames;
 
 nirsFileName = fullfile(lumoPath, [lumoName '.nirs']);
-fprintf(['Saving file to ' nirsFileName ' ...\n']);
+                                                                    %fprintf(['Saving file to ' nirsFileName ' ...\n']);     %%%%..GCVL..####
+fprintf(' Saving file to %s   >>> continuing >>> \n', nirsFileName);
 save(nirsFileName,'-struct','nirs','-v7.3');
 
+
+
+
+% %%%%..GCVL..#### ************************************************
+fprintf('\n nSources   nDets  %d %d', nSources, nDets);
+fprintf('\n length(SD.Lambda) %d \n', length(SD.Lambda));
+nWavs = length(SD.Lambda);
+% %%%%..GCVL..#### ************************************************
+
+		displaygraph(t, d, nSources, nDets, nWavs);
+end		%% needs an end of main function (DOTHUB_LUMO2nirs_5wav) to allow print functions in same file
+
+%%  print functions
+
+	function prtRawData = printRawData(intDataAll)
+		sz=size(intDataAll);
+		display=sprintf('%d  ',sz);
+		fprintf('\n intDataAll size: %s', display);
+		fprintf('\n printing 6 rows all columns but remember prints columns first so after 6 values switches to next column \n');
+		fprintf('---------------- first 6 1st col ------------------- | ----------------- first 6 2nd col ----------------- | ------------- first 6 3rd col ----------------- |  ---------->> \n');
+		fprintf('%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n', intDataAll(1:6,:));
+
+		fprintf('\n Transposed intDataAll *******************************');
+		fprintf('\n Data Structure .... ');
+		fprintf('\n Notation:  Columns  \n            SourceTile s1 & Detectors d1-4 /  SourceTile s2 & Detectors d5-8  /  Wavelengths 720-760-800-850-890-X \n');
+		fprintf('   1        2        3        4        5        6        7        8        9       10       11       12       13       14       15       16       17       18       19       20       21       22       23       24       25       26       27       28       29       30       31       32       33       34       35       36       37       38       39       40       41       42       43       44       45       46       47       48     ');
+		fprintf('  49       50       51       52       53       54       55       56       57       58       59       60       61       62       63       64       65       66       67       68       69       70       71       72       73       74       75       76       77       78       79       80       81       82       83       84       85       86       87       88       89       90       91       92       93       94       95       96   \n');
+		fprintf('s1d1/720 s1d2/720 s1d3/720 s1d4/720 s1d5/720 s1d6/720 s1d7/720 s1d8/720 s1d1/760 s1d2/760 s1d3/760 s1d4/760 s1d5/760 s1d6/760 s1d7/760 s1d8/760 s1d1/800 s1d2/800 s1d3/800 s1d4/800 s1d5/800 s1d6/800 s1d7/800 s1d8/800 s1d1/850 s1d2/850 s1d3/850 s1d4/850 s1d5/850 s1d6/850 s1d7/850 s1d8/850 s1d1/890 s1d2/890 s1d3/890 s1d4/890 s1d5/890 s1d6/890 s1d7/890 s1d8/890  s1d1/X   s1d2/X   s1d3/X   s1d4/X   s1d5/X   s1d6/X   s1d7/X   s1d8/X   ');
+		fprintf('s2d1/720 s2d2/720 s2d3/720 s2d4/720 s2d5/720 s2d6/720 s2d7/720 s2d8/720 s2d1/760 s2d2/760 s2d3/760 s2d4/760 s2d5/760 s2d6/760 s2d7/760 s2d8/760 s2d1/800 s2d2/800 s2d3/800 s2d4/800 s2d5/800 s2d6/800 s2d7/800 s2d8/800 s2d1/850 s2d2/850 s2d3/850 s2d4/850 s2d5/850 s2d6/850 s2d7/850 s2d8/850 s2d1/890 s2d2/890 s2d3/890 s2d4/890 s2d5/890 s2d6/890 s2d7/890 s2d8/890  s2d1/X   s2d2/X   s2d3/X   s2d4/X   s2d5/X   s2d6/X   s2d7/X   s2d8/X \n');
+		fprintf('%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n', intDataAll(1:6,:).');
+		fprintf('\n');
+	end
+
+	function prtdark = printdarkchans(chansList, darkInd, d_dark)
+		sz=size(chansList);         % chansList has 96 rows and 3 cols    Col-1 rows 1-48=1 49-96=2   Col-2 sequential repeat 1,2,3,4,5,6,7,8   Col-3 8x1, 8x2, 8x3, 8x4, 8x5, 8x6, then repeats
+		display=sprintf('%d  ',sz);
+		fprintf('\n chansList size: %s', display);
+		fprintf('\n chansList    96 rows 3 cols    displayed for ease as 96 cols and 3 rows\n');
+		fprintf('%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n', chansList(:,:));
+
+		sz=size(darkInd);
+		display=sprintf('%d  ',sz);
+		fprintf('\n darkInd size: %s', display);
+		fprintf('\n darkInd  has 96 rows 1 col   and row number has 0 where LED exists and 1 where no LED exists \n');
+
+		sz=size(d_dark);
+		display=sprintf('%d  ',sz);
+		fprintf('\n d_dark size: %s', display);
+		fprintf('\n d_dark   only columns with no LED first 6 rows\n');
+		fprintf('%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f \n', d_dark(1:6,:).');
+	end
+	
+	function prtd = printnirsd(d, intDataAll)
+		sz=size(d);
+		display=sprintf('%d  ',sz);
+		fprintf('\n "d" size: %s', display);
+		fprintf('\n printing 6 rows all columns but remember prints columns first so after 6 values switches to next column \n');
+		fprintf('---------------- first 6 1st col ------------------- | ----------------- first 6 2nd col ----------------- | ------------- first 6 3rd col ----------------- |  ---------->> \n');
+		fprintf('%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n', intDataAll(1:6,:));
+
+		fprintf('\n Transposed d  *******************************');
+		fprintf('\n Note: d has fewer columns thab intDataAll since dark columns removed');
+		fprintf('\n Data Structure .... HAS CHANGED');
+		fprintf('\n Notation:  Columns  \n            SourceTile s1 & Detectors d1-4 /  SourceTile s2 & Detectors d5-8  /  Wavelengths 720-760-800-850-890-X \n');
+		fprintf('   1        2        3        4        5        6        7        8        9       10       11       12       13       14       15       16       17       18       19       20       21       22       23       24       25       26       27       28       29       30       31       32       33       34       35       36       37       38       39       40     ');
+		fprintf('  41       42       43       44       45       46       47       48       49       50       51       52       53       54       55       56       57       58       59       60       61       62       63       64       65       66       67       68       69       70       71       72       73       74       75       76       77       78       79       80   \n');
+		fprintf('s1d1/720 s1d2/720 s1d3/720 s1d4/720 s1d5/720 s1d6/720 s1d7/720 s1d8/720 s2d1/720 s2d2/720 s2d3/720 s2d4/720 s2d5/720 s2d6/720 s2d7/720 s2d8/720 s1d1/760 s1d2/760 s1d3/760 s1d4/760 s1d5/760 s1d6/760 s1d7/760 s1d8/760 s2d1/760 s2d2/760 s2d3/760 s2d4/760 s2d5/760 s2d6/760 s2d7/760 s2d8/760 s1d1/800 s1d2/800 s1d3/800 s1d4/800 s1d5/800 s1d6/800 s1d7/800 s1d8/800 ');
+		fprintf('s2d1/800 s2d2/800 s2d3/800 s2d4/800 s2d5/800 s2d6/800 s2d7/800 s2d8/800 s1d1/850 s1d2/850 s1d3/850 s1d4/850 s1d5/850 s1d6/850 s1d7/850 s1d8/850 s2d1/850 s2d2/850 s2d3/850 s2d4/850 s2d5/850 s2d6/850 s2d7/850 s2d8/850 s1d1/890 s1d2/890 s1d3/890 s1d4/890 s1d5/890 s1d6/890 s1d7/890 s1d8/890 s2d1/890 s2d2/890 s2d3/890 s2d4/890 s2d5/890 s2d6/890 s2d7/890 s2d8/890 \n');
+		fprintf('%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n', d(1:6,:).');
+
+	end
+
+%%  display graphs functions
+
+	function showgraph = displaygraph(time, d, nSources, nDets, nWavs)
+ 		set(groot, 'DefaultFigureWindowStyle','docked');  %docks graphic windows in matlab screen
+		%initialise
+		rawd_graph = d;
+		fprintf('\n rawd_graph \n');
+		fprintf('%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n',rawd_graph(1:6,:).');
+		fprintf('\n');
+
+		s1d1 = 1:16:66;
+		s1d2 = 2:16:67;
+		s1d3 = 3:16:68;
+		s1d4 = 4:16:69;
+		s1d5 = 5:16:70;
+		s1d6 = 6:16:71;
+		s1d7 = 7:16:72;
+		s1d8 = 8:16:73;
+		s2d1 = 9:16:74;
+		s2d2 = 10:16:75;
+		s2d3 = 11:16:76;
+		s2d4 = 12:16:77;
+		s2d5 = 13:16:78;
+		s2d6 = 14:16:79;
+		s2d7 = 15:16:80;
+		s2d8 = 16:16:81;
+ 
+		%%%% Raw Signal Figures	
+			figure('Name','Raw Int','NumberTitle','off');
+			plot(time, rawd_graph);
+			title('Raw Signals I(t)');
+			xlabel('Time (s)');
+
+		%%%% Raw Signal By Detector
+			figure('Name','Raw Int A','NumberTitle','off');
+			t = tiledlayout(2,2);
+			t.Title.String = 'Raw Signal I(t)';
+			t.Subtitle.String = 'blu=720 org=760 yel=800 pur=850 grn=890 nm';
+			t.Subtitle.FontSize = 10;
+				nexttile(t);
+				plot(time, rawd_graph(:,s1d1,':'));
+				title('s1d1');
+				xlabel('Time (s)');
+				nexttile(t);
+				plot(time, rawd_graph(:,s1d3,':'));
+				title('s1d3');
+				xlabel('Time (s)');
+				nexttile(t);
+				plot(time, rawd_graph(:,s1d2,':'));
+				title('s1d2');
+				xlabel('Time (s)');
+				nexttile(t);
+				plot(time, rawd_graph(:,s1d4,':'));
+				title('s1d4');
+				xlabel('Time (s)');
+
+			figure('Name','Raw Int B','NumberTitle','off');
+			t = tiledlayout(2,2);
+			t.Title.String = 'Raw Signal I(t)';
+			t.Subtitle.String = 'blu=720 org=760 yel=800 pur=850 grn=890 nm';
+			t.Subtitle.FontSize = 10;
+			nexttile(t);
+				plot(time, rawd_graph(:,s1d5,':'));
+				title('s1d5');
+				xlabel('Time (s)');
+				nexttile(t);
+				plot(time, rawd_graph(:,s1d7,':'));
+				title('s1d7');
+				xlabel('Time (s)');
+				nexttile(t);
+				plot(time, rawd_graph(:,s1d6,':'));
+				title('s1d6');
+				xlabel('Time (s)');
+				nexttile(t);
+				plot(time, rawd_graph(:,s1d8,':'));
+				title('s1d8');
+				xlabel('Time (s)');
+ 
+			figure('Name','Raw Int C','NumberTitle','off');
+			t = tiledlayout(2,2);
+			t.Title.String = 'Raw Signal I(t)';
+			t.Subtitle.String = 'blu=720 org=760 yel=800 pur=850 grn=890 nm';
+			t.Subtitle.FontSize = 10;
+				nexttile(t);
+				plot(time, rawd_graph(:,s2d1,':'));
+				title('s2d1');
+				xlabel('Time (s)');
+				nexttile(t);
+				plot(time, rawd_graph(:,s2d3,':'));
+				title('s2d3');
+				xlabel('Time (s)');
+				nexttile(t);
+				plot(time, rawd_graph(:,s2d2,':'));
+				title('s2d2');
+				xlabel('Time (s)');
+				nexttile(t);
+				plot(time, rawd_graph(:,s2d4,':'));
+				title('s2d4');
+				xlabel('Time (s)');
+ 
+			figure('Name','Raw Int D','NumberTitle','off');
+			t = tiledlayout(2,2);
+			t.Title.String = 'Raw Signal I(t)';
+			t.Subtitle.String = 'blu=720 org=760 yel=800 pur=850 grn=890 nm';
+			t.Subtitle.FontSize = 10;
+				nexttile(t);
+				plot(time, rawd_graph(:,s2d5,':'));
+				title('s2d5');
+				xlabel('Time (s)');
+				nexttile(t);
+				plot(time, rawd_graph(:,s2d7,':'));
+				title('s2d7');
+				xlabel('Time (s)');
+				nexttile(t);
+				plot(time, rawd_graph(:,s2d6,':'));
+				title('s2d6');
+				xlabel('Time (s)');
+				nexttile(t);
+				plot(time, rawd_graph(:,s2d8,':'));
+				title('s2d8');
+				xlabel('Time (s)');
+ 
+ 
+			figure('Name','Raw Int E','NumberTitle','off');
+			bar1125 = [rawd_graph(1,s1d1) 0; rawd_graph(1,s1d2) 0; rawd_graph(1,s1d3) 0; rawd_graph(1,s1d4) 0; rawd_graph(1,s2d5) 0; rawd_graph(1,s2d6) 0; rawd_graph(1,s2d7) 0; rawd_graph(1,s2d8) 0];
+			xnames1125 = categorical({'s1d1','s1d2','s1d3','s1d4','s2d5','s2d6','s2d7','s2d8'});
+			xnames1125 = reordercats(xnames1125,{'s1d1','s1d2','s1d3','s1d4','s2d5','s2d6','s2d7','s2d8'});
+			bar(xnames1125, bar1125);
+			title('Raw Signal Strength I(0)');
+
+			figure('Name','Raw Int F','NumberTitle','off');
+			bar2115 = [rawd_graph(1,s2d1) 0; rawd_graph(1,s2d2) 0; rawd_graph(1,s2d3) 0; rawd_graph(1,s2d4) 0; rawd_graph(1,s1d5) 0; rawd_graph(1,s1d6) 0; rawd_graph(1,s1d7) 0; rawd_graph(1,s1d8) 0];
+			xnames2115 = categorical({'s2d1','s2d2','s2d3','s2d4','s1d5','s1d6','s1d7','s1d8'});
+			xnames2115 = reordercats(xnames2115,{'s2d1','s2d2','s2d3','s2d4','s1d5','s1d6','s1d7','s1d8'});
+			bar(xnames2115, bar2115);
+			title('Raw Signal Strength I(0)');
+
+		%%%% Modified Raw Ratios	AND   Raw Attenuation	
+				%% look at raw ratios
+				%% modify (expand signal *blowup) and add nW (wavelength number) to separate on graph
+% 				%% this can be a long loop time and could be faster in main body but put here in figure section so can ignore if wish
+% 				blowup = 2;
+% 				rows = height(d);
+% 				for ii = 1:rows
+% 					for nW = 1:nWavs
+% 						for nS = 1:nSources
+% 							for nD = 1:nDets
+% 								jj = (nW-1)*16 + (nS-1)*8 + nD;
+% 								ratio(ii,jj) = d(1,jj)/d(ii,jj); 
+% 								rawratio(ii,jj) = blowup*(ratio(ii,jj) - 1) + nW;  
+% 								log10ratio(ii,jj) = log10(ratio(ii,jj));
+% 							end
+% 						end
+% 					end
+% 				end
+% 
+% 				
+% 		fprintf('\n Transposed rawratio 6 rows  ******************************* \n');
+% 		fprintf('   1        2        3        4        5        6        7        8        9       10       11       12       13       14       15       16       17       18       19       20       21       22       23       24       25       26       27       28       29       30       31       32       33       34       35       36       37       38       39       40     ');
+% 		fprintf('  41       42       43       44       45       46       47       48       49       50       51       52       53       54       55       56       57       58       59       60       61       62       63       64       65       66       67       68       69       70       71       72       73       74       75       76       77       78       79       80   \n');
+% 		fprintf('s1d1/720 s1d2/720 s1d3/720 s1d4/720 s1d5/720 s1d6/720 s1d7/720 s1d8/720 s2d1/720 s2d2/720 s2d3/720 s2d4/720 s2d5/720 s2d6/720 s2d7/720 s2d8/720 s1d1/760 s1d2/760 s1d3/760 s1d4/760 s1d5/760 s1d6/760 s1d7/760 s1d8/760 s2d1/760 s2d2/760 s2d3/760 s2d4/760 s2d5/760 s2d6/760 s2d7/760 s2d8/760 s1d1/800 s1d2/800 s1d3/800 s1d4/800 s1d5/800 s1d6/800 s1d7/800 s1d8/800 ');
+% 		fprintf('s2d1/800 s2d2/800 s2d3/800 s2d4/800 s2d5/800 s2d6/800 s2d7/800 s2d8/800 s1d1/850 s1d2/850 s1d3/850 s1d4/850 s1d5/850 s1d6/850 s1d7/850 s1d8/850 s2d1/850 s2d2/850 s2d3/850 s2d4/850 s2d5/850 s2d6/850 s2d7/850 s2d8/850 s1d1/890 s1d2/890 s1d3/890 s1d4/890 s1d5/890 s1d6/890 s1d7/890 s1d8/890 s2d1/890 s2d2/890 s2d3/890 s2d4/890 s2d5/890 s2d6/890 s2d7/890 s2d8/890 \n');
+% 		fprintf('%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n', rawratio(1:6,:).');
+% 
+% 		fprintf('\n Transposed log10ratio 6 rows  ******************************* \n');
+% 		fprintf('   1        2        3        4        5        6        7        8        9       10       11       12       13       14       15       16       17       18       19       20       21       22       23       24       25       26       27       28       29       30       31       32       33       34       35       36       37       38       39       40     ');
+% 		fprintf('  41       42       43       44       45       46       47       48       49       50       51       52       53       54       55       56       57       58       59       60       61       62       63       64       65       66       67       68       69       70       71       72       73       74       75       76       77       78       79       80   \n');
+% 		fprintf('s1d1/720 s1d2/720 s1d3/720 s1d4/720 s1d5/720 s1d6/720 s1d7/720 s1d8/720 s2d1/720 s2d2/720 s2d3/720 s2d4/720 s2d5/720 s2d6/720 s2d7/720 s2d8/720 s1d1/760 s1d2/760 s1d3/760 s1d4/760 s1d5/760 s1d6/760 s1d7/760 s1d8/760 s2d1/760 s2d2/760 s2d3/760 s2d4/760 s2d5/760 s2d6/760 s2d7/760 s2d8/760 s1d1/800 s1d2/800 s1d3/800 s1d4/800 s1d5/800 s1d6/800 s1d7/800 s1d8/800 ');
+% 		fprintf('s2d1/800 s2d2/800 s2d3/800 s2d4/800 s2d5/800 s2d6/800 s2d7/800 s2d8/800 s1d1/850 s1d2/850 s1d3/850 s1d4/850 s1d5/850 s1d6/850 s1d7/850 s1d8/850 s2d1/850 s2d2/850 s2d3/850 s2d4/850 s2d5/850 s2d6/850 s2d7/850 s2d8/850 s1d1/890 s1d2/890 s1d3/890 s1d4/890 s1d5/890 s1d6/890 s1d7/890 s1d8/890 s2d1/890 s2d2/890 s2d3/890 s2d4/890 s2d5/890 s2d6/890 s2d7/890 s2d8/890 \n');
+% 		fprintf('%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n', log10ratio(1:6,:).');
+
+% 				
+% 			figure('Name','Mod-Ratio','NumberTitle','off');
+% 			plot(time, rawratio, ':');
+% 			title('All Modified Raw Ratios ~I_0/I');
+% 
+% 			figure('Name','Mod-Ratio A','NumberTitle','off');
+% 			sgtitle('Modified Raw Ratio ~I_0/I');
+% 			subplot(2,2,1);
+% 			plot(time, rawratio(:,s1d1,':'));
+% 			title('s1d1');
+% 			yticks([1 2 3 4 5]);
+% 			yticklabels({'720','760','800','850','890'});
+% 			subplot(2,2,3);
+% 			plot(time, rawratio(:,s1d2,':'));
+% 			title('s1d2');
+% 			yticks([1 2 3 4 5]);
+% 			yticklabels({'720','760','800','850','890'});
+% 			subplot(2,2,2);
+% 			plot(time, rawratio(:,s1d3,':'));
+% 			title('s1d3');
+% 			yticks([1 2 3 4 5]);
+% 			yticklabels({'720','760','800','850','890'});
+% 			subplot(2,2,4);
+% 			plot(time, rawratio(:,s1d4,':'));
+% 			title('s1d4');
+% 			yticks([1 2 3 4 5]);
+% 			yticklabels({'720','760','800','850','890'});
+% 
+% 			figure('Name','Mod-Ratio B','NumberTitle','off');
+% 			sgtitle('Modified Raw Ratio ~I_0/I');
+% 			subplot(2,2,1);
+% 			plot(time, rawratio(:,s1d5,':'));
+% 			title('s1d5');
+% 			yticks([1 2 3 4 5]);
+% 			yticklabels({'720','760','800','850','890'});
+% 			subplot(2,2,3);
+% 			plot(time, rawratio(:,s1d6,':'));
+% 			title('s1d6');
+% 			yticks([1 2 3 4 5]);
+% 			yticklabels({'720','760','800','850','890'});
+% 			subplot(2,2,2);
+% 			plot(time, rawratio(:,s1d7,':'));
+% 			title('s1d7');
+% 			yticks([1 2 3 4 5]);
+% 			yticklabels({'720','760','800','850','890'});
+% 			subplot(2,2,4);
+% 			plot(time, rawratio(:,s1d8,':'));
+% 			title('s1d8');
+% 			yticks([1 2 3 4 5]);
+% 			yticklabels({'720','760','800','850','890'});
+% 
+% 			figure('Name','Mod-Ratio C','NumberTitle','off');
+% 			sgtitle('Modified Raw Ratio ~I_0/I');
+% 			subplot(2,2,1);
+% 			plot(time, rawratio(:,s2d1,':'));
+% 			title('s2d1');
+% 			yticks([1 2 3 4 5]);
+% 			yticklabels({'720','760','800','850','890'});
+% 			subplot(2,2,3);
+% 			plot(time, rawratio(:,s2d2,':'));
+% 			title('s2d2');
+% 			yticks([1 2 3 4 5]);
+% 			yticklabels({'720','760','800','850','890'});
+% 			subplot(2,2,2);
+% 			plot(time, rawratio(:,s2d3,':'));
+% 			title('s2d3');
+% 			yticks([1 2 3 4 5]);
+% 			yticklabels({'720','760','800','850','890'});
+% 			subplot(2,2,4);
+% 			plot(time, rawratio(:,s2d4,':'));
+% 			title('s2d4');
+% 			yticks([1 2 3 4 5]);
+% 			yticklabels({'720','760','800','850','890'});
+% 
+% 			figure('Name','Mod-Ratio D','NumberTitle','off');
+% 			sgtitle('Modified Raw Ratio ~I_0/I');
+% 			subplot(2,2,1);
+% 			plot(time, rawratio(:,s2d5,':'));
+% 			title('s2d5');
+% 			yticks([1 2 3 4 5]);
+% 			yticklabels({'720','760','800','850','890'});
+% 			subplot(2,2,3);
+% 			plot(time, rawratio(:,s2d6,':'));
+% 			title('s2d6');
+% 			yticks([1 2 3 4 5]);
+% 			yticklabels({'720','760','800','850','890'});
+% 			subplot(2,2,2);
+% 			plot(time, rawratio(:,s2d7,':'));
+% 			title('s2d7');
+% 			yticks([1 2 3 4 5]);
+% 			yticklabels({'720','760','800','850','890'});
+% 			subplot(2,2,4);
+% 			plot(time, rawratio(:,s2d8,':'));
+% 			title('s2d8');
+% 			yticks([1 2 3 4 5]);
+% 			yticklabels({'720','760','800','850','890'});
+
+			
+% 		%%%%  Raw Attenuation Figures
+% 		
+% 			figure('Name','Raw Atten','NumberTitle','off');
+% 			plot(time, log10ratio, ':');
+% 			title('All Raw Attenuations log_1_0(I_0/I)');
+% 		
+% 		
+% 			figure('Name','Raw Atten A','NumberTitle','off');
+% 			t = tiledlayout(2,2);
+% 			t.Title.String = 'Raw Attenuation log_1_0(I_0/I)';
+% 			t.Subtitle.String = 'blu=720 org=760 yel=800 pur=850 grn=890 nm';
+% 			t.Subtitle.FontSize = 10;
+% 				nexttile(t);
+% 				plot(time, log10ratio(:,s1d1,':'));
+% 				title('s1d1');
+% 				xlabel('Time (s)');
+% 				nexttile(t);
+% 				plot(time, log10ratio(:,s1d3,':'));
+% 				title('s1d3');
+% 				xlabel('Time (s)');
+% 				nexttile(t);
+% 				plot(time, log10ratio(:,s1d2,':'));
+% 				title('s1d2');
+% 				xlabel('Time (s)');
+% 				nexttile(t);
+% 				plot(time, log10ratio(:,s1d4,':'));
+% 				title('s1d4');
+% 				xlabel('Time (s)');
+% 			
+% 			figure('Name','Raw Atten B','NumberTitle','off');
+% 			t = tiledlayout(2,2);
+% 			t.Title.String = 'Raw Attenuation log_1_0(I_0/I)';
+% 			t.Subtitle.String = 'blu=720 org=760 yel=800 pur=850 grn=890 nm';
+% 			t.Subtitle.FontSize = 10;
+% 				nexttile(t);
+% 				plot(time, log10ratio(:,s1d5,':'));
+% 				title('s1d5');
+% 				xlabel('Time (s)');
+% 				nexttile(t);
+% 				plot(time, log10ratio(:,s1d7,':'));
+% 				title('s1d7');
+% 				xlabel('Time (s)');
+% 				nexttile(t);
+% 				plot(time, log10ratio(:,s1d6,':'));
+% 				title('s1d6');
+% 				xlabel('Time (s)');
+% 				nexttile(t);
+% 				plot(time, log10ratio(:,s1d8,':'));
+% 				title('s1d8');
+% 				xlabel('Time (s)');
+% 
+% 			figure('Name','Raw Atten C','NumberTitle','off');
+% 			t = tiledlayout(2,2);
+% 			t.Title.String = 'Raw Attenuation log_1_0(I_0/I)';
+% 			t.Subtitle.String = 'blu=720 org=760 yel=800 pur=850 grn=890 nm';
+% 			t.Subtitle.FontSize = 10;
+% 				nexttile(t);
+% 				plot(time, log10ratio(:,s2d1,':'));
+% 				title('s2d1');
+% 				xlabel('Time (s)');
+% 				nexttile(t);
+% 				plot(time, log10ratio(:,s2d3,':'));
+% 				title('s2d3');
+% 				xlabel('Time (s)');
+% 				nexttile(t);
+% 				plot(time, log10ratio(:,s2d2,':'));
+% 				title('s2d2');
+% 				xlabel('Time (s)');
+% 				nexttile(t);
+% 				plot(time, log10ratio(:,s2d4,':'));
+% 				title('s2d4');
+% 				xlabel('Time (s)');
+% 
+% 			figure('Name','Raw Atten D','NumberTitle','off');
+% 			t = tiledlayout(2,2);
+% 			t.Title.String = 'Raw Attenuation log_1_0(I_0/I)';
+% 			t.Subtitle.String = 'blu=720 org=760 yel=800 pur=850 grn=890 nm';
+% 			t.Subtitle.FontSize = 10;
+% 				nexttile(t);
+% 				plot(time, log10ratio(:,s2d5,':'));
+% 				title('s2d5');
+% 				xlabel('Time (s)');
+% 				nexttile(t);
+% 				plot(time, log10ratio(:,s2d7,':'));
+% 				title('s2d7');
+% 				xlabel('Time (s)');
+% 				nexttile(t);
+% 				plot(time, log10ratio(:,s2d6,':'));
+% 				title('s2d6');
+% 				xlabel('Time (s)');
+% 				nexttile(t);
+% 				plot(time, log10ratio(:,s2d8,':'));
+% 				title('s2d8');
+% 				xlabel('Time (s)');
+% 		
+ 			end
+			
+
+	% %%%%..GCVL..#### ************************************************
 
 
