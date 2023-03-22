@@ -1,0 +1,16 @@
+┌ Info: C:\Users\topun\Documents\Gowerlabs\Lumo\phantom_24Feb_warmup24-2-2023_11-41.LUMO\metadata.toml
+└ @ HiveNSI\fileStream.jl:929 [2023-02-24T11:41:46.803]
+┌ Info: HiveNSI: ACQ: controller state transition NSIACQ_STREAMING -> NSIACQ_RECORDING
+└ @ HiveNSI\hive.jl:211 [2023-02-24T11:41:46.808]
+┌ Info: state: 3
+│ substate: 0 
+└ @ HiveNSI\hive.jl:449 [2023-02-24T11:41:46.894]
+┌ Info: HiveNSI: Request stream start.
+└ @ HiveNSI\v1.jl:115 [2023-02-24T13:09:38.532]
+┌ Info: HiveNSI:  Auto Level
+└ @ HiveNSI\v1.jl:131 [2023-02-24T13:09:38.532]
+┌ Info: HiveNSI: ACQ: controller command NSI_TO_STREAM
+└ @ HiveNSI\hive.jl:38 [2023-02-24T13:09:38.55]
+┌ Info: state: 3
+│ substate: 2 
+└ @ HiveNSI\hive.jl:449 [2023-02-24T13:09:38.55]

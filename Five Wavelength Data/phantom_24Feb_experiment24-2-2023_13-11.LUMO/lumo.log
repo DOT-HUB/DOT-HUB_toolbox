@@ -1,0 +1,58 @@
+┌ Info: C:\Users\topun\Documents\Gowerlabs\Lumo\phantom_24Feb_experiment24-2-2023_13-11.LUMO\metadata.toml
+└ @ HiveNSI\fileStream.jl:929 [2023-02-24T13:11:35.784]
+┌ Info: HiveNSI: ACQ: controller state transition NSIACQ_STREAMING -> NSIACQ_RECORDING
+└ @ HiveNSI\hive.jl:211 [2023-02-24T13:11:35.786]
+┌ Info: state: 3
+│ substate: 0 
+└ @ HiveNSI\hive.jl:449 [2023-02-24T13:11:35.883]
+┌ Info: HiveNSI: event recieved: "$" at 1677244296114
+└ @ HiveNSI\v1.jl:261 [2023-02-24T13:11:36.118]
+┌ Info: HiveNSI: event recieved: "Event_" at 1677244435932
+└ @ HiveNSI\v1.jl:261 [2023-02-24T13:13:56.279]
+┌ Info: HiveNSI: event recieved: "Event_" at 1677245021617
+└ @ HiveNSI\v1.jl:261 [2023-02-24T13:23:41.949]
+┌ Info: HiveNSI: event recieved: "Event_" at 1677246532400
+└ @ HiveNSI\v1.jl:261 [2023-02-24T13:48:52.809]
+┌ Warning: HiveNet: Critical ERROR: Timeout 0.2 s exceeded without receiving requested 1 batches, throwing...
+└ @ HiveNet.Scq\scq.jl:367 [2023-02-24T13:48:53.688]
+┌ Error: HiveAPI: acq_loop or scq_task exception. Error 
+└ @ HiveAPI\stream.jl:175 [2023-02-24T13:48:53.691]
+┌ Error: Base.StackTraces.StackFrame[scqframestream_loop(::HiveAPI.Group, ::Channel{Nothing}) at stream.jl:156, (::HiveAPI.var"#77#79"{UInt64,Channel{Nothing}})() at task.jl:358]
+└ @ HiveAPI\stream.jl:176 [2023-02-24T13:48:53.711]
+┌ Error: HiveAPI: calling HiveNet.handle from function scqframestream_loop
+└ @ HiveAPI\stream.jl:179 [2023-02-24T13:48:53.711]
+┌ Error: HiveNet: handle: Got exception: 
+│   ex = HiveNet.Ex.HiveNetCriticalNodeException("Did not get all process message bytes", nothing, 1)
+└ @ HiveNet\exhandle.jl:52 [2023-02-24T13:48:53.713]
+┌ Info: HiveAPI: Stream acquisition task exception HiveNet.Ex.HiveNetCriticalNodeException("Did not get all process message bytes", nothing, 1)
+└ @ HiveAPI\highlevel.jl:432 [2023-02-24T13:48:53.714]
+┌ Warning: HiveNet: HiveNetHubCommunicationException: 
+│   ex = HiveNet.Ex.HiveNetHubCommunicationException("Failed to read MSG_GET_STATE_STR. Got Sof")
+└ @ HiveNet.Ex\ex.jl:74 [2023-02-24T13:48:53.718]
+┌ Error: HiveNet: handle: Got exception: 
+│   ex = HiveNet.Ex.HiveNetCriticalCommunicationException("Failed to read MSG_GET_STATE_STR. Got Sof")
+└ @ HiveNet\exhandle.jl:16 [2023-02-24T13:48:54.069]
+┌ Warning: HiveNet: Hub startup string detected
+└ @ HiveNet\hub.jl:808 [2023-02-24T13:48:54.069]
+┌ Info: HiveNSI: event recieved: "$" at 1677246535750
+└ @ HiveNSI\v1.jl:261 [2023-02-24T13:48:55.792]
+┌ Info: HiveNSI: Request HiveNSI context close.
+└ @ HiveNSI\v1.jl:195 [2023-02-24T13:48:55.881]
+┌ Info: HiveNSI: Request HiveNSI context close.
+└ @ HiveNSI\v1.jl:195 [2023-02-24T13:48:56.633]
+┌ Info: HiveNSI: Found error
+└ @ HiveNSI\hive.jl:392 [2023-02-24T13:49:00.125]
+┌ Error: HiveNSI: ACQ: Streaming failed
+│   e = HiveNet.Ex.HiveNetHandledException{HiveNet.Ex.HiveNetCriticalCommunicationException}(HiveNet.Ex.HiveNetCriticalCommunicationException("Failed to read MSG_GET_STATE_STR. Got Sof"))
+└ @ HiveNSI\hive.jl:393 [2023-02-24T13:49:00.213]
+┌ Info: state: 3
+│ substate: 1 
+└ @ HiveNSI\hive.jl:449 [2023-02-24T13:49:00.213]
+┌ Error: error handling request
+│   exception = (Base.IOError("write: operation canceled (ECANCELED)", -4081), Base.StackTraces.StackFrame[uv_write(::Sockets.TCPSocket, ::Ptr{UInt8}, ::UInt64) at stream.jl:953, unsafe_write(::Sockets.TCPSocket, ::Ptr{UInt8}, ::UInt64) at stream.jl:1007, unsafe_write at ConnectionPool.jl:174 [inlined], unsafe_write at io.jl:593 [inlined], write at io.jl:616 [inlined], closewrite(::HTTP.WebSockets.WebSocket{HTTP.ConnectionPool.Transaction{Sockets.TCPSocket}}; statuscode::Nothing) at WebSockets.jl:174, closewrite at WebSockets.jl:170 [inlined], close(::HTTP.WebSockets.WebSocket{HTTP.ConnectionPool.Transaction{Sockets.TCPSocket}}; statuscode::Nothing) at WebSockets.jl:221, close at WebSockets.jl:220 [inlined], upgrade(::HiveNSI.var"#27#28"{Channel{HiveNSI.MachineStatePacket}}, ::HTTP.Streams.Stream{HTTP.Messages.Request,HTTP.ConnectionPool.Transaction{Sockets.TCPSocket}}; binary::Bool) at WebSockets.jl:148, upgrade at WebSockets.jl:129 [inlined], #6 at WebSockets.jl:123 [inlined], macro expansion at Servers.jl:367 [inlined], (::HTTP.Servers.var"#13#14"{HTTP.WebSockets.var"#6#7"{Bool,HiveNSI.var"#27#28"{Channel{HiveNSI.MachineStatePacket}}},HTTP.ConnectionPool.Transaction{Sockets.TCPSocket},HTTP.Streams.Stream{HTTP.Messages.Request,HTTP.ConnectionPool.Transaction{Sockets.TCPSocket}}})() at task.jl:358])
+└ @ HTTP.Servers\Servers.jl:373 [2023-02-24T13:49:00.222]
+┌ Info: HiveNSI: ACQ: controller command NSI_TO_CLOSED
+└ @ HiveNSI\hive.jl:38 [2023-02-24T13:49:00.265]
+┌ Info: state: 3
+│ substate: 2 
+└ @ HiveNSI\hive.jl:449 [2023-02-24T13:49:00.265]

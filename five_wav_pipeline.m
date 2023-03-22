@@ -19,7 +19,6 @@ end
 origMeshFileName = [filepath '/ExampleMeshes/AdultMNI152.mshs'];
 %cfgFileName = [filepath '/ExampleData/Example1/preproPipelineExample1.cfg'];
 
-%%
 addpath('LUMO_toolbox');
 
 %% Covert .LUMO to .nirs
@@ -27,7 +26,7 @@ addpath('LUMO_toolbox');
 %s[nirs, nirsFileName, SD3DFileName] = DOTHUB_LUMO2nirs (LUMODirName);
 
 %% Run data quality checks - this produces multiple figures, so comment out for speed.
-% DOTHUB_dataQualityCheck(nirsFileName);
+DOTHUB_dataQualityCheck(nirsFileName);
 % disp('Examine data quality figures, press any key to continue');
 % pause 
 
