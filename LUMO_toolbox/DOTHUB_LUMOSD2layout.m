@@ -127,7 +127,8 @@ jsonstruct.dimensions.dimensions_3d.z = tmp(3);
 
 %Docks structure;
 nDocks = SD2D.nDets/4;
-src_lab = {'a', 'b', 'c'};
+src_lab = {'c'};
+% src_lab = {'a', 'b', 'c'};
 for dock = 1:nDocks
     jsonstruct.docks{1,dock}.dock_id = ['dock_' num2str(dock)];
     
@@ -142,8 +143,8 @@ for dock = 1:nDocks
         jsonstruct.docks{1,dock}.optodes{1,op}.coordinates_3d.y = SD3D.DetPos((dock-1)*4+d,2);
         jsonstruct.docks{1,dock}.optodes{1,op}.coordinates_3d.z = SD3D.DetPos((dock-1)*4+d,3);
     end
-    
-    for s = 1:3
+    % Try for s = 1:1 not s = 1:3
+    for s = 1
         op = 4+s;
         jsonstruct.docks{1,dock}.optodes{1,op}.optode_id = ['optode_' src_lab{s}];
         
