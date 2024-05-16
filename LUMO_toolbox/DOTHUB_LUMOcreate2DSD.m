@@ -49,9 +49,9 @@ uit.ColumnName = {'X','Y','Angle'};
 uit.ColumnWidth = {60,60,60};
 uit.ColumnEditable = true;
 uit.CellEditCallback = @updatePlot;
-uit.Position = [0.05*ss(1) 0.05*ss(2) 0.15*ss(1) 0.75*ss(2)];
+uit.Position = [0.025*ss(1) 0.05*ss(2) 0.15*ss(1) 0.85*ss(2)];
 ax = uiaxes(fig);
-ax.Position = [0.25*ss(1) 0.25*ss(2) 0.7*ss(1) 0.60*ss(2)];
+ax.Position = [0.25*ss(1) 0.25*ss(2) 0.7*ss(1) 0.60*ss(2)]; % position of the Grid
 bt = uibutton(fig,'Text','FINISHED');
 bt.Position = [0.85*ss(1) 0.05*ss(2) 0.1*ss(1) 0.075*ss(2)];
 bt.ButtonPushedFcn = @SaveandQuit;
@@ -59,6 +59,11 @@ bt.ButtonPushedFcn = @SaveandQuit;
 bt2 = uibutton(fig,'Text','Rotate Grid & re-fit');
 bt2.Position = [0.25*ss(1) 0.05*ss(2) 0.1*ss(1) 0.075*ss(2)];
 bt2.ButtonPushedFcn = @RotateGrid;
+
+% Add button to load 2D layout from existing file
+bt3 = uibutton(fig, 'Text', 'Load');
+bt3.Position = [0.35*ss(1) 0.05*ss(2) 0.1*ss(1) 0.075*ss(2)];
+bt3.ButtonPushedFcn = @Load2Dfile;
 
 [source_array, detector_array] = getTileOptodePos_Callback;
 
@@ -117,6 +122,8 @@ bt2.ButtonPushedFcn = @RotateGrid;
         uit.Data(:,1:2) = centers(:,1:2);
         uit.Data(:,3) = orientations;
         [source_array, detector_array] = getTileOptodePos_Callback;
+        
+        ax.Position = [0.2*ss(1) 0.2*ss(2) 0.8*ss(1) 0.75*ss(2)]; % position of the Grid
     end
 
     function [source_array, detector_array] = getTileOptodePos_Callback
@@ -148,21 +155,33 @@ bt2.ButtonPushedFcn = @RotateGrid;
         hold(ax,'on');
         
         %plot grid
-        plot(ax,grid(:,1),grid(:,2),'k.','markersize',10);hold on;
+        plot(ax,grid(:,1),grid(:,2),'.','markersize',10, 'Color', [.7 .7 .7]);
+        hold on;
         %plot array
-        plot(ax,source_array(:,1),source_array(:,2),'r.','markersize',30);
-        plot(ax,detector_array(:,1),detector_array(:,2),'b.','markersize',30);
-        for i = 1:size(source_array,1)
-            text(ax,source_array(i,1)+3,source_array(i,2),['S' num2str(i)],'color','r','FontSize',8);
-        end
-        for i = 1:size(detector_array,1)
-            text(ax,detector_array(i,1)+3,detector_array(i,2),['D' num2str(i)],'color','b','FontSize',8);
-        end
+        plot(ax,source_array(:,1),source_array(:,2),'r.','markersize',25);
+        plot(ax,detector_array(:,1),detector_array(:,2), 'b.','markersize',25);
+        
+%         for i = 1:size(source_array,1)
+%             text(ax,source_array(i,1)+3,source_array(i,2),['S' num2str(i)],'color','r','FontSize',8);
+%         end
+        
+        % add the number of tile anchored to Source3
+        source_counter = 1;
+        for n_source=3:3:size(source_array,1)
+            text(ax,source_array(n_source,1),source_array(n_source,2)+4,['T' num2str(source_counter)],'color','k','FontSize', 15);
+            source_counter = source_counter + 1;
+        end 
+        
+        % remove text of detectors
+%         for i = 1:size(detector_array,1)
+%             text(ax,detector_array(i,1)+3,detector_array(i,2),['D' num2str(i)],'color','b','FontSize',8);
+%         end
         linend = source_array(1:3:end,[1 2]);
         linstart = detector_array(3:4:end,[1 2]);
+        
         for i = 1:size(linend,1);
-            line(ax,[linstart(i,1) linend(i,1)],[linstart(i,2) linend(i,2)],'color','g','LineWidth',2);hold on;
-            plot(ax,linstart(i,1),linstart(i,2),'g.','MarkerSize',20);
+            line(ax,[linstart(i,1) linend(i,1)],[linstart(i,2) linend(i,2)],'color','#00DB4C','LineWidth',3);hold on;
+%             plot(ax,linstart(i,1),linstart(i,2),'g.','MarkerSize',20);
         end
         
         tmp = [source_array(:,1); detector_array(:,1)];
@@ -194,6 +213,36 @@ bt2.ButtonPushedFcn = @RotateGrid;
         uit.Data(:,3) = orientations;
         
         getTileOptodePos_Callback;
+    end
+
+    function Load2Dfile(~,~)
+        % choose a file using a graphical file picker window
+        [file, path] = uigetfile('*.*', 'Select a file');
+        fname = fullfile(path, file);
+        layout_2D = load(fname, "-mat"); % the loaded structure
+        
+        % extract the x, y values every 3 row (corresponding to the central
+        % detector
+        detCounter = 1;
+        for i = 3:4:size(detector_array, 1)
+            uit.Data(detCounter, 1:2) = layout_2D.SD.DetPos(i, 1:2);
+             
+            detCounter = detCounter + 1; 
+        end
+        updatePlot; % update the plot
+        
+        srcCounter = 1;
+        for i=3:3:size(source_array,1)
+            source_original = source_array(i-2:i, :);
+            source_rotated = layout_2D.SD.SrcPos(i-2:i, :);
+            % Extract the degree of the rotated angle
+            angle_deg = DOTHUB_LUMOcomputeRotations(source_original, source_rotated, 0);
+            % update the data and the plot
+            uit.Data(srcCounter, 3) = angle_deg;
+            srcCounter = srcCounter + 1; 
+        end
+        updatePlot;
+        
     end
 
     function SaveandQuit(~,~)
