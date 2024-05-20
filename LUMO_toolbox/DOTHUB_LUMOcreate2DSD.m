@@ -226,15 +226,19 @@ bt3.ButtonPushedFcn = @Load2Dfile;
         % intended nTiles
         loaded_nTiles = size(layout_2D.SD.DetPos, 1)/4; 
         if loaded_nTiles ~= nTiles
-            warning('The loaded SD files contains %d tiles. Initial nTiles input was %d', loaded_nTiles, nTiles)
-            prompt = "Do you want to continue? Y/N [Y]: ";
-            txt = input(prompt,"s");
-            if isempty(txt)
-                txt = 'Y';
-            end
+            warning_msg = sprintf('The loaded SD files contains %d tiles. Initial nTiles input was %d', loaded_nTiles, nTiles);
+            uiwait(warndlg(warning_msg));
             
-            if txt == 'N'
-               error('The number of loaded tiles does not match the initial nTiles input')
+            quest = {'Do you want to continue?'};
+            dlgtitle = 'Warning';
+            fieldsize = [1 45];
+            answer = questdlg(quest, dlgtitle, 'Yes', 'No', 'Cancel');
+            
+            switch answer
+                case 'No'
+                    error_msg = 'The number of loaded tiles does not match the initial nTiles input';
+                    uiwait(errordlg(error_msg));
+                    error('The number of loaded tiles does not match the initial nTiles input');
             end
         end 
         
