@@ -11,6 +11,7 @@ if ~exist('nTiles','var')
     tmp = inputdlg('Enter number of LUMO tiles...','Tile number');
     nTiles = str2num(tmp{1});
 end
+
 xspace = 17.5;
 yspace = 15.1505;
 ng = 12;
@@ -220,6 +221,22 @@ bt3.ButtonPushedFcn = @Load2Dfile;
         [file, path] = uigetfile('*.*', 'Select a file');
         fname = fullfile(path, file);
         layout_2D = load(fname, "-mat"); % the loaded structure
+        
+        % Warning if the loaded file contains a different number from
+        % intended nTiles
+        loaded_nTiles = size(layout_2D.SD.DetPos, 1)/4; 
+        if loaded_nTiles ~= nTiles
+            warning('The loaded SD files contains %d tiles. Initial nTiles input was %d', loaded_nTiles, nTiles)
+            prompt = "Do you want to continue? Y/N [Y]: ";
+            txt = input(prompt,"s");
+            if isempty(txt)
+                txt = 'Y';
+            end
+            
+            if txt == 'N'
+               error('The number of loaded tiles does not match the initial nTiles input')
+            end
+        end 
         
         % extract the x, y values every 3 row (corresponding to the central
         % detector
