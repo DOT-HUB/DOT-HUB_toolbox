@@ -168,7 +168,8 @@ if timeSelectFlag==0
     fs = length(t)/DOTHUB_range(t);
     SDtmp.MeasListAct = ones(size(SDtmp.MeasList,1),1);
     SDtmp.MeasListAct = ([dists dists] <20)'; %look for motion in short channels only
-    tMotionArtifact = hmrMotionArtifact(d,fs,SDtmp,ones(length(t),1),1,1,10,0.5);
+    dod = hmrIntensity2OD(d);
+    tMotionArtifact = hmrMotionArtifact(dod,fs,SDtmp,ones(length(t),1),1,1,10,0.5);
     %plot(t,d);
     %hold on
     %plot(t,tMotionArtifact);
