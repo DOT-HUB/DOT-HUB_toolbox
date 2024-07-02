@@ -1,0 +1,141 @@
+[Hub]
+hardware_version = "REV3_3_BUS"
+firmware_version = "1.1.3"
+hub_serial_number = -1
+hardware_uid = "[0x48, 0x00, 0x09, 0x00, 0x10, 0x50, 0x4e, 0x43, 0x56, 0x38, 0x38, 0x20]"
+
+[Hub.Group]
+uid = "0x0000000000000001"
+
+[[Hub.Group.Node]]
+node_id = 1
+dockchain_uid = "0x0000000000000001"
+bus_index = 1
+tile_uid = "[0x0017004b, 0x58415001, 0x20343257]"
+hardware_version = "TIA_REV1"
+firmware_version = "1.1.0"
+revision_id = 3
+
+[[Hub.Group.Node.Source]]
+id = 1
+description = "SRCA_735nm"
+group_location_index = 1
+Source_power = 60.0
+
+[[Hub.Group.Node.Source]]
+id = 2
+description = "SRCA_850nm"
+group_location_index = 1
+Source_power = 60.0
+
+[[Hub.Group.Node.Source]]
+id = 4
+description = "SRCB_735nm"
+group_location_index = 2
+Source_power = 60.0
+
+[[Hub.Group.Node.Source]]
+id = 8
+description = "SRCB_850nm"
+group_location_index = 2
+Source_power = 60.0
+
+[[Hub.Group.Node.Source]]
+id = 16
+description = "SRCC_735nm"
+group_location_index = 3
+Source_power = 60.0
+
+[[Hub.Group.Node.Source]]
+id = 32
+description = "SRCC_850nm"
+group_location_index = 3
+Source_power = 60.0
+
+[[Hub.Group.Node.Detector]]
+id = 0
+description = "ADC Detector Channel 0"
+group_location_index = 1
+
+[[Hub.Group.Node.Detector]]
+id = 1
+description = "ADC Detector Channel 1"
+group_location_index = 2
+
+[[Hub.Group.Node.Detector]]
+id = 2
+description = "ADC Detector Channel 2"
+group_location_index = 3
+
+[[Hub.Group.Node.Detector]]
+id = 3
+description = "ADC Detector Channel 3"
+group_location_index = 4
+
+
+[[Hub.Group.Node]]
+node_id = 2
+dockchain_uid = "0x0000000000000001"
+bus_index = 1
+tile_uid = "[0x00430069, 0x58415001, 0x20343257]"
+hardware_version = "TIA_REV1"
+firmware_version = "1.1.0"
+revision_id = 3
+
+[[Hub.Group.Node.Source]]
+id = 1
+description = "SRCA_735nm"
+group_location_index = 4
+Source_power = 60.0
+
+[[Hub.Group.Node.Source]]
+id = 2
+description = "SRCA_850nm"
+group_location_index = 4
+Source_power = 60.0
+
+[[Hub.Group.Node.Source]]
+id = 4
+description = "SRCB_735nm"
+group_location_index = 5
+Source_power = 60.0
+
+[[Hub.Group.Node.Source]]
+id = 8
+description = "SRCB_850nm"
+group_location_index = 5
+Source_power = 60.0
+
+[[Hub.Group.Node.Source]]
+id = 16
+description = "SRCC_735nm"
+group_location_index = 6
+Source_power = 60.0
+
+[[Hub.Group.Node.Source]]
+id = 32
+description = "SRCC_850nm"
+group_location_index = 6
+Source_power = 60.0
+
+[[Hub.Group.Node.Detector]]
+id = 0
+description = "ADC Detector Channel 0"
+group_location_index = 5
+
+[[Hub.Group.Node.Detector]]
+id = 1
+description = "ADC Detector Channel 1"
+group_location_index = 6
+
+[[Hub.Group.Node.Detector]]
+id = 2
+description = "ADC Detector Channel 2"
+group_location_index = 7
+
+[[Hub.Group.Node.Detector]]
+id = 3
+description = "ADC Detector Channel 3"
+group_location_index = 8
+
+

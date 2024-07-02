@@ -1,0 +1,20 @@
+┌ Info: C:\Users\topun\Documents\Gowerlabs\Lumo\phantom_13June13-6-2024_13-56.LUMO\metadata.toml
+└ @ HiveNSI\fileStream.jl:929 [2024-06-13T14:56:08.979]
+┌ Info: HiveNSI: ACQ: controller state transition NSIACQ_STREAMING -> NSIACQ_RECORDING
+└ @ HiveNSI\hive.jl:211 [2024-06-13T14:56:08.981]
+┌ Info: state: 3
+│ substate: 0 
+└ @ HiveNSI\hive.jl:449 [2024-06-13T14:56:09.076]
+┌ Info: HiveNSI: event recieved: "$" at 1718286969299
+└ @ HiveNSI\v1.jl:261 [2024-06-13T14:56:09.319]
+┌ Info: HiveNSI: Request stream start.
+└ @ HiveNSI\v1.jl:115 [2024-06-13T16:46:15.216]
+┌ Info: HiveNSI:  Auto Level
+└ @ HiveNSI\v1.jl:131 [2024-06-13T16:46:15.216]
+┌ Info: HiveNSI: ACQ: controller command NSI_TO_STREAM
+└ @ HiveNSI\hive.jl:38 [2024-06-13T16:46:15.318]
+┌ Info: state: 3
+│ substate: 2 
+└ @ HiveNSI\hive.jl:449 [2024-06-13T16:46:15.32]
+┌ Info: HiveNSI: event recieved: "$" at 1718293575358
+└ @ HiveNSI\v1.jl:261 [2024-06-13T16:46:15.366]
