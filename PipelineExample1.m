@@ -91,7 +91,7 @@ basis = [30 30 30];
 %% Invert Jacobian
 %Note that you can either separately calculate the inverse, or just run
 %DOTHUB_reconstruction, which will then call the inversion itself
-[invjac, invjacFileName] = DOTHUB_invertJacobian(jacFileName,preproFileName,'saveFlag',true,'reconMethod','multispectral','hyperParameter',0.01);
+[invjac, invjacFileName] = DOTHUB_invertJacobian(jacFileName,preproFileName,'saveFlag',true,'hyperParameter',0.01);
 
 %% Reconstruction
 %Reconstruct
